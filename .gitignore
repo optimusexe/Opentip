@@ -9,7 +9,8 @@ cache/
 forge-cache/
 out/
 broadcast/
-lib/
+# Foundry vendor deps only. A bare `lib/` also ignores frontend/lib, which the app imports as @/lib/*.
+/contracts/lib/
 .DS_Store
 *.log
 
