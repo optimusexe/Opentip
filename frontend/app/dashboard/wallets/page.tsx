@@ -170,7 +170,7 @@ export default function DashboardWallets() {
                         <Info className="h-3.5 w-3.5" />
                       </button>
                       {infoFor === w.address && (
-                        <div className="absolute left-0 top-full mt-1 z-10 w-56 bg-white border rule rounded-sm px-3 py-2 shadow-sm">
+                        <div className="absolute left-0 top-full mt-1 z-sticky w-56 bg-white border rule rounded-sm px-3 py-2 shadow-sm">
                           <p className="text-xs text-zinc-600">
                             This wallet is the payout address for {w.repoCount} repo{singular(w.repoCount)}. Unregister the repo{singular(w.repoCount)} first before unlinking.
                           </p>

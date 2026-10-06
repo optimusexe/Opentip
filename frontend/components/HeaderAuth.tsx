@@ -65,7 +65,7 @@ export default function HeaderAuth() {
         </button>
 
         {open && (
-          <div className={`absolute right-0 top-full mt-2 w-48 border rounded-sm shadow-sm z-50 ${onHome ? "bg-[#f4f0e6] border-[rgba(22,22,20,0.14)]" : "rule bg-[#c1c0b6]"}`}>
+          <div className={`absolute right-0 top-full mt-2 w-48 border rounded-sm shadow-sm z-dropdown ${onHome ? "bg-[#f4f0e6] border-[rgba(22,22,20,0.14)]" : "rule bg-[#c1c0b6]"}`}>
             <div className="py-1">
               <Link
                 href={`/dev/${login}`}

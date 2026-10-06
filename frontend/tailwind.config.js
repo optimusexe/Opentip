@@ -20,6 +20,17 @@ export default {
       },
       borderRadius: { lg: "0.25rem", md: "0.25rem", sm: "2px" },
       fontFamily: { serif: ["var(--font-fraunces)"], mono: ["var(--font-plex-mono)"] },
+      // Named layers. Values live on :root in app/globals.css.
+      zIndex: {
+        sticky: "var(--z-sticky)",
+        header: "var(--z-header)",
+        dropdown: "var(--z-dropdown)",
+        overlay: "var(--z-overlay)",
+        "overlay-control": "var(--z-overlay-control)",
+        modal: "var(--z-modal)",
+        toast: "var(--z-toast)",
+        skip: "var(--z-skip)",
+      },
     },
   },
   plugins: []

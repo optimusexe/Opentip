@@ -43,6 +43,35 @@
     --input: 0 0% 9% / 0.12;
     --ring: 239 71% 42%;
     --radius: 0.25rem;
+
+    /*
+     * Stacking scale, low to high.
+     *
+     * A positioned z-index forms a stacking context, and descendants cannot
+     * paint outside it. The account menu lives in the header, so a large
+     * z-index on the menu alone cannot clear a later sibling of the header.
+     * The docs section picker was that sibling: sticky, same z-index as the
+     * header, and later in the tree, so it covered the open menu. Header
+     * menus stay inside the header and ride --z-header, which is above
+     * in-page chrome and below drawers, dialogs, and toasts.
+     *
+     * --z-sticky           10  sticky bars and in-page popovers
+     * --z-header           30  site header; menus inside it paint on this layer
+     * --z-dropdown         30  menus portaled out of a lower stacking context
+     * --z-overlay          40  drawers and scrims (cover the header)
+     * --z-overlay-control  50  controls that stay clickable above an open drawer
+     * --z-modal            60  dialogs
+     * --z-toast            70  toasts
+     * --z-skip             80  skip link
+     */
+    --z-sticky: 10;
+    --z-header: 30;
+    --z-dropdown: 30;
+    --z-overlay: 40;
+    --z-overlay-control: 50;
+    --z-modal: 60;
+    --z-toast: 70;
+    --z-skip: 80;
   }
 }
 @layer base {
