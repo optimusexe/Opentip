@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { rankTippersByUsd, rowsForTopTippers, type ToUsd } from "./leaderboard-rank.ts";
+import { rankTippersByUsd, rowsForTopTippers, usdByRepo, type ToUsd } from "./leaderboard-rank.ts";
 
 const ETH = "0x0000000000000000000000000000000000000000";
 const USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
@@ -26,6 +26,21 @@ test("ranks by USD before the limit, not by raw base units", () => {
   assert.equal(top.length, 1);
   assert.equal(top[0].tipper_address, "0xALICE");
   assert.ok(top[0].usd > 9000);
+});
+
+test("ranks repos by USD so a large ETH raw amount does not beat USDC", () => {
+  const totals = usdByRepo(
+    [
+      { repo_id: "a/eth", token: ETH, total: "10000000000000000", count: 1 },
+      { repo_id: "b/usdc", token: USDC, total: "100000000", count: 2 },
+    ],
+    prices,
+    toUsd,
+  );
+  const ethUsd = totals.get("a/eth")!.usd;
+  const usdcUsd = totals.get("b/usdc")!.usd;
+  assert.ok(usdcUsd > ethUsd);
+  assert.equal(totals.get("b/usdc")!.count, 2);
 });
 
 test("keeps every token row for the tippers who survive the USD limit", () => {

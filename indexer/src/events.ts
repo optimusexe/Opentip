@@ -1,3 +1,14 @@
+// Whether a replay should insert a row and/or ask the app to push.
+// "sent" and "sending" already had their one delivery attempt.
+// "pending" was saved by an earlier pass that never completed the push.
+export function notificationDispatch(
+  existing: { status: string } | null | undefined,
+): "create" | "push" | "skip" {
+  if (!existing) return "create";
+  if (existing.status === "pending") return "push";
+  return "skip";
+}
+
 // Claimed fires after the payout wallet withdraws. The copy must describe
 // funds that already left the contract, not a claim that is still available.
 export function claimedNotification(repoId: string, amountLabel: string | null): { title: string; body: string } {

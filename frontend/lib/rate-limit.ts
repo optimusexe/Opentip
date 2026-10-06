@@ -28,12 +28,26 @@ export function rateLimit(key: string, tier: "read" | "write" | "critical" = "wr
   }
 }
 
+// First address in x-forwarded-for, then x-real-ip. Vercel sets both to
+// the client. Callers without either header still share one bucket.
+export function clientAddress(headerGet: (name: string) => string | null): string | null {
+  const forwarded = headerGet("x-forwarded-for");
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  const real = headerGet("x-real-ip")?.trim();
+  return real || null;
+}
+
 export function rateLimitKey(req: Request, suffix?: string): string {
-  // Use session cookie or IP as key
+  // Signed-in callers are limited per session. Everyone else is limited
+  // per client IP, not one shared "anonymous" bucket.
   const cookie = req.headers.get("cookie") || "";
   const sessionMatch = cookie.match(/next-auth\.session-token=([^;]+)/);
-  const sessionKey = sessionMatch?.[1]?.slice(0, 16) || "anonymous";
-  return suffix ? `${sessionKey}:${suffix}` : sessionKey;
+  const sessionKey = sessionMatch?.[1]?.slice(0, 16);
+  const key = sessionKey || clientAddress((name) => req.headers.get(name)) || "anonymous";
+  return suffix ? `${key}:${suffix}` : key;
 }
 
 export class RateLimitError extends Error {

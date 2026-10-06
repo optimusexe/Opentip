@@ -18,7 +18,7 @@ export default function GettingStartedPage() {
         <ul className="text-sm text-zinc-700 space-y-2 list-disc pl-5">
           <li>A crypto wallet — an <a href="/docs/smart-wallet" className="text-accent underline underline-offset-4">Opentip Smart Wallet</a> (recommended, no extension needed) or an external wallet (MetaMask, Rainbow, etc.)</li>
           <li>ETH on Base for gas fees (tips are free to send — gas is minimal on Base L2)</li>
-          <li>USDC, ETH, or OAR on Base for tipping</li>
+          <li>USDC or ETH on Base. OAR is coming soon.</li>
         </ul>
       </section>
 
@@ -60,7 +60,7 @@ export default function GettingStartedPage() {
           <div className="p-4 border rule rounded-sm">
             <h3 className="font-medium text-sm">USDC tips</h3>
             <p className="text-sm text-zinc-600 mt-1">
-              Select USDC, enter a dollar amount (minimum $1). The first time you tip, you will need to approve the Opentip contract to spend your USDC. This is a one-time on-chain transaction. After approval, your tip is sent in a single transaction.
+              Select USDC, enter a dollar amount (minimum $1). Every payment approves the Opentip contract for that exact amount, then sends the payment. From an external wallet those are two confirmations. The Opentip Smart Wallet batches them into one confirmation.
             </p>
           </div>
           <div className="p-4 border rule rounded-sm">
@@ -70,9 +70,9 @@ export default function GettingStartedPage() {
             </p>
           </div>
           <div className="p-4 border rule rounded-sm">
-            <h3 className="font-medium text-sm">OAR tips</h3>
+            <h3 className="font-medium text-sm">OAR</h3>
             <p className="text-sm text-zinc-600 mt-1">
-              Select OAR (Oarcoin), enter an amount. Same flow as USDC — approve once, then tip in a single transaction.
+              OAR funding is coming soon. Choosing OAR in the token menu shows &quot;OAR tipping coming soon&quot; and keeps your current token.
             </p>
           </div>
         </div>
@@ -94,14 +94,14 @@ export default function GettingStartedPage() {
           By default, tippers are identified by their wallet address. You can set a display name (like &quot;Alice&quot; or &quot;Satoshi&quot;) that appears in activity feeds and leaderboards.
         </p>
         <p className="text-sm text-zinc-700 leading-relaxed">
-          On any repo page, enter a name next to your tip amount and click <strong>Set name</strong>. You will need to sign a message with your wallet to prove ownership. The name is stored and shown for all future tips.
+          On any repo page, enter a name next to the amount and click <strong>Save</strong>. You will need to sign a message with your wallet to prove ownership. The name is stored and shown for later payments from that address. An Opentip Smart Wallet can sign this too.
         </p>
       </section>
 
       <section className="border-t rule pt-10 space-y-6">
         <h2 className="serif text-2xl font-semibold">Sharing a tip link</h2>
         <p className="text-sm text-zinc-700 leading-relaxed">
-          Every repo page has a <strong>Copy link</strong> button. Share it on social media, in READMEs, or in issues to encourage others to tip the same project.
+          Every repo page has a <strong>Copy tip link</strong> button. Share it on social media, in READMEs, or in issues so others can fund the same project.
         </p>
         <code className="block bg-zinc-900 text-zinc-100 p-4 rounded-sm font-mono text-sm">
           https://opentip.tech/{'{owner}'}/{'{repo}'}

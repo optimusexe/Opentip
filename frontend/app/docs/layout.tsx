@@ -12,6 +12,7 @@ const SECTIONS = [
   { href: "/docs/smart-contract", label: "Smart Contract" },
   { href: "/docs/architecture", label: "Architecture" },
   { href: "/docs/contributing", label: "Contributing" },
+  { href: "/docs/troubleshooting", label: "Troubleshooting" },
   { href: "/docs/resources", label: "Resources" },
   { href: "/docs/contacts", label: "Contact" },
 ];

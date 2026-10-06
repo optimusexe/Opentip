@@ -1,7 +1,8 @@
 "use client";
 import { useCallback, useEffect, useRef } from "react";
-import { useAuthenticateWithJWT, useCurrentUser, useIsSignedIn, useSendUserOperation } from "@coinbase/cdp-hooks";
+import { useAuthenticateWithJWT, useCurrentUser, useIsSignedIn, useSendUserOperation, useSignEvmMessage } from "@coinbase/cdp-hooks";
 import { CHAIN_ID } from "./chain";
+import { selfPaidGasReason, type SelfPaidReason } from "./paymaster-fallback";
 import { DATA_SUFFIX } from "./builderCode";
 
 export type OpentipCall = {
@@ -24,6 +25,7 @@ export function useOpentipSend() {
   const { currentUser } = useCurrentUser();
   const { isSignedIn } = useIsSignedIn();
   const { sendUserOperation, data, error, status } = useSendUserOperation();
+  const { signEvmMessage } = useSignEvmMessage();
 
   const signedInRef = useRef(isSignedIn);
   const sendRef = useRef(sendUserOperation);
@@ -74,7 +76,7 @@ export function useOpentipSend() {
   }, [authenticateWithJWT]);
 
   const send = useCallback(
-    async (calls: OpentipCall[]): Promise<{ userOperationHash?: string; sponsored?: boolean }> => {
+    async (calls: OpentipCall[]): Promise<{ userOperationHash?: string; sponsored?: boolean; selfPaidBecause?: SelfPaidReason }> => {
       // Connect first if needed (silent — no gesture), then send. The
       // smart-account check below runs on fresh post-auth state, so a
       // cold CDP context never trips it.
@@ -113,9 +115,9 @@ export function useOpentipSend() {
       // carries our client API key). Absolute URL required: CDP's backend
       // validates this field as a full HTTP(S) URL and rejects relative
       // paths with 400 invalid_request. window.location.origin keeps it
-      // correct in every environment with no env vars. On 429 (daily cap
-      // hit between review and send) fall back to user-paid so the action
-      // never dead-ends.
+      // correct in every environment with no env vars. On 429 (daily cap),
+      // 502 (paymaster unreachable), or 503 (circuit open) fall back to
+      // user-paid gas so the action never dead-ends.
       const paymasterUrl = `${window.location.origin}/api/paymaster`;
       const baseOp = {
         evmSmartAccount: smartAccount,
@@ -131,17 +133,29 @@ export function useOpentipSend() {
         const result: any = await sendRef.current({ ...baseOp, paymasterUrl });
         return { userOperationHash: result?.userOperationHash, sponsored: true };
       } catch (e: any) {
-        const code = e?.status ?? e?.statusCode ?? e?.response?.status;
-        const msg = String(e?.message || "");
-        const capped =
-          code === 429 || msg.includes("429") || msg.toLowerCase().includes("daily sponsorship");
-        if (!capped) throw e;
+        const reason = selfPaidGasReason(e);
+        if (!reason) throw e;
         const retry: any = await sendRef.current(baseOp);
-        return { userOperationHash: retry?.userOperationHash, sponsored: false };
+        return { userOperationHash: retry?.userOperationHash, sponsored: false, selfPaidBecause: reason };
       }
     },
     [authenticateWithJWT, ensureSignedIn]
   );
+
+  // Signs with the smart account's owner key. The display-name API checks
+  // that this owner controls the smart account address in the message.
+  const signMessage = useCallback(async (message: string): Promise<`0x${string}`> => {
+    await ensureSignedIn();
+    const user: any = userRef.current;
+    const evmAccount =
+      user?.evmAccountObjects?.[0]?.address ||
+      user?.evmAccounts?.[0] ||
+      null;
+    if (!evmAccount) throw new Error("CDP session not ready — try again");
+    const result = await signEvmMessage({ evmAccount, message });
+    if (!result?.signature) throw new Error("Smart Wallet did not return a signature");
+    return result.signature;
+  }, [ensureSignedIn, signEvmMessage]);
 
   const smartAddress: string | null =
     (currentUser as any)?.evmSmartAccountObjects?.[0]?.address ||
@@ -149,5 +163,5 @@ export function useOpentipSend() {
     null;
 
   // data = confirmed user op (has transactionHash) once the hook's internal wait completes
-  return { send, smartAddress, ensureSignedIn, txData: data, txError: error, txStatus: status };
+  return { send, signMessage, smartAddress, ensureSignedIn, txData: data, txError: error, txStatus: status };
 }

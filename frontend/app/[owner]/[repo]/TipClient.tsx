@@ -14,6 +14,9 @@ import { logWalletTx, confirmWalletTx } from "@/lib/walletTx";
 import { estimateGasUsd } from "@/lib/gasEstimate";
 import TxReviewModal from "@/components/TxReviewModal";
 import { ethTipAmountError, fmtUsd } from "@/lib/prices";
+import { walletWriteToast, type WalletWriteKind } from "@/lib/wallet-write";
+import { isPositiveBigint } from "@/lib/positive-bigint";
+import { displayNameMessage } from "@/lib/display-name";
 import { markInstallTipped } from "@/components/installPrompt";
 import { useToast } from "@/app/providers";
 import { Input } from "@/components/motion/input";
@@ -47,7 +50,7 @@ export default function TipClient({ repoId }: { repoId: string }) {
   const { data: session } = useSession();
   const { showToast, dismissToast } = useToast();
   const { signMessageAsync } = useSignMessage();
-  const { send: cdpSend, txData: cdpTxData } = useOpentipSend();
+  const { send: cdpSend, signMessage: cdpSignMessage, txData: cdpTxData } = useOpentipSend();
   const [pendingUserOp, setPendingUserOp] = useState<string | null>(null);
   const patchedOps = useRef<Set<string>>(new Set());
 
@@ -171,6 +174,27 @@ export default function TipClient({ repoId }: { repoId: string }) {
     return id;
   };
 
+  // External-wallet prompts that the user cancels never produce a receipt.
+  // Reset the button and surface the wallet's message instead of staying on
+  // "Approving spend..." / "Sending...".
+  const failWrite = (kind: WalletWriteKind, error: any) => {
+    if (loadingToastRef.current) { dismissToast(loadingToastRef.current); loadingToastRef.current = null; }
+    const toast = walletWriteToast(kind, error ?? {});
+    showToast({ status: "error", title: toast.title, description: toast.description });
+    if (kind === "claim") {
+      setClaimState("error");
+      setTimeout(() => setClaimState("idle"), 2000);
+      return;
+    }
+    if (kind === "register") {
+      setRegisterState("error");
+      setTimeout(() => setRegisterState("idle"), 2000);
+      return;
+    }
+    setTipFlow("error");
+    setTimeout(() => setTipFlow("idle"), 2000);
+  };
+
   useEffect(() => {
     if (session) {
       fetch("/api/wallet/link").then(r => r.json()).then(j => {
@@ -241,7 +265,7 @@ export default function TipClient({ repoId }: { repoId: string }) {
       const baseUnits = parseUnits(amount, currentToken.decimals);
       setTipFlow("sending");
       showLoading("Sending tip...", `${amount} ${currentToken.symbol} → ${repoIdLower}`);
-      tipW.writeContract({ address: contract!, abi: opentipV2Abi, functionName: "receiveTip", args: [repoIdLower, selectedToken as `0x${string}`, baseUnits], chainId: CHAIN_ID });
+      void tipW.writeContractAsync({ address: contract!, abi: opentipV2Abi, functionName: "receiveTip", args: [repoIdLower, selectedToken as `0x${string}`, baseUnits], chainId: CHAIN_ID }).catch((e) => failWrite("tip", e));
     }
     if (tipFlow==="approving" && approveReceipt.isError) {
       if (loadingToastRef.current) { dismissToast(loadingToastRef.current); loadingToastRef.current = null; }
@@ -376,13 +400,18 @@ export default function TipClient({ repoId }: { repoId: string }) {
                 { to: contract, data: tipData },
               ];
         }
-        const { userOperationHash, sponsored } = await cdpSend(calls);
+        const { userOperationHash, sponsored, selfPaidBecause } = await cdpSend(calls);
         if (loadingToastRef.current) { dismissToast(loadingToastRef.current); loadingToastRef.current = null; }
         if (userOperationHash && smartAddr) {
           setPendingUserOp(userOperationHash);
           logWalletTx({ walletAddress: smartAddr, kind: "tip", repoId: repoIdLower, token: selectedToken, amount: baseUnits.toString(), toAddress: contract, userOpHash: userOperationHash });
         }
-        showToast({ status:"success", title:"Tip sent", description:`${amount} ${currentToken.symbol} → ${repoIdLower}${sponsored === false ? " (you paid gas — daily sponsorship used up)" : ""}${userOperationHash ? ` (${userOperationHash.slice(0,10)}…)` : ""}` });
+        const gasNote = sponsored === false
+          ? selfPaidBecause === "paymaster"
+            ? " (you paid gas)"
+            : " (you paid gas — daily sponsorship used up)"
+          : "";
+        showToast({ status:"success", title:"Tip sent", description:`${amount} ${currentToken.symbol} → ${repoIdLower}${gasNote}${userOperationHash ? ` (${userOperationHash.slice(0,10)}…)` : ""}` });
         markInstallTipped();
         setTipFlow("success"); setTimeout(()=>setTipFlow("idle"), 1600);
         fetch(`/api/tips?repoId=${encodeURIComponent(repoIdLower)}`).then(r=>r.json()).then(setTips).catch(()=>{});
@@ -418,11 +447,19 @@ export default function TipClient({ repoId }: { repoId: string }) {
     if (currentAllowance < baseUnits) {
       setTipFlow("approving");
       showLoading("Approving spend...", `${amount} ${currentToken.symbol}`);
-      approveW.writeContract({ address: selectedToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [contract!, baseUnits], chainId: CHAIN_ID });
+      try {
+        await approveW.writeContractAsync({ address: selectedToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [contract!, baseUnits], chainId: CHAIN_ID });
+      } catch (e) {
+        failWrite("approve", e);
+      }
     } else {
       setTipFlow("sending");
       showLoading("Sending tip...", `${amount} ${currentToken.symbol} → ${repoIdLower}`);
-      tipW.writeContract({ address: contract!, abi: opentipV2Abi, functionName: "receiveTip", args: [repoIdLower, selectedToken as `0x${string}`, baseUnits], chainId: CHAIN_ID });
+      try {
+        await tipW.writeContractAsync({ address: contract!, abi: opentipV2Abi, functionName: "receiveTip", args: [repoIdLower, selectedToken as `0x${string}`, baseUnits], chainId: CHAIN_ID });
+      } catch (e) {
+        failWrite("tip", e);
+      }
     }
   };
 
@@ -449,7 +486,11 @@ export default function TipClient({ repoId }: { repoId: string }) {
     }
     if (!(await ensureConfiguredChain())) return;
     setClaimState("loading");
-    claimW.writeContract({ address: contract, abi: opentipV2Abi, functionName: "claimAll", args: [repoIdLower], chainId: CHAIN_ID });
+    try {
+      await claimW.writeContractAsync({ address: contract, abi: opentipV2Abi, functionName: "claimAll", args: [repoIdLower], chainId: CHAIN_ID });
+    } catch (e) {
+      failWrite("claim", e);
+    }
   };
 
   const onRegister = async () => {
@@ -472,13 +513,17 @@ export default function TipClient({ repoId }: { repoId: string }) {
         return;
       }
       if (!(await ensureConfiguredChain())) { setRegisterState("idle"); return; }
-      registerW.writeContract({
-        address: contract,
-        abi: opentipV2Abi,
-        functionName: "registerRepo",
-        args: [repoIdLower, payout as `0x${string}`, BigInt(ownership.expiry), BigInt(ownership.nonce), ownership.signature as `0x${string}`],
-        chainId: CHAIN_ID,
-      });
+      try {
+        await registerW.writeContractAsync({
+          address: contract,
+          abi: opentipV2Abi,
+          functionName: "registerRepo",
+          args: [repoIdLower, payout as `0x${string}`, BigInt(ownership.expiry), BigInt(ownership.nonce), ownership.signature as `0x${string}`],
+          chainId: CHAIN_ID,
+        });
+      } catch (e) {
+        failWrite("register", e);
+      }
       return;
     }
     await checkOwnershipAndSign();
@@ -513,13 +558,19 @@ export default function TipClient({ repoId }: { repoId: string }) {
   };
 
   const saveDisplayName = async () => {
-    if (!address || !displayName) { showToast({ status:"error", title:"Enter a display name" }); return; }
-    const message = `Set display name: ${displayName} for ${address}`;
+    const nameAddress = (useSmart && smartAddr) ? smartAddr : address;
+    if (!nameAddress || !displayName.trim()) { showToast({ status:"error", title:"Enter a display name" }); return; }
+    const message = displayNameMessage(displayName.trim(), nameAddress);
     try {
-      const signature = await signMessageAsync({ message });
-      const res = await fetch("/api/display-name", { method:"POST", headers:{ "Content-Type":"application/json"}, body: JSON.stringify({ address, displayName, signature })});
-      if (!res.ok) throw new Error(await res.text());
-      showToast({ status:"success", title:"Display name saved", description: displayName });
+      const signature = useSmart && smartAddr
+        ? await cdpSignMessage(message)
+        : await signMessageAsync({ message });
+      const res = await fetch("/api/display-name", { method:"POST", headers:{ "Content-Type":"application/json"}, body: JSON.stringify({ address: nameAddress, displayName: displayName.trim(), signature })});
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        throw new Error(j?.error || "invalid signature");
+      }
+      showToast({ status:"success", title:"Display name saved", description: displayName.trim() });
     } catch(e:any){ showToast({ status:"error", title:"Save failed", description: e.message?.slice(0,100) }); }
   };
 
@@ -529,7 +580,7 @@ export default function TipClient({ repoId }: { repoId: string }) {
     { token: TOKENS[0], raw: pendingUSDC as bigint | undefined },
     { token: TOKENS[1], raw: pendingETH as bigint | undefined },
     { token: TOKENS[2], raw: pendingOAR as bigint | undefined },
-  ].filter(b => b.raw && b.raw > 0n);
+  ].filter((b): b is { token: TokenInfo; raw: bigint } => isPositiveBigint(b.raw));
 
   const hasPendingClaim = pendingBalances.length > 0;
 
@@ -557,27 +608,20 @@ export default function TipClient({ repoId }: { repoId: string }) {
           <div className="flex-1 sm:px-4 py-2 sm:py-0">
             <div className="text-[0.65rem] uppercase tracking-[0.2em] text-zinc-500">Total tipped</div>
             <div className="mt-2 space-y-1">
-              {totalUSDC && (totalUSDC as bigint) > 0n && (
-                <div className="stats text-lg flex items-baseline gap-2 text-zinc-900">
-                  {formatAmount(totalUSDC as bigint, TOKENS[0])}
-                  <span className="text-xs text-zinc-500 font-sans">USDC</span>
-                </div>
-              )}
-              {totalETH && (totalETH as bigint) > 0n && (
-                <div className="stats text-lg flex items-baseline gap-2 text-zinc-900">
-                  {formatAmount(totalETH as bigint, TOKENS[1])}
-                  <span className="text-xs text-zinc-500 font-sans">ETH</span>
-                </div>
-              )}
-              {totalOAR && (totalOAR as bigint) > 0n && (
-                <div className="stats text-lg flex items-baseline gap-2 text-zinc-900">
-                  {formatAmount(totalOAR as bigint, TOKENS[2])}
-                  <span className="text-xs text-zinc-500 font-sans">OAR</span>
-                </div>
-              )}
-              {(!totalUSDC || (totalUSDC as bigint) === 0n) && (!totalETH || (totalETH as bigint) === 0n) && (!totalOAR || (totalOAR as bigint) === 0n) && (
-                <div className="stats text-lg text-zinc-400">—</div>
-              )}
+              {(() => {
+                const tipped = [
+                  { token: TOKENS[0], raw: totalUSDC },
+                  { token: TOKENS[1], raw: totalETH },
+                  { token: TOKENS[2], raw: totalOAR },
+                ].filter((b): b is { token: TokenInfo; raw: bigint } => isPositiveBigint(b.raw));
+                if (tipped.length === 0) return <div className="stats text-lg text-zinc-400">—</div>;
+                return tipped.map(b => (
+                  <div key={b.token.symbol} className="stats text-lg flex items-baseline gap-2 text-zinc-900">
+                    {formatAmount(b.raw, b.token)}
+                    <span className="text-xs text-zinc-500 font-sans">{b.token.symbol}</span>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
           <div className="flex-1 sm:px-4 py-2 sm:py-0">

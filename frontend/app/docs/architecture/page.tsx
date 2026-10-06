@@ -158,7 +158,7 @@ Both flows:
             <h3 className="font-medium text-sm">How it works</h3>
             <ol className="text-sm text-zinc-600 mt-2 space-y-1 list-decimal pl-5">
               <li>Reads the last processed block from <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">IndexerState</code> table</li>
-              <li>Fetches new events via <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">eth_getLogs</code> in batches of 10,000 blocks</li>
+              <li>Fetches new events via <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">eth_getLogs</code> in batches of <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">GETLOGS_RANGE</code> blocks (default 10). With no checkpoint and no <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">START_BLOCK</code>, the first scan starts 10,000 blocks behind the chain head.</li>
               <li>Processes each event and writes to the database</li>
               <li>Saves the new checkpoint</li>
               <li>Repeats every 12 seconds</li>
@@ -181,7 +181,7 @@ Both flows:
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <code className="font-mono text-xs text-accent">Claimed</code>
-                <span className="text-zinc-600">→ Advances checkpoint only</span>
+                <span className="text-zinc-600">→ Stores a Claim and notifies the payout account (&quot;Tips paid out&quot;)</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <code className="font-mono text-xs text-accent">TreasuryWithdrawn</code>
@@ -205,7 +205,7 @@ Both flows:
       <section className="border-t rule pt-10 space-y-6">
         <h2 className="serif text-2xl font-semibold">Environment variables</h2>
         <p className="text-sm text-zinc-700 leading-relaxed">
-          The frontend requires 19 environment variables to run (including <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">GROQ_API_KEY</code> for AI summaries). The indexer requires 6.
+          Frontend and indexer environment variables, including <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">GROQ_API_KEY</code> for AI summaries, are listed in Contributing. The indexer reads <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">CHAIN</code>, not <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">NEXT_PUBLIC_CHAIN</code>.
         </p>
         <a href="/docs/contributing" className="inline-block text-sm text-accent underline underline-offset-4">
           See the full list in Contributing →

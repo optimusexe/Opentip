@@ -29,8 +29,9 @@ const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 // Only pm_getPaymasterData commits sponsorship — estimation calls
 // (pm_getPaymasterStubData) forward freely. Data calls are capped
 // (10/user/day) and each writes a SponsoredTx row (cap counter + spend
-// ledger). Fails closed on cap; surfaces upstream failures as 502 so
-// senders can fall back to user-paid.
+// ledger). The daily cap is 429, an open circuit is 503, and an
+// unreachable upstream is 502. Senders fall back to user-paid gas on
+// 429, 502, and 503.
 function findSender(node: any, depth = 0): string | null {
   if (!node || depth > 4 || typeof node !== "object") return null;
   if (Array.isArray(node)) {

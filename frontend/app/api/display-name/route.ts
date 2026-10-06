@@ -1,14 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyMessage } from "viem";
+import { displayNameMessage } from "@/lib/display-name";
+import { displayNameSignatureValid } from "@/lib/display-name-verify";
 
 export async function POST(req: NextRequest) {
   const { address, displayName, signature } = await req.json();
   if (!address || !displayName || !signature) return NextResponse.json({ error: "address, displayName, signature required" }, { status: 400 });
-  if (displayName.length < 1 || displayName.length > 64) return NextResponse.json({ error: "displayName 1-64 chars" }, { status: 400 });
+  if (typeof address !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(address)) {
+    return NextResponse.json({ error: "invalid address" }, { status: 400 });
+  }
+  if (typeof displayName !== "string" || displayName.length < 1 || displayName.length > 64) {
+    return NextResponse.json({ error: "displayName 1-64 chars" }, { status: 400 });
+  }
+  if (typeof signature !== "string" || !/^0x[0-9a-fA-F]+$/.test(signature)) {
+    return NextResponse.json({ error: "invalid signature" }, { status: 400 });
+  }
 
-  const message = `Set display name: ${displayName} for ${address}`;
-  const valid = await verifyMessage({ address: address as `0x${string}`, message, signature: signature as `0x${string}` });
+  const message = displayNameMessage(displayName, address);
+  const valid = await displayNameSignatureValid(address as `0x${string}`, message, signature as `0x${string}`);
   if (!valid) return NextResponse.json({ error: "invalid signature" }, { status: 400 });
 
   await prisma.displayName.upsert({

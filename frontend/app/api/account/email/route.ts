@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email";
+import { verificationSendResult } from "@/lib/verification-email";
 import { randomInt, createHash } from "crypto";
 
 const SEND_COOLDOWN_MS = 60 * 1000;
@@ -76,14 +77,20 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  sendTimestamps.set(session.user.id, now);
-
+  let emailSent = true;
   try {
     await sendVerificationEmail(lower, code);
   } catch (error) {
     console.error("Failed to send verification email:", error);
+    emailSent = false;
   }
 
+  const result = verificationSendResult("resend", emailSent);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+
+  sendTimestamps.set(session.user.id, now);
   return NextResponse.json({ ok: true, message: "verification code sent" });
 }
 

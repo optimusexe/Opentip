@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import bcrypt from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
+import { oauthTokenUpdate } from "@/lib/account-token";
 
 function CustomAdapter() {
   const base = PrismaAdapter(prisma) as any;
@@ -34,7 +35,32 @@ function CustomAdapter() {
       try {
         return await base.linkAccount!(cleaned);
       } catch (e: any) {
-        if (e.code === "P2002") return cleaned;
+        if (e.code === "P2002") {
+          const tokenData = oauthTokenUpdate(cleaned);
+          if (cleaned.provider && cleaned.providerAccountId && Object.keys(tokenData).length > 0) {
+            const existing = await prisma.account.findUnique({
+              where: {
+                provider_providerAccountId: {
+                  provider: cleaned.provider,
+                  providerAccountId: cleaned.providerAccountId,
+                },
+              },
+              select: { userId: true },
+            });
+            if (existing && (!cleaned.userId || existing.userId === cleaned.userId)) {
+              await prisma.account.update({
+                where: {
+                  provider_providerAccountId: {
+                    provider: cleaned.provider,
+                    providerAccountId: cleaned.providerAccountId,
+                  },
+                },
+                data: tokenData,
+              });
+            }
+          }
+          return cleaned;
+        }
         throw e;
       }
     },
@@ -100,9 +126,19 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         (token as any).uid = (user as any).id;
       }
-      if (!(token as any).accessToken && (token as any).uid) {
+      const uid = (token as any).uid as string | undefined;
+      if (account?.provider === "github" && (account as any).access_token && uid) {
+        const tokenData = oauthTokenUpdate(account as any);
+        if (Object.keys(tokenData).length > 0) {
+          await prisma.account.updateMany({
+            where: { userId: uid, provider: "github" },
+            data: tokenData,
+          });
+        }
+      }
+      if (uid) {
         const githubAccount = await prisma.account.findFirst({
-          where: { userId: (token as any).uid as string, provider: "github" },
+          where: { userId: uid, provider: "github" },
           select: { access_token: true },
         });
         if (githubAccount?.access_token) {

@@ -21,35 +21,75 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(true);
   const [installMode, setInstallMode] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [pushSupported, setPushSupported] = useState<boolean | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === "loading" || !userId) return;
+    if (status === "loading") return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
     fetch("/api/notifications/settings")
       .then((r) => r.json())
-      .then((j) => setTypes(j.types ?? []))
-      .catch(() => {});
-    setLoading(false);
+      .then((j) => {
+        if (!cancelled && Array.isArray(j.types)) setTypes(j.types);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, [status, userId]);
 
   useEffect(() => {
     setInstallMode(window.matchMedia("(display-mode: standalone)").matches);
+    if (typeof Notification === "undefined") {
+      setPushSupported(false);
+      return;
+    }
+    setPushSupported(true);
     setPermission(Notification.permission);
   }, []);
 
   async function toggleType(key: string) {
+    const previous = types;
     const next = types.includes(key) ? types.filter((t) => t !== key) : [...types, key];
     setTypes(next);
-    await fetch("/api/notifications/settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ types: next }),
-    }).catch(() => {});
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/notifications/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ types: next }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setTypes(previous);
+        setFeedback(j.error === "subscribe first"
+          ? "Subscribe before saving notification types."
+          : (j.error || "Couldn't save notification types."));
+        return;
+      }
+      setFeedback("Notification types saved.");
+    } catch {
+      setTypes(previous);
+      setFeedback("Couldn't save notification types.");
+    }
   }
 
   async function subscribe() {
-    if (!("serviceWorker" in navigator)) return alert("Service workers not supported");
+    setFeedback(null);
+    if (!("serviceWorker" in navigator)) {
+      setFeedback("Service workers not supported");
+      return;
+    }
     const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-    if (!vapidKey) return alert("VAPID key not configured");
+    if (!vapidKey) {
+      setFeedback("VAPID key not configured");
+      return;
+    }
     const base64UrlToArrayBuffer = (base64Url: string) => {
       const padded = base64Url.replace(/-/g, "+").replace(/_/g, "/");
       const raw = atob(padded);
@@ -57,28 +97,50 @@ export default function NotificationsPage() {
       for (let i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
       return buf.buffer;
     };
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: base64UrlToArrayBuffer(vapidKey),
-    });
-    const toBase64Url = (buf: ArrayBuffer) =>
-      btoa(String.fromCharCode(...new Uint8Array(buf)))
-        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-    await fetch("/api/notifications/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        endpoint: sub.endpoint,
-        p256Key: toBase64Url(sub.getKey("p256dh")!),
-        auth: toBase64Url(sub.getKey("auth")!),
-        types,
-      }),
-    }).catch(() => {});
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: base64UrlToArrayBuffer(vapidKey),
+      });
+      const toBase64Url = (buf: ArrayBuffer) =>
+        btoa(String.fromCharCode(...new Uint8Array(buf)))
+          .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+      const res = await fetch("/api/notifications/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint: sub.endpoint,
+          p256Key: toBase64Url(sub.getKey("p256dh")!),
+          auth: toBase64Url(sub.getKey("auth")!),
+          types,
+        }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFeedback(j.error || "Subscribe failed");
+        return;
+      }
+      if (Array.isArray(j.types)) setTypes(j.types);
+      setFeedback("Subscribed on this device.");
+    } catch (e: any) {
+      setFeedback(e?.message || "Subscribe failed");
+    }
   }
 
   async function sendTest() {
-    await fetch("/api/notifications/test", { method: "POST" }).catch(() => {});
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/notifications/test", { method: "POST" });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFeedback(j.error || "Test notification failed");
+        return;
+      }
+      setFeedback("Test notification sent.");
+    } catch {
+      setFeedback("Test notification failed");
+    }
   }
 
   if (status === "loading" || loading) {
@@ -101,7 +163,10 @@ export default function NotificationsPage() {
             <a href="/install" className="text-blue-600 underline">Install</a>
           </div>
         )}
-        {permission !== "granted" && (
+        {pushSupported === false && (
+          <p className="text-sm text-zinc-600">This browser can&apos;t receive push notifications here. Install Opentip as a PWA or try another browser.</p>
+        )}
+        {pushSupported && permission !== "granted" && (
           <div className="border rule rounded-sm p-4">
             <p className="text-sm text-zinc-600 mb-3">Enable browser notifications to receive alerts.</p>
             <Button size="sm" onClick={() => Notification.requestPermission().then(setPermission)}>
@@ -109,13 +174,18 @@ export default function NotificationsPage() {
             </Button>
           </div>
         )}
-        {permission === "granted" && (
+        {pushSupported && permission === "granted" && (
           <Button size="sm" onClick={subscribe}>Subscribe</Button>
         )}
+        {feedback && <p className="text-sm text-zinc-700">{feedback}</p>}
       </section>
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Notification Types</h2>
+        <p className="text-sm text-zinc-500">A new subscription starts with Tip received, Tips paid out, Tip submitted, and Claim submitted selected. Adding a device keeps your saved choices.</p>
+        {types.length === 0 && (
+          <p className="text-sm text-zinc-500">No types selected, so pushes are not sent.</p>
+        )}
         {NOTIFICATION_TYPES.map(({ key, label, description }) => (
           <label key={key} className="flex items-start gap-3 border rule rounded-sm p-3 cursor-pointer hover:bg-zinc-50 transition-colors">
             <input

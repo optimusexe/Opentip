@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomInt, createHash } from "crypto";
 import { sendVerificationEmail } from "@/lib/email";
+import { verificationSendResult } from "@/lib/verification-email";
 import { rateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
@@ -43,11 +44,20 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  let emailSent = true;
   try {
     await sendVerificationEmail(lower, code);
   } catch (error) {
     console.error("Failed to send verification email:", error);
+    emailSent = false;
   }
 
+  const result = verificationSendResult("signup", emailSent);
+  if (!result.ok) {
+    return NextResponse.json(
+      { error: result.error, accountCreated: true, id: user.id },
+      { status: result.status },
+    );
+  }
   return NextResponse.json({ ok: true, id: user.id });
 }

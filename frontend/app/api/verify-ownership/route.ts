@@ -8,7 +8,15 @@ import { prisma } from "@/lib/prisma";
 import { generateRepoSummary } from "@/lib/ai";
 import { rateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { checkPayoutCanReceiveEth } from "@/lib/payout-eth";
-import { githubAuthTokens, permissionAllowsRegister } from "@/lib/github-permission";
+import { githubAuthTokens, ownershipAuthError, permissionAllowsRegister } from "@/lib/github-permission";
+import {
+  classifyGithubRepoStatus,
+  githubRepoFailure,
+  githubRetryAfterSeconds,
+  repoLookupCredentials,
+  shouldFallbackUnauthenticated,
+  type GithubRepoAttempt,
+} from "@/lib/github-repo-lookup";
 
 export async function POST(req: NextRequest) {
   try { rateLimit(rateLimitKey(req, "verify-ownership"), "critical"); } catch (e: any) {
@@ -40,20 +48,30 @@ export async function POST(req: NextRequest) {
     }
 
     const session: any = await getServerSession(authOptions);
-    const login = session?.user?.login;
-    if (!login) return NextResponse.json({ error: "not authenticated" }, { status: 401 });
+    const authError = ownershipAuthError(session);
+    if (authError) {
+      const status = authError === "not authenticated" ? 401 : 403;
+      return NextResponse.json({ error: authError }, { status });
+    }
+    const login = session.user.login as string;
 
-    // Verify ownership via GitHub API
-    const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-      headers: { Accept: "application/vnd.github.v3+json" },
-    });
-    if (!repoRes.ok) return NextResponse.json({ error: "repo not found" }, { status: 404 });
-    const repoJson: any = await repoRes.json();
+    // Authenticated lookup first. An unauthenticated call shares GitHub's
+    // 60/hour budget, and that 403 used to be reported as "repo not found".
+    const repoJson = await lookupGithubRepo(owner, repo, (session as any)?.accessToken, process.env.GITHUB_TOKEN);
+    if (!repoJson.ok) {
+      return NextResponse.json(
+        { error: repoJson.error },
+        {
+          status: repoJson.status,
+          headers: repoJson.status === 429 ? { "Retry-After": String(repoJson.retryAfter) } : undefined,
+        },
+      );
+    }
 
     let owns = false;
 
     // owner check
-    if (repoJson.owner?.login?.toLowerCase() === login.toLowerCase()) {
+    if (repoJson.repo.owner?.login?.toLowerCase() === login.toLowerCase()) {
       owns = true;
     }
 
@@ -154,4 +172,55 @@ export async function POST(req: NextRequest) {
     console.error("verify-ownership error:", e?.message);
     return NextResponse.json({ error: "internal error" }, { status: 500 });
   }
+}
+
+type RepoLookup =
+  | { ok: true; repo: { owner?: { login?: string } } }
+  | { ok: false; error: string; status: number; retryAfter: number };
+
+async function readGithubRepo(owner: string, repo: string, token: string | null): Promise<{
+  attempt: GithubRepoAttempt;
+  retryAfter: number;
+  repo?: { owner?: { login?: string } };
+}> {
+  const headers: Record<string, string> = { Accept: "application/vnd.github.v3+json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
+  const retryAfter = githubRetryAfterSeconds(res.headers.get("x-ratelimit-reset"));
+  let message = "";
+  let body: { owner?: { login?: string }; message?: string } | null = null;
+  try {
+    body = await res.json();
+    message = typeof body?.message === "string" ? body.message : "";
+  } catch {
+    message = "";
+  }
+  const attempt = classifyGithubRepoStatus(res.status, res.headers.get("x-ratelimit-remaining"), message);
+  if (attempt === "ok" && body) return { attempt, retryAfter, repo: body };
+  return { attempt, retryAfter };
+}
+
+async function lookupGithubRepo(
+  owner: string,
+  repo: string,
+  userToken: string | null | undefined,
+  serverToken: string | null | undefined,
+): Promise<RepoLookup> {
+  const credentials = repoLookupCredentials(userToken, serverToken);
+  const attempts: GithubRepoAttempt[] = [];
+  let retryAfter = 60;
+  for (const token of credentials) {
+    const result = await readGithubRepo(owner, repo, token);
+    attempts.push(result.attempt);
+    if (result.attempt === "rate_limited") retryAfter = result.retryAfter;
+    if (result.attempt === "ok" && result.repo) return { ok: true, repo: result.repo };
+  }
+  if (credentials.some((token) => token) && shouldFallbackUnauthenticated(attempts)) {
+    const result = await readGithubRepo(owner, repo, null);
+    attempts.push(result.attempt);
+    if (result.attempt === "rate_limited") retryAfter = result.retryAfter;
+    if (result.attempt === "ok" && result.repo) return { ok: true, repo: result.repo };
+  }
+  const failure = githubRepoFailure(attempts, retryAfter);
+  return { ok: false, error: failure.error, status: failure.status, retryAfter };
 }

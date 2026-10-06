@@ -29,7 +29,7 @@ export default function DocsPage() {
             <div className="stats text-3xl font-semibold text-accent">02</div>
             <h3 className="font-medium">Connect & tip</h3>
             <p className="text-sm text-zinc-600 leading-relaxed">
-              Connect your wallet, check the AI-generated summary on the About tab, choose USDC, ETH, or OAR, enter an amount, and send. Minimum tip is $1.
+              Connect your wallet, check the AI-generated summary on the About tab, choose USDC or ETH, enter an amount, and send. OAR is coming soon. Minimum tip is $1.
             </p>
           </div>
           <div className="space-y-3">
@@ -90,6 +90,10 @@ export default function DocsPage() {
           <Link href="/docs/contributing" className="block p-4 border rule rounded-sm hover:bg-zinc-900/5 transition-colors">
             <h3 className="font-medium">Contributing</h3>
             <p className="text-sm text-zinc-600 mt-1">Self-host, run locally, or contribute to the codebase.</p>
+          </Link>
+          <Link href="/docs/troubleshooting" className="block p-4 border rule rounded-sm hover:bg-zinc-900/5 transition-colors">
+            <h3 className="font-medium">Troubleshooting</h3>
+            <p className="text-sm text-zinc-600 mt-1">Fixes for funding, registering, claiming, sign-in, notifications, and self-hosting.</p>
           </Link>
           <Link href="/docs/resources" className="block p-4 border rule rounded-sm hover:bg-zinc-900/5 transition-colors">
             <h3 className="font-medium">Resources</h3>
