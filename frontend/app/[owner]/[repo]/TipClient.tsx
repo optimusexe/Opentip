@@ -14,6 +14,7 @@ import { logWalletTx, confirmWalletTx } from "@/lib/walletTx";
 import { estimateGasUsd } from "@/lib/gasEstimate";
 import TxReviewModal from "@/components/TxReviewModal";
 import { ethTipAmountError, fmtUsd } from "@/lib/prices";
+import { walletWriteToast, type WalletWriteKind } from "@/lib/wallet-write";
 import { markInstallTipped } from "@/components/installPrompt";
 import { useToast } from "@/app/providers";
 import { Input } from "@/components/motion/input";
@@ -171,6 +172,27 @@ export default function TipClient({ repoId }: { repoId: string }) {
     return id;
   };
 
+  // External-wallet prompts that the user cancels never produce a receipt.
+  // Reset the button and surface the wallet's message instead of staying on
+  // "Approving spend..." / "Sending...".
+  const failWrite = (kind: WalletWriteKind, error: any) => {
+    if (loadingToastRef.current) { dismissToast(loadingToastRef.current); loadingToastRef.current = null; }
+    const toast = walletWriteToast(kind, error ?? {});
+    showToast({ status: "error", title: toast.title, description: toast.description });
+    if (kind === "claim") {
+      setClaimState("error");
+      setTimeout(() => setClaimState("idle"), 2000);
+      return;
+    }
+    if (kind === "register") {
+      setRegisterState("error");
+      setTimeout(() => setRegisterState("idle"), 2000);
+      return;
+    }
+    setTipFlow("error");
+    setTimeout(() => setTipFlow("idle"), 2000);
+  };
+
   useEffect(() => {
     if (session) {
       fetch("/api/wallet/link").then(r => r.json()).then(j => {
@@ -241,7 +263,7 @@ export default function TipClient({ repoId }: { repoId: string }) {
       const baseUnits = parseUnits(amount, currentToken.decimals);
       setTipFlow("sending");
       showLoading("Sending tip...", `${amount} ${currentToken.symbol} → ${repoIdLower}`);
-      tipW.writeContract({ address: contract!, abi: opentipV2Abi, functionName: "receiveTip", args: [repoIdLower, selectedToken as `0x${string}`, baseUnits], chainId: CHAIN_ID });
+      void tipW.writeContractAsync({ address: contract!, abi: opentipV2Abi, functionName: "receiveTip", args: [repoIdLower, selectedToken as `0x${string}`, baseUnits], chainId: CHAIN_ID }).catch((e) => failWrite("tip", e));
     }
     if (tipFlow==="approving" && approveReceipt.isError) {
       if (loadingToastRef.current) { dismissToast(loadingToastRef.current); loadingToastRef.current = null; }
@@ -418,11 +440,19 @@ export default function TipClient({ repoId }: { repoId: string }) {
     if (currentAllowance < baseUnits) {
       setTipFlow("approving");
       showLoading("Approving spend...", `${amount} ${currentToken.symbol}`);
-      approveW.writeContract({ address: selectedToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [contract!, baseUnits], chainId: CHAIN_ID });
+      try {
+        await approveW.writeContractAsync({ address: selectedToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [contract!, baseUnits], chainId: CHAIN_ID });
+      } catch (e) {
+        failWrite("approve", e);
+      }
     } else {
       setTipFlow("sending");
       showLoading("Sending tip...", `${amount} ${currentToken.symbol} → ${repoIdLower}`);
-      tipW.writeContract({ address: contract!, abi: opentipV2Abi, functionName: "receiveTip", args: [repoIdLower, selectedToken as `0x${string}`, baseUnits], chainId: CHAIN_ID });
+      try {
+        await tipW.writeContractAsync({ address: contract!, abi: opentipV2Abi, functionName: "receiveTip", args: [repoIdLower, selectedToken as `0x${string}`, baseUnits], chainId: CHAIN_ID });
+      } catch (e) {
+        failWrite("tip", e);
+      }
     }
   };
 
@@ -449,7 +479,11 @@ export default function TipClient({ repoId }: { repoId: string }) {
     }
     if (!(await ensureConfiguredChain())) return;
     setClaimState("loading");
-    claimW.writeContract({ address: contract, abi: opentipV2Abi, functionName: "claimAll", args: [repoIdLower], chainId: CHAIN_ID });
+    try {
+      await claimW.writeContractAsync({ address: contract, abi: opentipV2Abi, functionName: "claimAll", args: [repoIdLower], chainId: CHAIN_ID });
+    } catch (e) {
+      failWrite("claim", e);
+    }
   };
 
   const onRegister = async () => {
@@ -472,13 +506,17 @@ export default function TipClient({ repoId }: { repoId: string }) {
         return;
       }
       if (!(await ensureConfiguredChain())) { setRegisterState("idle"); return; }
-      registerW.writeContract({
-        address: contract,
-        abi: opentipV2Abi,
-        functionName: "registerRepo",
-        args: [repoIdLower, payout as `0x${string}`, BigInt(ownership.expiry), BigInt(ownership.nonce), ownership.signature as `0x${string}`],
-        chainId: CHAIN_ID,
-      });
+      try {
+        await registerW.writeContractAsync({
+          address: contract,
+          abi: opentipV2Abi,
+          functionName: "registerRepo",
+          args: [repoIdLower, payout as `0x${string}`, BigInt(ownership.expiry), BigInt(ownership.nonce), ownership.signature as `0x${string}`],
+          chainId: CHAIN_ID,
+        });
+      } catch (e) {
+        failWrite("register", e);
+      }
       return;
     }
     await checkOwnershipAndSign();
