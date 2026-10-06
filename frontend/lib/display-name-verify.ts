@@ -1,4 +1,4 @@
-import { createPublicClient, http, recoverMessage, verifyMessage, type Address, type Hex } from "viem";
+import { createPublicClient, http, recoverMessageAddress, verifyMessage, type Address, type Hex } from "viem";
 import { RPC_URL, VIEM_CHAIN } from "./chain";
 import { acceptDisplayNameSignature } from "./display-name";
 
@@ -39,7 +39,7 @@ export async function displayNameSignatureValid(
     },
     owner: async () => {
       if (!client) return false;
-      const signer = await recoverMessage({ message, signature });
+      const signer = await recoverMessageAddress({ message, signature });
       if (signer.toLowerCase() === address.toLowerCase()) return true;
       const bytecode = await client.getBytecode({ address });
       if (!bytecode || bytecode === "0x") return false;
