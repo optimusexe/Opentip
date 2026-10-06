@@ -1,21 +1,35 @@
 import { prisma } from "@/lib/prisma";
+import { isExpiredPushError, subscriptionWantsType } from "@/lib/notification-push";
 import { sendWebPush } from "@/lib/vapid";
 
 export type PushPayload = { title: string; body: string; url?: string };
 
-// Look up the user's push subscription and deliver. Returns true on success.
-export async function pushToUser(userId: string, payload: PushPayload): Promise<boolean> {
-  const sub = await prisma.notificationSubscription.findFirst({ where: { userId } });
-  if (!sub?.endpoint) return false;
-  try {
-    await sendWebPush(
-      { endpoint: sub.endpoint, keys: { p256dh: sub.p256Key, auth: sub.auth } },
-      payload,
-    );
-    return true;
-  } catch {
-    return false;
+// Deliver to every subscription that opted into this type. Expired
+// endpoints (404/410) are removed. Returns true if at least one device
+// accepted the push. Omit type to send to every device (test pushes).
+export async function pushToUser(
+  userId: string,
+  payload: PushPayload,
+  options?: { type?: string },
+): Promise<boolean> {
+  const subs = await prisma.notificationSubscription.findMany({ where: { userId } });
+  let delivered = false;
+  for (const sub of subs) {
+    if (!sub.endpoint) continue;
+    if (options?.type && !subscriptionWantsType(sub.types, options.type)) continue;
+    try {
+      await sendWebPush(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256Key, auth: sub.auth } },
+        payload,
+      );
+      delivered = true;
+    } catch (error) {
+      if (isExpiredPushError(error)) {
+        await prisma.notificationSubscription.delete({ where: { id: sub.id } }).catch(() => {});
+      }
+    }
   }
+  return delivered;
 }
 
 // Idempotency guard: same user + type + txHash must never create twice

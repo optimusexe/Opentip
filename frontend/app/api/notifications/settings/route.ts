@@ -12,6 +12,7 @@ export async function GET() {
 
   const sub = await prisma.notificationSubscription.findFirst({
     where: { userId },
+    orderBy: { updatedAt: "desc" },
     select: { types: true, updatedAt: true },
   });
 

@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
       data: { userId, type: info.type, title: info.title, body: finalBody, status: "pending", txHash: txHashLower, ref: refKey },
     }));
     if (txHash && !userOpHash) {
-      const sent = await pushToUser(userId, { title: info.title, body: finalBody });
+      const sent = await pushToUser(userId, { title: info.title, body: finalBody }, { type: info.type });
       if (sent) {
         await prisma.notification.update({ where: { id: notif.id }, data: { status: "sent" } });
       }
@@ -201,7 +201,7 @@ export async function PATCH(req: NextRequest) {
         data: { userId, type: info.type, title: info.title, body: finalBody, status: "confirmed", txHash: txHash.toLowerCase(), ref: refKey },
       });
     }
-    await pushToUser(userId, { title: info.title, body: finalBody });
+    await pushToUser(userId, { title: info.title, body: finalBody }, { type: info.type });
     // Reconcile the sponsorship ledger: match this confirmation to the
     // user's most recent pending SponsoredTx (proxy rows can't carry the
     // userOpHash — it doesn't exist yet at sponsor time) and backfill

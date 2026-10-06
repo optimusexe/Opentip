@@ -33,13 +33,13 @@ export async function POST(request: Request) {
     if (plan === "deliver_existing" && existing) {
       const claimed = await claimNotificationDelivery(existing.id);
       if (!claimed) return NextResponse.json({ ok: true, deduped: true });
-      const sent = await pushToUser(userId, payload);
+      const sent = await pushToUser(userId, payload, { type });
       await markNotificationStatus(existing.id, sent ? "sent" : "pending");
       return NextResponse.json(sent ? { ok: true } : { queued: true });
     }
   }
 
-  const sent = await pushToUser(userId, payload);
+  const sent = await pushToUser(userId, payload, { type });
   if (!sent) {
     // No subscription (or send failed before any push) — keep a pending row.
     // Distinguish "no subscription" from real failures below via try/catch.
