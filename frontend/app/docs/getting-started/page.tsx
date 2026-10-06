@@ -60,7 +60,7 @@ export default function GettingStartedPage() {
           <div className="p-4 border rule rounded-sm">
             <h3 className="font-medium text-sm">USDC tips</h3>
             <p className="text-sm text-zinc-600 mt-1">
-              Select USDC, enter a dollar amount (minimum $1). The first time you tip, you will need to approve the Opentip contract to spend your USDC. This is a one-time on-chain transaction. After approval, your tip is sent in a single transaction.
+              Select USDC, enter a dollar amount (minimum $1). Every payment approves the Opentip contract for that exact amount, then sends the payment. From an external wallet those are two confirmations. The Opentip Smart Wallet batches them into one confirmation.
             </p>
           </div>
           <div className="p-4 border rule rounded-sm">
