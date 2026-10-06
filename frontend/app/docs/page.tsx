@@ -91,6 +91,10 @@ export default function DocsPage() {
             <h3 className="font-medium">Contributing</h3>
             <p className="text-sm text-zinc-600 mt-1">Self-host, run locally, or contribute to the codebase.</p>
           </Link>
+          <Link href="/docs/troubleshooting" className="block p-4 border rule rounded-sm hover:bg-zinc-900/5 transition-colors">
+            <h3 className="font-medium">Troubleshooting</h3>
+            <p className="text-sm text-zinc-600 mt-1">Fixes for funding, registering, claiming, sign-in, notifications, and self-hosting.</p>
+          </Link>
           <Link href="/docs/resources" className="block p-4 border rule rounded-sm hover:bg-zinc-900/5 transition-colors">
             <h3 className="font-medium">Resources</h3>
             <p className="text-sm text-zinc-600 mt-1">All links — contract, explorer, GitHub, social, and integrations.</p>
