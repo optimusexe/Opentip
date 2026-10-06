@@ -16,6 +16,7 @@ import TxReviewModal from "@/components/TxReviewModal";
 import { ethTipAmountError, fmtUsd } from "@/lib/prices";
 import { walletWriteToast, type WalletWriteKind } from "@/lib/wallet-write";
 import { isPositiveBigint } from "@/lib/positive-bigint";
+import { displayNameMessage } from "@/lib/display-name";
 import { markInstallTipped } from "@/components/installPrompt";
 import { useToast } from "@/app/providers";
 import { Input } from "@/components/motion/input";
@@ -49,7 +50,7 @@ export default function TipClient({ repoId }: { repoId: string }) {
   const { data: session } = useSession();
   const { showToast, dismissToast } = useToast();
   const { signMessageAsync } = useSignMessage();
-  const { send: cdpSend, txData: cdpTxData } = useOpentipSend();
+  const { send: cdpSend, signMessage: cdpSignMessage, txData: cdpTxData } = useOpentipSend();
   const [pendingUserOp, setPendingUserOp] = useState<string | null>(null);
   const patchedOps = useRef<Set<string>>(new Set());
 
@@ -552,13 +553,19 @@ export default function TipClient({ repoId }: { repoId: string }) {
   };
 
   const saveDisplayName = async () => {
-    if (!address || !displayName) { showToast({ status:"error", title:"Enter a display name" }); return; }
-    const message = `Set display name: ${displayName} for ${address}`;
+    const nameAddress = (useSmart && smartAddr) ? smartAddr : address;
+    if (!nameAddress || !displayName.trim()) { showToast({ status:"error", title:"Enter a display name" }); return; }
+    const message = displayNameMessage(displayName.trim(), nameAddress);
     try {
-      const signature = await signMessageAsync({ message });
-      const res = await fetch("/api/display-name", { method:"POST", headers:{ "Content-Type":"application/json"}, body: JSON.stringify({ address, displayName, signature })});
-      if (!res.ok) throw new Error(await res.text());
-      showToast({ status:"success", title:"Display name saved", description: displayName });
+      const signature = useSmart && smartAddr
+        ? await cdpSignMessage(message)
+        : await signMessageAsync({ message });
+      const res = await fetch("/api/display-name", { method:"POST", headers:{ "Content-Type":"application/json"}, body: JSON.stringify({ address: nameAddress, displayName: displayName.trim(), signature })});
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        throw new Error(j?.error || "invalid signature");
+      }
+      showToast({ status:"success", title:"Display name saved", description: displayName.trim() });
     } catch(e:any){ showToast({ status:"error", title:"Save failed", description: e.message?.slice(0,100) }); }
   };
 

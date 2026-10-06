@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef } from "react";
-import { useAuthenticateWithJWT, useCurrentUser, useIsSignedIn, useSendUserOperation } from "@coinbase/cdp-hooks";
+import { useAuthenticateWithJWT, useCurrentUser, useIsSignedIn, useSendUserOperation, useSignEvmMessage } from "@coinbase/cdp-hooks";
 import { CHAIN_ID } from "./chain";
 import { DATA_SUFFIX } from "./builderCode";
 
@@ -24,6 +24,7 @@ export function useOpentipSend() {
   const { currentUser } = useCurrentUser();
   const { isSignedIn } = useIsSignedIn();
   const { sendUserOperation, data, error, status } = useSendUserOperation();
+  const { signEvmMessage } = useSignEvmMessage();
 
   const signedInRef = useRef(isSignedIn);
   const sendRef = useRef(sendUserOperation);
@@ -143,11 +144,26 @@ export function useOpentipSend() {
     [authenticateWithJWT, ensureSignedIn]
   );
 
+  // Signs with the smart account's owner key. The display-name API checks
+  // that this owner controls the smart account address in the message.
+  const signMessage = useCallback(async (message: string): Promise<`0x${string}`> => {
+    await ensureSignedIn();
+    const user: any = userRef.current;
+    const evmAccount =
+      user?.evmAccountObjects?.[0]?.address ||
+      user?.evmAccounts?.[0] ||
+      null;
+    if (!evmAccount) throw new Error("CDP session not ready — try again");
+    const result = await signEvmMessage({ evmAccount, message });
+    if (!result?.signature) throw new Error("Smart Wallet did not return a signature");
+    return result.signature;
+  }, [ensureSignedIn, signEvmMessage]);
+
   const smartAddress: string | null =
     (currentUser as any)?.evmSmartAccountObjects?.[0]?.address ||
     (currentUser as any)?.evmSmartAccounts?.[0] ||
     null;
 
   // data = confirmed user op (has transactionHash) once the hook's internal wait completes
-  return { send, smartAddress, ensureSignedIn, txData: data, txError: error, txStatus: status };
+  return { send, signMessage, smartAddress, ensureSignedIn, txData: data, txError: error, txStatus: status };
 }
