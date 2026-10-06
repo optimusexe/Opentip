@@ -10,6 +10,7 @@ import { useAccount, useReadContracts } from "wagmi";
 import { opentipV2Abi } from "@/lib/contract";
 import { CONTRACT_ADDRESS, CHAIN_ID, USDC_ADDRESS, ETH_ADDRESS, OAR_ADDRESS, getTokenDecimals, capitalize } from "@/lib/chain";
 import { fmtUsd } from "@/lib/prices";
+import { useToast } from "@/app/providers";
 
 type LinkItem = { title: string; url: string };
 
@@ -137,6 +138,7 @@ function LinksEditor({ repoId, onClose }: { repoId: string; onClose: () => void 
 export default function DashboardRepos() {
   const { status } = useSession();
   const { address } = useAccount();
+  const { showToast } = useToast();
   const contract = CONTRACT_ADDRESS;
   const [registeredRepos, setRegisteredRepos] = useState<any[]>([]);
   const [loadingRegistered, setLoadingRegistered] = useState(true);
@@ -184,11 +186,15 @@ export default function DashboardRepos() {
       formData.append("file", file);
       formData.append("repoId", repoId);
       const res = await fetch("/api/upload/repo-icon", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
         setRegisteredRepos(prev => prev.map(r => r.repo_id === repoId ? { ...r, icon: data.url } : r));
+      } else {
+        showToast({ status: "error", title: typeof data.error === "string" ? data.error : "upload failed" });
       }
-    } catch {}
+    } catch {
+      showToast({ status: "error", title: "upload failed" });
+    }
     setUploadingIcon(null);
   };
 
