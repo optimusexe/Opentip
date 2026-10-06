@@ -34,8 +34,13 @@ export default function SignInPageClient() {
       setLoading(true);
       const res = await fetch("/api/auth/signup", { method:"POST", headers:{ "Content-Type":"application/json"}, body: JSON.stringify({ email, password, name })});
       const j = await res.json();
-      if (!res.ok) { setError(j.error); setLoading(false); showToast({ status:"error", title: j.error }); return; }
-      showToast({ status:"success", title:"Account created, signing in..." });
+      if (!res.ok && !j.accountCreated) { setError(j.error); setLoading(false); showToast({ status:"error", title: j.error }); return; }
+      if (!res.ok && j.accountCreated) {
+        setError(j.error);
+        showToast({ status:"error", title: j.error || "verification email failed to send" });
+      } else {
+        showToast({ status:"success", title:"Account created, signing in..." });
+      }
       const r = await signIn("credentials", { email, password, redirect: false, callbackUrl: "/verify-email" });
       setLoading(false);
       if (r?.error) { setError("Invalid email or password"); showToast({ status:"error", title: "Login failed" }); }
