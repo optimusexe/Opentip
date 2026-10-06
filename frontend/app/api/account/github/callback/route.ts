@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { oauthTokenUpdate } from "@/lib/account-token";
 
 export async function GET(req: NextRequest) {
   const session: any = await getServerSession(authOptions);
@@ -69,6 +70,11 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    const tokenFields = oauthTokenUpdate({
+      access_token: tokenData.access_token,
+      token_type: tokenData.token_type || "bearer",
+      scope: tokenData.scope || "read:user public_repo",
+    });
     if (!existingAccount) {
       await prisma.account.create({
         data: {
@@ -76,10 +82,13 @@ export async function GET(req: NextRequest) {
           type: "oauth",
           provider: "github",
           providerAccountId: githubId,
-          access_token: tokenData.access_token,
-          token_type: tokenData.token_type || "bearer",
-          scope: tokenData.scope || "read:user public_repo",
+          ...tokenFields,
         },
+      });
+    } else if (existingAccount.userId === userId) {
+      await prisma.account.update({
+        where: { id: existingAccount.id },
+        data: tokenFields,
       });
     }
 
