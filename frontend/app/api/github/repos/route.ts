@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { parseGithubRepoPage } from "@/lib/github-repo-page";
+import { GITHUB_REPO_AFFILIATION, githubReposErrorMessage, parseGithubRepoPage } from "@/lib/github-repo-page";
 
 export async function GET(req: NextRequest) {
   const session: any = await getServerSession(authOptions);
@@ -18,11 +18,11 @@ export async function GET(req: NextRequest) {
   );
   if ("error" in paging) return NextResponse.json({ error: paging.error }, { status: 400 });
   const { page, per_page } = paging;
-  const res = await fetch(`https://api.github.com/user/repos?per_page=${per_page}&page=${page}&sort=updated&affiliation=owner,collaborator`, {
+  const res = await fetch(`https://api.github.com/user/repos?per_page=${per_page}&page=${page}&sort=updated&affiliation=${GITHUB_REPO_AFFILIATION}`, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.v3+json" },
     next: { revalidate: 60 },
   });
-  if (!res.ok) return NextResponse.json({ error: await res.text() }, { status: res.status });
+  if (!res.ok) return NextResponse.json({ error: githubReposErrorMessage(res.status) }, { status: res.status });
   const repos = await res.json();
   // trim to essentials
   const out = repos.map((r:any)=> ({ full_name: r.full_name, name: r.name, owner: r.owner.login, avatar_url: r.owner.avatar_url, description: r.description, stargazers_count: r.stargazers_count, private: r.private }));

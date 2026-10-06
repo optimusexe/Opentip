@@ -12,6 +12,16 @@ function parseBound(raw: string, min: number, max: number): number | null {
   return n;
 }
 
+// owner and collaborator miss org repos the user reaches only through a team.
+export const GITHUB_REPO_AFFILIATION = "owner,collaborator,organization_member";
+
+export function githubReposErrorMessage(status: number): string {
+  if (status === 401) {
+    return "Your GitHub connection expired. Sign out, then sign in with Continue with GitHub.";
+  }
+  return "Couldn't load your GitHub repositories. Try again in a minute.";
+}
+
 export function parseGithubRepoPage(
   pageRaw: string | null,
   perPageRaw: string | null,
