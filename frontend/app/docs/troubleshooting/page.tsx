@@ -454,7 +454,7 @@ export default function TroubleshootingPage() {
             <li>If you see <strong>&quot;Install Opentip as a PWA to receive push notifications.&quot;</strong>, install it from <a href="/install" className="text-accent underline underline-offset-4">/install</a> and open the installed app.</li>
             <li>Press <strong>Enable Notifications</strong> and allow them in your browser.</li>
             <li>Press <strong>Subscribe</strong>. The page says <strong>&quot;Subscribed on this device.&quot;</strong> when it worked. Each device you use needs its own subscription. Pushes go to all of them.</li>
-            <li>Check the notification types you want. <strong>&quot;No types selected, so pushes are not sent.&quot;</strong> means nothing will be delivered until you check at least one. Saving types before you subscribe shows <strong>&quot;Subscribe before saving notification types.&quot;</strong> A successful save says <strong>&quot;Notification types saved.&quot;</strong></li>
+            <li>A new subscription starts with <strong>Tip received</strong>, <strong>Tips paid out</strong>, <strong>Tip submitted</strong>, and <strong>Claim submitted</strong> checked. Subscribing again, or on another device, keeps the saved choices. Clear every box and pushes stop: the page says <strong>&quot;No types selected, so pushes are not sent.&quot;</strong> Saving types before you subscribe shows <strong>&quot;Subscribe before saving notification types.&quot;</strong> A successful save says <strong>&quot;Notification types saved.&quot;</strong></li>
             <li>Press <strong>Send Test</strong>. The page says <strong>&quot;Test notification sent.&quot;</strong> <strong>&quot;not subscribed&quot;</strong> means this account has no device yet. <strong>&quot;push failed&quot;</strong> or <strong>&quot;Test notification failed&quot;</strong> means the send did not complete.</li>
           </ol>
           <ul className="text-sm text-zinc-700 space-y-2 list-disc pl-5">
@@ -469,7 +469,7 @@ export default function TroubleshootingPage() {
           <h4 className="font-medium text-sm">Someone funded your repo but you got no notification</h4>
           <ul className="text-sm text-zinc-700 space-y-2 list-disc pl-5">
             <li><strong>Check:</strong> The repo&apos;s payout wallet must be linked to your Opentip account. Funding notices go to the account that owns that wallet.</li>
-            <li><strong>Check:</strong> The type has to be selected. An empty selection sends no pushes.</li>
+            <li><strong>Check:</strong> A new subscription includes tip received and tips paid out until you turn them off. After you clear every type, the page says <strong>&quot;No types selected, so pushes are not sent.&quot;</strong> and nothing is delivered.</li>
             <li><strong>Check:</strong> Look at your in-app list at <a href="/notifications" className="text-accent underline underline-offset-4">/notifications</a>. Notices show up there even if push didn&apos;t reach you. They can take a few minutes, because they come from the indexer.</li>
           </ul>
         </div>
@@ -608,7 +608,7 @@ export default function TroubleshootingPage() {
             <li><code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">VAPID_PUBLIC_KEY</code>, <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">VAPID_PRIVATE_KEY</code>, and <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">NEXT_PUBLIC_VAPID_PUBLIC_KEY</code> are set. Users otherwise see <strong>&quot;VAPID key not configured&quot;</strong>, and <strong>Send Test</strong> fails with <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY required</code>.</li>
             <li><code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">NOTIFICATION_SECRET</code> is the same value in the frontend and the indexer. Otherwise <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">POST /api/notifications/send</code> returns 401 <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">unauthorized</code>.</li>
             <li><code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">NOTIFICATION_API_URL</code> in the indexer points to <strong>your</strong> deployment. It defaults to <code className="bg-zinc-900/10 px-1.5 py-0.5 rounded-sm font-mono text-xs">https://opentip.tech/api/notifications/send</code>.</li>
-            <li>Pushes honor the types saved on each subscription. An empty list sends nothing. Every subscription for that user is attempted, and endpoints that return 404 or 410 are removed.</li>
+            <li>Pushes honor the types saved on each subscription. A new subscription starts with tip_received, claim_available, tip_sent, and claim_submitted. Subscribing again keeps that list, and another device inherits it. An empty list after every type is cleared sends nothing. Every subscription for that user is attempted, and endpoints that return 404 or 410 are removed.</li>
           </ul>
         </div>
 

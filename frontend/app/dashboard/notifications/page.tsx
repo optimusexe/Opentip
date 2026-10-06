@@ -121,6 +121,7 @@ export default function NotificationsPage() {
         setFeedback(j.error || "Subscribe failed");
         return;
       }
+      if (Array.isArray(j.types)) setTypes(j.types);
       setFeedback("Subscribed on this device.");
     } catch (e: any) {
       setFeedback(e?.message || "Subscribe failed");
@@ -181,6 +182,7 @@ export default function NotificationsPage() {
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Notification Types</h2>
+        <p className="text-sm text-zinc-500">A new subscription starts with Tip received, Tips paid out, Tip submitted, and Claim submitted selected. Adding a device keeps your saved choices.</p>
         {types.length === 0 && (
           <p className="text-sm text-zinc-500">No types selected, so pushes are not sent.</p>
         )}

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { displayedNotificationTypes } from "@/lib/notification-push";
 
 export async function GET() {
   const session: any = await getServerSession(authOptions);
@@ -17,8 +18,8 @@ export async function GET() {
   });
 
   return NextResponse.json({
-    types: sub?.types ?? [],
-    lastUpdated: sub?.updatedAt,
+    types: displayedNotificationTypes(sub?.types, sub != null),
+    lastUpdated: sub?.updatedAt ?? null,
   });
 }
 
