@@ -30,6 +30,37 @@ export function rankTippersByUsd(
   return [...merged.values()].sort((a, b) => b.usd - a.usd).slice(0, limit);
 }
 
+export type RepoTokenTotal = {
+  repo_id: string;
+  token: string;
+  total: string;
+  count: number;
+};
+
+// Per-repo USD and tip count. Callers sort by usd so a high-decimal token
+// does not outrank a smaller raw amount that is worth more.
+export function usdByRepo(
+  rows: RepoTokenTotal[],
+  prices: Record<string, number>,
+  toUsd: ToUsd,
+): Map<string, { usd: number; count: number }> {
+  const map = new Map<string, { usd: number; count: number }>();
+  for (const row of rows) {
+    const current = map.get(row.repo_id) ?? { usd: 0, count: 0 };
+    let usd = 0;
+    try {
+      usd = toUsd(row.total, row.token, prices);
+    } catch {
+      usd = 0;
+    }
+    if (!Number.isFinite(usd)) usd = 0;
+    current.usd += usd;
+    current.count += Number.isFinite(row.count) ? row.count : 0;
+    map.set(row.repo_id, current);
+  }
+  return map;
+}
+
 export function rowsForTopTippers<T extends TipAggregateRow>(
   rows: T[],
   prices: Record<string, number>,
