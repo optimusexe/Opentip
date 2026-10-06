@@ -18,7 +18,7 @@ export default function GettingStartedPage() {
         <ul className="text-sm text-zinc-700 space-y-2 list-disc pl-5">
           <li>A crypto wallet — an <a href="/docs/smart-wallet" className="text-accent underline underline-offset-4">Opentip Smart Wallet</a> (recommended, no extension needed) or an external wallet (MetaMask, Rainbow, etc.)</li>
           <li>ETH on Base for gas fees (tips are free to send — gas is minimal on Base L2)</li>
-          <li>USDC, ETH, or OAR on Base for tipping</li>
+          <li>USDC or ETH on Base. OAR is coming soon.</li>
         </ul>
       </section>
 
@@ -70,9 +70,9 @@ export default function GettingStartedPage() {
             </p>
           </div>
           <div className="p-4 border rule rounded-sm">
-            <h3 className="font-medium text-sm">OAR tips</h3>
+            <h3 className="font-medium text-sm">OAR</h3>
             <p className="text-sm text-zinc-600 mt-1">
-              Select OAR (Oarcoin), enter an amount. Same flow as USDC — approve once, then tip in a single transaction.
+              OAR funding is coming soon. Choosing OAR in the token menu shows &quot;OAR tipping coming soon&quot; and keeps your current token.
             </p>
           </div>
         </div>

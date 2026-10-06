@@ -46,7 +46,7 @@ export default function SmartWalletPage() {
           <li>Sign up with email or GitHub.</li>
           <li>If you signed up with email, connect GitHub so you can verify repo ownership.</li>
           <li>Your Smart Wallet is created automatically — wait a few seconds.</li>
-          <li>Your new address appears with a copy button. Fund it with ETH, USDC, or OAR on Base, then continue.</li>
+          <li>Your new address appears with a copy button. Fund it with ETH or USDC on Base. OAR is coming soon.</li>
         </ol>
         <p className="text-sm text-zinc-700 leading-relaxed">
           When you register a repo, the payout address defaults to your Smart Wallet. You can switch to a linked external wallet from the dropdown if you prefer.
@@ -68,7 +68,7 @@ export default function SmartWalletPage() {
         <div className="space-y-3">
           <div className="p-4 border rule rounded-sm">
             <h3 className="font-medium text-sm">Tipping</h3>
-            <p className="text-sm text-zinc-600 mt-1">Tip any repo in ETH, USDC, or OAR (minimum $1). For token tips, approval and tip are batched into a single confirmation.</p>
+            <p className="text-sm text-zinc-600 mt-1">Fund any repo in ETH or USDC (minimum $1). OAR is coming soon. For USDC, approval and the payment are batched into a single confirmation.</p>
           </div>
           <div className="p-4 border rule rounded-sm">
             <h3 className="font-medium text-sm">Claiming</h3>
@@ -101,7 +101,7 @@ export default function SmartWalletPage() {
       <section className="border-t rule pt-10 space-y-6">
         <h2 className="serif text-2xl font-semibold">Supported assets</h2>
         <p className="text-sm text-zinc-700 leading-relaxed">
-          Opentip officially supports <strong>ETH, USDC, and OAR</strong> on Base. Balances, prices, sending, tipping, and claiming cover these three.
+          You can fund a repo in <strong>ETH or USDC</strong> on Base. <strong>OAR is coming soon.</strong> The wallet can still show an OAR balance, and you can send OAR from the wallet, but the funding form does not accept it yet.
         </p>
         <div className="p-4 border rule rounded-sm bg-accent/5">
           <p className="text-sm text-zinc-700">

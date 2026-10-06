@@ -29,7 +29,7 @@ export default function DocsPage() {
             <div className="stats text-3xl font-semibold text-accent">02</div>
             <h3 className="font-medium">Connect & tip</h3>
             <p className="text-sm text-zinc-600 leading-relaxed">
-              Connect your wallet, check the AI-generated summary on the About tab, choose USDC, ETH, or OAR, enter an amount, and send. Minimum tip is $1.
+              Connect your wallet, check the AI-generated summary on the About tab, choose USDC or ETH, enter an amount, and send. OAR is coming soon. Minimum tip is $1.
             </p>
           </div>
           <div className="space-y-3">
