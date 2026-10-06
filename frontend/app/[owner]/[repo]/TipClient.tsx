@@ -400,13 +400,18 @@ export default function TipClient({ repoId }: { repoId: string }) {
                 { to: contract, data: tipData },
               ];
         }
-        const { userOperationHash, sponsored } = await cdpSend(calls);
+        const { userOperationHash, sponsored, selfPaidBecause } = await cdpSend(calls);
         if (loadingToastRef.current) { dismissToast(loadingToastRef.current); loadingToastRef.current = null; }
         if (userOperationHash && smartAddr) {
           setPendingUserOp(userOperationHash);
           logWalletTx({ walletAddress: smartAddr, kind: "tip", repoId: repoIdLower, token: selectedToken, amount: baseUnits.toString(), toAddress: contract, userOpHash: userOperationHash });
         }
-        showToast({ status:"success", title:"Tip sent", description:`${amount} ${currentToken.symbol} → ${repoIdLower}${sponsored === false ? " (you paid gas — daily sponsorship used up)" : ""}${userOperationHash ? ` (${userOperationHash.slice(0,10)}…)` : ""}` });
+        const gasNote = sponsored === false
+          ? selfPaidBecause === "paymaster"
+            ? " (you paid gas)"
+            : " (you paid gas — daily sponsorship used up)"
+          : "";
+        showToast({ status:"success", title:"Tip sent", description:`${amount} ${currentToken.symbol} → ${repoIdLower}${gasNote}${userOperationHash ? ` (${userOperationHash.slice(0,10)}…)` : ""}` });
         markInstallTipped();
         setTipFlow("success"); setTimeout(()=>setTipFlow("idle"), 1600);
         fetch(`/api/tips?repoId=${encodeURIComponent(repoIdLower)}`).then(r=>r.json()).then(setTips).catch(()=>{});

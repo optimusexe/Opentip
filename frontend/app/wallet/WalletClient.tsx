@@ -199,14 +199,14 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
         const calls = sendToken === ETH_ADDRESS
           ? [{ to: sendTo as `0x${string}`, value: units, data: "0x" as `0x${string}` }]
           : [{ to: sendToken as `0x${string}`, data: encodeFunctionData({ abi: erc20Abi, functionName: "transfer", args: [sendTo as `0x${string}`, units] }) }];
-        const { userOperationHash, sponsored } = await cdpSend(calls);
+        const { userOperationHash, sponsored, selfPaidBecause } = await cdpSend(calls);
         if (userOperationHash && walletAddress) {
           setPendingUserOp(userOperationHash);
           logWalletTx({ walletAddress, kind: "send", token: sendToken, amount: units.toString(), toAddress: sendTo, userOpHash: userOperationHash });
         }
         setSendHash(userOperationHash || null);
         setSendState("success");
-        showToast({ status: "success", title: "Send submitted", description: sponsored === false ? "Daily sponsorship used up — you paid gas this time" : undefined });
+        showToast({ status: "success", title: "Send submitted", description: sponsored === false ? (selfPaidBecause === "paymaster" ? "Paymaster unavailable — you paid gas this time" : "Daily sponsorship used up — you paid gas this time") : undefined });
       } catch (e: any) {
         setSendError(e.message?.slice(0, 160) || "Send failed");
         setSendState("error");
