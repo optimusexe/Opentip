@@ -112,7 +112,7 @@ export default function ForDevelopersPage() {
       <section className="border-t rule pt-10 space-y-6">
         <h2 className="serif text-2xl font-semibold">Step 4 — Claim tips</h2>
         <p className="text-sm text-zinc-700 leading-relaxed">
-          When someone tips your repo, the tokens (USDC, ETH, or OAR) are held by the smart contract in a per-token pending balance. To withdraw, connect the wallet that was registered as the payout address and click <strong>Claim all</strong>.
+          When someone funds your repo, the tokens (USDC or ETH; OAR is coming soon) are held by the smart contract in a per-token pending balance. To withdraw, connect the wallet that was registered as the payout address and click <strong>Claim tips</strong>.
         </p>
         <p className="text-sm text-zinc-700 leading-relaxed">
           The full pending balance (after the 5% fee) is transferred to your wallet in one transaction.

@@ -94,14 +94,14 @@ export default function GettingStartedPage() {
           By default, tippers are identified by their wallet address. You can set a display name (like &quot;Alice&quot; or &quot;Satoshi&quot;) that appears in activity feeds and leaderboards.
         </p>
         <p className="text-sm text-zinc-700 leading-relaxed">
-          On any repo page, enter a name next to your tip amount and click <strong>Set name</strong>. You will need to sign a message with your wallet to prove ownership. The name is stored and shown for all future tips.
+          On any repo page, enter a name next to the amount and click <strong>Save</strong>. You will need to sign a message with your wallet to prove ownership. The name is stored and shown for later payments from that address. An Opentip Smart Wallet can sign this too.
         </p>
       </section>
 
       <section className="border-t rule pt-10 space-y-6">
         <h2 className="serif text-2xl font-semibold">Sharing a tip link</h2>
         <p className="text-sm text-zinc-700 leading-relaxed">
-          Every repo page has a <strong>Copy link</strong> button. Share it on social media, in READMEs, or in issues to encourage others to tip the same project.
+          Every repo page has a <strong>Copy tip link</strong> button. Share it on social media, in READMEs, or in issues so others can fund the same project.
         </p>
         <code className="block bg-zinc-900 text-zinc-100 p-4 rounded-sm font-mono text-sm">
           https://opentip.tech/{'{owner}'}/{'{repo}'}

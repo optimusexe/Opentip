@@ -72,7 +72,7 @@ export default function SmartWalletPage() {
           </div>
           <div className="p-4 border rule rounded-sm">
             <h3 className="font-medium text-sm">Claiming</h3>
-            <p className="text-sm text-zinc-600 mt-1">From the payout wallet, select Claim all to withdraw every pending token at once.</p>
+            <p className="text-sm text-zinc-600 mt-1">From the payout wallet, press <strong>Claim tips</strong> to withdraw every pending token at once.</p>
           </div>
           <div className="p-4 border rule rounded-sm">
             <h3 className="font-medium text-sm">Send & deposit</h3>
