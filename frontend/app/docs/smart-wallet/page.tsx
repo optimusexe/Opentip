@@ -80,7 +80,7 @@ export default function SmartWalletPage() {
           </div>
           <div className="p-4 border rule rounded-sm">
             <h3 className="font-medium text-sm">Gas fees</h3>
-            <p className="text-sm text-zinc-600 mt-1">You pay your own gas (roughly $0.005–$0.04 per transaction on Base). Keep a little ETH in the wallet. Tips sent without an Opentip account are never sponsored.</p>
+            <p className="text-sm text-zinc-600 mt-1">When a paymaster is configured, Opentip can sponsor up to 10 Smart Wallet transactions per account per UTC day. Sponsorship is not always on. If the paymaster is not configured, or it returns 429, 502, or 503, the wallet pays its own gas. A successful payment then includes &quot;(you paid gas — daily sponsorship used up)&quot; when the daily cap was hit, or &quot;(you paid gas)&quot; when the paymaster was unavailable. Keep a little ETH in the wallet for those times. Funding sent without an Opentip account is never sponsored.</p>
           </div>
         </div>
       </section>
