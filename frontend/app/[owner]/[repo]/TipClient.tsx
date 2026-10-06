@@ -15,6 +15,7 @@ import { estimateGasUsd } from "@/lib/gasEstimate";
 import TxReviewModal from "@/components/TxReviewModal";
 import { ethTipAmountError, fmtUsd } from "@/lib/prices";
 import { walletWriteToast, type WalletWriteKind } from "@/lib/wallet-write";
+import { isPositiveBigint } from "@/lib/positive-bigint";
 import { markInstallTipped } from "@/components/installPrompt";
 import { useToast } from "@/app/providers";
 import { Input } from "@/components/motion/input";
@@ -567,7 +568,7 @@ export default function TipClient({ repoId }: { repoId: string }) {
     { token: TOKENS[0], raw: pendingUSDC as bigint | undefined },
     { token: TOKENS[1], raw: pendingETH as bigint | undefined },
     { token: TOKENS[2], raw: pendingOAR as bigint | undefined },
-  ].filter(b => b.raw && b.raw > 0n);
+  ].filter((b): b is { token: TokenInfo; raw: bigint } => isPositiveBigint(b.raw));
 
   const hasPendingClaim = pendingBalances.length > 0;
 
@@ -595,27 +596,20 @@ export default function TipClient({ repoId }: { repoId: string }) {
           <div className="flex-1 sm:px-4 py-2 sm:py-0">
             <div className="text-[0.65rem] uppercase tracking-[0.2em] text-zinc-500">Total tipped</div>
             <div className="mt-2 space-y-1">
-              {totalUSDC && (totalUSDC as bigint) > 0n && (
-                <div className="stats text-lg flex items-baseline gap-2 text-zinc-900">
-                  {formatAmount(totalUSDC as bigint, TOKENS[0])}
-                  <span className="text-xs text-zinc-500 font-sans">USDC</span>
-                </div>
-              )}
-              {totalETH && (totalETH as bigint) > 0n && (
-                <div className="stats text-lg flex items-baseline gap-2 text-zinc-900">
-                  {formatAmount(totalETH as bigint, TOKENS[1])}
-                  <span className="text-xs text-zinc-500 font-sans">ETH</span>
-                </div>
-              )}
-              {totalOAR && (totalOAR as bigint) > 0n && (
-                <div className="stats text-lg flex items-baseline gap-2 text-zinc-900">
-                  {formatAmount(totalOAR as bigint, TOKENS[2])}
-                  <span className="text-xs text-zinc-500 font-sans">OAR</span>
-                </div>
-              )}
-              {(!totalUSDC || (totalUSDC as bigint) === 0n) && (!totalETH || (totalETH as bigint) === 0n) && (!totalOAR || (totalOAR as bigint) === 0n) && (
-                <div className="stats text-lg text-zinc-400">—</div>
-              )}
+              {(() => {
+                const tipped = [
+                  { token: TOKENS[0], raw: totalUSDC },
+                  { token: TOKENS[1], raw: totalETH },
+                  { token: TOKENS[2], raw: totalOAR },
+                ].filter((b): b is { token: TokenInfo; raw: bigint } => isPositiveBigint(b.raw));
+                if (tipped.length === 0) return <div className="stats text-lg text-zinc-400">—</div>;
+                return tipped.map(b => (
+                  <div key={b.token.symbol} className="stats text-lg flex items-baseline gap-2 text-zinc-900">
+                    {formatAmount(b.raw, b.token)}
+                    <span className="text-xs text-zinc-500 font-sans">{b.token.symbol}</span>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
           <div className="flex-1 sm:px-4 py-2 sm:py-0">
