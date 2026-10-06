@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { generateRepoSummary } from "@/lib/ai";
 import { rateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { checkPayoutCanReceiveEth } from "@/lib/payout-eth";
-import { githubAuthTokens, permissionAllowsRegister } from "@/lib/github-permission";
+import { githubAuthTokens, ownershipAuthError, permissionAllowsRegister } from "@/lib/github-permission";
 
 export async function POST(req: NextRequest) {
   try { rateLimit(rateLimitKey(req, "verify-ownership"), "critical"); } catch (e: any) {
@@ -40,8 +40,12 @@ export async function POST(req: NextRequest) {
     }
 
     const session: any = await getServerSession(authOptions);
-    const login = session?.user?.login;
-    if (!login) return NextResponse.json({ error: "not authenticated" }, { status: 401 });
+    const authError = ownershipAuthError(session);
+    if (authError) {
+      const status = authError === "not authenticated" ? 401 : 403;
+      return NextResponse.json({ error: authError }, { status });
+    }
+    const login = session.user.login as string;
 
     // Verify ownership via GitHub API
     const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
