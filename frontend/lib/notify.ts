@@ -24,6 +24,19 @@ export async function findNotificationByTx(userId: string, type: string, txHash:
   return prisma.notification.findFirst({ where: { userId, type, txHash } });
 }
 
+// Move pending → sending so overlapping callers cannot both push.
+export async function claimNotificationDelivery(id: string): Promise<boolean> {
+  const result = await prisma.notification.updateMany({
+    where: { id, status: "pending" },
+    data: { status: "sending" },
+  });
+  return result.count === 1;
+}
+
+export async function markNotificationStatus(id: string, status: string) {
+  return prisma.notification.update({ where: { id }, data: { status } });
+}
+
 export async function recordNotification(data: {
   userId: string;
   type: string;

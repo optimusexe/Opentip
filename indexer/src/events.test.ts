@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { claimedNotification, payoutUpdateFromEvent } from "./events.ts";
+import { claimedNotification, notificationDispatch, payoutUpdateFromEvent } from "./events.ts";
+
+test("pushes a new or still-pending notification exactly once", () => {
+  assert.equal(notificationDispatch(null), "create");
+  assert.equal(notificationDispatch(undefined), "create");
+  assert.equal(notificationDispatch({ status: "pending" }), "push");
+  assert.equal(notificationDispatch({ status: "sending" }), "skip");
+  assert.equal(notificationDispatch({ status: "sent" }), "skip");
+});
 
 test("describes a claim as funds withdrawn, not as a future claim", () => {
   const notice = claimedNotification("acme/app", "10 USDC");

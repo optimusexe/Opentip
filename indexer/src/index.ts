@@ -3,7 +3,7 @@ import { createPublicClient, http, parseAbi } from "viem";
 import { base, baseSepolia } from "viem/chains";
 import { PrismaClient } from "@prisma/client";
 import { formatTokenAmount } from "./formatAmount.js";
-import { claimedNotification, payoutUpdateFromEvent } from "./events.js";
+import { claimedNotification, notificationDispatch, payoutUpdateFromEvent } from "./events.js";
 
 const prisma = new PrismaClient({ log: ["warn", "error"] }) as PrismaClient & {
   notification?: typeof PrismaClient.prototype.notification;
@@ -89,14 +89,22 @@ async function findUserIdByAddress(address: string): Promise<string | null> {
 
 async function notifyUser(userId: string, type: string, title: string, body: string, txHash?: string): Promise<void> {
   try {
-    // Idempotency: retries/replays must not duplicate rows.
+    // Idempotency: retries/replays must not duplicate rows or push twice.
+    // A pending row was saved before the push completed, so still call the app.
     if (txHash) {
       const dup = await prisma.notification.findFirst({ where: { userId, type, txHash } });
-      if (dup) return;
+      const dispatch = notificationDispatch(dup);
+      if (dispatch === "skip") return;
+      if (dispatch === "create") {
+        await prisma.notification.create({
+          data: { userId, type, title, body, txHash, status: "pending" },
+        });
+      }
+    } else {
+      await prisma.notification.create({
+        data: { userId, type, title, body, txHash: null, status: "pending" },
+      });
     }
-    await prisma.notification.create({
-      data: { userId, type, title, body, txHash: txHash ?? null, status: "pending" },
-    });
     const endpoint = process.env.NOTIFICATION_API_URL || "https://opentip.tech/api/notifications/send";
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (process.env.NOTIFICATION_SECRET) {
