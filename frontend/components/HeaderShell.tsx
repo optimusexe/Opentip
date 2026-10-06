@@ -17,7 +17,7 @@ export default function HeaderShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <>
-      <header className="border-b rule sticky top-0 bg-[#c1c0b6]/80 backdrop-blur z-10">
+      <header className="border-b rule sticky top-0 bg-[#c1c0b6]/80 backdrop-blur z-header">
         <nav className="w-full px-6 md:px-10 py-5 flex items-center justify-between relative">
           <div className="flex items-center gap-3">
             <button

@@ -183,7 +183,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Mobile hamburger */}
       {!mobileOpen && (
-        <div className="md:hidden fixed top-5 left-4 z-30">
+        <div className="md:hidden fixed top-5 left-4 z-overlay-control">
           <button
             onClick={() => setMobileOpen(true)}
             className="p-2 bg-[#c1c0b6] border rule rounded-sm"
@@ -200,7 +200,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-20">
+        <div className="md:hidden fixed inset-0 z-overlay">
           <div className="absolute inset-0 bg-black/20" onClick={() => setMobileOpen(false)} />
           <aside className="absolute left-0 top-0 bottom-0 w-[240px] bg-[#c1c0b6] border-r rule">
             <div className="flex items-center justify-between px-4 py-4 border-b rule">
