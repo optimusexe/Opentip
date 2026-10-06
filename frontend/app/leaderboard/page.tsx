@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getTokenPrices, fmtUsd, usdValue } from "@/lib/prices";
 import { rankTippersByUsd, type TipAggregateRow } from "@/lib/leaderboard-rank";
 
-async function getLeaderboard() {
+async function getLeaderboard(): Promise<{ rows: { tipper_address: string; display_name: string | null; usd: number }[]; error: boolean }> {
   try {
     const [rows, prices] = await Promise.all([
       prisma.$queryRaw<TipAggregateRow[]>`
@@ -20,18 +20,21 @@ async function getLeaderboard() {
       : [];
     const nameMap = new Map(names.map((n) => [n.tipper_address.toLowerCase(), n.display_name]));
 
-    return ranked.map((r) => ({
-      tipper_address: r.tipper_address,
-      display_name: nameMap.get(r.tipper_address.toLowerCase()) || null,
-      usd: r.usd,
-    }));
+    return {
+      error: false,
+      rows: ranked.map((r) => ({
+        tipper_address: r.tipper_address,
+        display_name: nameMap.get(r.tipper_address.toLowerCase()) || null,
+        usd: r.usd,
+      })),
+    };
   } catch {
-    return [];
+    return { rows: [], error: true };
   }
 }
 
 export default async function LeaderboardPage() {
-  const rows: any[] = await getLeaderboard();
+  const { rows, error } = await getLeaderboard();
   return (
     <div className="space-y-0">
       <section className="py-12 md:py-16 border-b rule">
@@ -39,7 +42,9 @@ export default async function LeaderboardPage() {
       </section>
 
       <section className="py-6">
-        {rows.length === 0 ? (
+        {error ? (
+          <p className="text-sm text-zinc-500 py-12 text-center">Couldn&apos;t load the leaderboard. Try again in a minute.</p>
+        ) : rows.length === 0 ? (
           <p className="text-sm text-zinc-500 py-12 text-center">No tips yet.</p>
         ) : (
           <div className="overflow-x-auto">
