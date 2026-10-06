@@ -129,7 +129,7 @@ cp .env.example .env`}</CodeBlock>
               <tr className="border-b rule">
                 <td className="py-3 pr-4 font-mono text-xs text-accent">RESEND_API_KEY</td>
                 <td className="py-3 pr-4">Optional</td>
-                <td className="py-3 text-zinc-600">Resend API key (password reset emails)</td>
+                <td className="py-3 text-zinc-600">Resend API key (signup verification and password reset emails)</td>
               </tr>
               <tr className="border-b rule">
                 <td className="py-3 pr-4 font-mono text-xs text-accent">RESEND_FROM</td>
@@ -176,6 +176,36 @@ cp .env.example .env`}</CodeBlock>
                 <td className="py-3 pr-4">Optional</td>
                 <td className="py-3 text-zinc-600">Alchemy RPC URL, server-only (wallet history deposits + token legs; free tier covers ~125k opens/mo; falls back to tips-only without it)</td>
               </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">NEXT_PUBLIC_RPC_URL</td>
+                <td className="py-3 pr-4">Optional</td>
+                <td className="py-3 text-zinc-600">Public RPC for chain reads. Payout ETH checks fail closed when it is empty.</td>
+              </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">NOTIFICATION_SECRET</td>
+                <td className="py-3 pr-4">For push</td>
+                <td className="py-3 text-zinc-600">Same value on the frontend and the indexer. POST /api/notifications/send rejects calls that do not send it as x-notification-secret.</td>
+              </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY</td>
+                <td className="py-3 pr-4">For push</td>
+                <td className="py-3 text-zinc-600">Server VAPID key pair used to send web push</td>
+              </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">NEXT_PUBLIC_VAPID_PUBLIC_KEY</td>
+                <td className="py-3 pr-4">For push</td>
+                <td className="py-3 text-zinc-600">Public VAPID key the browser uses when subscribing. Users see &quot;VAPID key not configured&quot; when it is missing.</td>
+              </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">CDP_PAYMASTER_URL</td>
+                <td className="py-3 pr-4">Optional</td>
+                <td className="py-3 text-zinc-600">Server-only paymaster URL. When set, Smart Wallet gas can be sponsored (up to 10 transactions per account per UTC day).</td>
+              </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">CDP_API_KEY_ID / CDP_API_KEY_SECRET</td>
+                <td className="py-3 pr-4">For Smart Wallet</td>
+                <td className="py-3 text-zinc-600">Read by the Coinbase SDK when wallet linking constructs CdpClient() with no arguments, to confirm the address belongs to the caller.</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -216,8 +246,20 @@ cp .env.example .env`}</CodeBlock>
                 <td className="py-3 text-zinc-600">Poll interval in ms (default 12000)</td>
               </tr>
               <tr className="border-b rule">
-                <td className="py-3 pr-4 font-mono text-xs text-accent">NEXT_PUBLIC_CHAIN</td>
-                <td className="py-3 text-zinc-600">baseSepolia or base</td>
+                <td className="py-3 pr-4 font-mono text-xs text-accent">CHAIN</td>
+                <td className="py-3 text-zinc-600">base for Base mainnet. Any other value, including unset, means Base Sepolia. The indexer does not read NEXT_PUBLIC_CHAIN.</td>
+              </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">GETLOGS_RANGE</td>
+                <td className="py-3 text-zinc-600">Blocks per eth_getLogs request (default 10)</td>
+              </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">NOTIFICATION_SECRET</td>
+                <td className="py-3 text-zinc-600">Same value as the frontend. Sent as x-notification-secret when the indexer asks the app to push.</td>
+              </tr>
+              <tr className="border-b rule">
+                <td className="py-3 pr-4 font-mono text-xs text-accent">NOTIFICATION_API_URL</td>
+                <td className="py-3 text-zinc-600">Push endpoint. Defaults to https://opentip.tech/api/notifications/send</td>
               </tr>
             </tbody>
           </table>
@@ -278,7 +320,7 @@ forge test`}</CodeBlock>
           <li>Register a repo (verify ownership → sign → on-chain tx)</li>
           <li>Send a USDC tip (approve + receiveTip)</li>
           <li>Send an ETH tip (payable receiveTipEth)</li>
-          <li>Send an OAR tip (approve + receiveTip)</li>
+          <li>OAR funding is coming soon. The token menu shows &quot;OAR tipping coming soon&quot; and keeps the current token.</li>
           <li>Claim tips as the payout address holder</li>
           <li>Set a display name</li>
           <li>Edit profile (bio, social links, pfp, header)</li>
@@ -296,7 +338,7 @@ forge test`}</CodeBlock>
           <div className="p-4 border rule rounded-sm">
             <h3 className="font-medium text-sm">Frontend (Vercel)</h3>
             <ul className="text-sm text-zinc-600 mt-2 space-y-1 list-disc pl-5">
-              <li>Set all 19 environment variables in Vercel dashboard</li>
+              <li>Set the frontend environment variables from the table above in the Vercel dashboard</li>
               <li>Set NEXTAUTH_URL to your production domain</li>
               <li>Deploy from the main branch</li>
             </ul>
@@ -306,7 +348,7 @@ forge test`}</CodeBlock>
             <ul className="text-sm text-zinc-600 mt-2 space-y-1 list-disc pl-5">
               <li>Build Docker image from the indexer directory</li>
               <li>Push to a container registry</li>
-              <li>Deploy to Azure Container Apps with the 6 env vars</li>
+              <li>Deploy to Azure Container Apps with the indexer environment variables from the table above</li>
             </ul>
           </div>
           <div className="p-4 border rule rounded-sm">
