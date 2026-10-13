@@ -56,12 +56,12 @@ export default function AdminMigratePage() {
     });
   };
 
-  if (!contract) return <div className="py-12 text-sm text-zinc-600">Contract not configured.</div>;
+  if (!contract) return <div className="py-12 text-sm text-muted-foreground">Contract not configured.</div>;
 
   return (
     <div className="space-y-6">
-      <h1 className="serif text-2xl font-semibold">Migrate Repos (v1 → v2)</h1>
-      <p className="text-sm text-zinc-600 max-w-lg">
+      <h1 className="font-display text-3xl tracking-tight">Migrate Repos (v1 → v2)</h1>
+      <p className="text-sm text-muted-foreground max-w-lg">
         Migrate repos from the v1 contract to v2. This registers each repo on the v2 contract so it can receive multi-token tips.
         Existing v1 USDC balances remain claimable from v1.
       </p>
@@ -69,21 +69,21 @@ export default function AdminMigratePage() {
       {loading ? (
         <div className="py-20 flex justify-center"><Loader variant="spinner" size={24} /></div>
       ) : repos.length === 0 ? (
-        <p className="text-sm text-zinc-500">No repos found.</p>
+        <p className="text-sm text-muted-foreground">No repos found.</p>
       ) : (
-        <div className="border rule rounded-sm overflow-x-auto">
+        <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b rule bg-zinc-900/5">
-                <th className="text-left px-4 py-2 font-medium text-zinc-600">Repo</th>
-                <th className="text-left px-4 py-2 font-medium text-zinc-600">Payout Address</th>
-                <th className="text-right px-4 py-2 font-medium text-zinc-600">Tips</th>
-                <th className="text-right px-4 py-2 font-medium text-zinc-600">Action</th>
+              <tr className="border-b border-border bg-muted">
+                <th className="text-left px-4 py-2 font-medium text-muted-foreground">Repo</th>
+                <th className="text-left px-4 py-2 font-medium text-muted-foreground">Payout Address</th>
+                <th className="text-right px-4 py-2 font-medium text-muted-foreground">Tips</th>
+                <th className="text-right px-4 py-2 font-medium text-muted-foreground">Action</th>
               </tr>
             </thead>
             <tbody>
               {repos.map((repo) => (
-                <tr key={repo.repoId} className="border-b rule last:border-0">
+                <tr key={repo.repoId} className="border-b border-border last:border-0">
                   <td className="px-4 py-2 font-mono text-xs">{repo.repoId}</td>
                   <td className="px-4 py-2 font-mono text-xs">{repo.payoutAddress?.slice(0, 6)}...{repo.payoutAddress?.slice(-4)}</td>
                   <td className="px-4 py-2 text-right text-xs">{repo.tipCount}</td>

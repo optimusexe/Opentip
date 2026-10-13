@@ -37,29 +37,29 @@ export default function AdminActivity() {
 
   return (
     <div className="space-y-6">
-      <h1 className="serif text-2xl font-semibold">Activity</h1>
+      <h1 className="font-display text-3xl tracking-tight">Activity</h1>
 
-      <div className="border rule rounded-sm overflow-x-auto">
+      <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b rule bg-zinc-900/5">
-              <th className="text-left px-4 py-2 font-medium text-zinc-600">Tipper</th>
-              <th className="text-left px-4 py-2 font-medium text-zinc-600">Repo</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Amount</th>
-              <th className="text-left px-4 py-2 font-medium text-zinc-600">Token</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Fee</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Tx</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Time</th>
+            <tr className="border-b border-border bg-muted">
+              <th className="text-left px-4 py-2 font-medium text-muted-foreground">Tipper</th>
+              <th className="text-left px-4 py-2 font-medium text-muted-foreground">Repo</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Amount</th>
+              <th className="text-left px-4 py-2 font-medium text-muted-foreground">Token</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Fee</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Tx</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Time</th>
             </tr>
           </thead>
           <tbody>
             {tips.map((tip, i) => (
-              <tr key={i} className="border-b rule last:border-0">
+              <tr key={i} className="border-b border-border last:border-0">
                 <td className="px-4 py-2 font-mono text-xs">{truncate(tip.tipper_address)}</td>
                 <td className="px-4 py-2 font-mono text-xs">{tip.repo_id}</td>
                 <td className="px-4 py-2 text-right stats text-xs">{formatAmount(tip.amount, tip.token)}</td>
-                <td className="px-4 py-2 text-xs text-zinc-500">{getTokenSymbol(tip.token)}</td>
-                <td className="px-4 py-2 text-right stats text-xs text-zinc-500">{formatAmount(tip.fee_amount, tip.token)}</td>
+                <td className="px-4 py-2 text-xs text-muted-foreground">{getTokenSymbol(tip.token)}</td>
+                <td className="px-4 py-2 text-right stats text-xs text-muted-foreground">{formatAmount(tip.fee_amount, tip.token)}</td>
                 <td className="px-4 py-2 text-right">
                   <a
                     href={getBasescanTxUrl(tip.tx_hash)}
@@ -70,7 +70,7 @@ export default function AdminActivity() {
                     {tip.tx_hash?.slice(0, 8)}...
                   </a>
                 </td>
-                <td className="px-4 py-2 text-right text-xs text-zinc-500">{new Date(tip.timestamp).toLocaleString()}</td>
+                <td className="px-4 py-2 text-right text-xs text-muted-foreground">{new Date(tip.timestamp).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -83,15 +83,15 @@ export default function AdminActivity() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-3 py-1 text-sm border rule rounded-sm disabled:opacity-40 hover:bg-zinc-900/5"
+            className="px-3 py-1 text-sm border border-border rounded-[10px] disabled:opacity-40 hover:bg-muted"
           >
             Previous
           </button>
-          <span className="px-3 py-1 text-sm text-zinc-600">Page {page} of {totalPages}</span>
+          <span className="px-3 py-1 text-sm text-muted-foreground">Page {page} of {totalPages}</span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="px-3 py-1 text-sm border rule rounded-sm disabled:opacity-40 hover:bg-zinc-900/5"
+            className="px-3 py-1 text-sm border border-border rounded-[10px] disabled:opacity-40 hover:bg-muted"
           >
             Next
           </button>

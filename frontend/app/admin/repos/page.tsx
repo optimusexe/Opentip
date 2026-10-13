@@ -83,30 +83,30 @@ export default function AdminRepos() {
 
   return (
     <div className="space-y-6">
-      <h1 className="serif text-2xl font-semibold">Registered repos</h1>
+      <h1 className="font-display text-3xl tracking-tight">Registered repos</h1>
 
       <input
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search repos or addresses..."
-        className="w-full max-w-sm bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none focus:border-accent"
+        className="w-full max-w-sm border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-accent"
       />
 
-      <div className="border rule rounded-sm overflow-x-auto">
+      <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b rule bg-zinc-900/5">
-              <th className="text-left px-4 py-2 font-medium text-zinc-600">Repo</th>
-              <th className="text-left px-4 py-2 font-medium text-zinc-600">Payout</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Tips</th>
-              <th className="text-center px-4 py-2 font-medium text-zinc-600">Hidden</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Action</th>
+            <tr className="border-b border-border bg-muted">
+              <th className="text-left px-4 py-2 font-medium text-muted-foreground">Repo</th>
+              <th className="text-left px-4 py-2 font-medium text-muted-foreground">Payout</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Tips</th>
+              <th className="text-center px-4 py-2 font-medium text-muted-foreground">Hidden</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Action</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((repo) => (
-              <tr key={repo.repoId} className={`border-b rule last:border-0 ${repo.hidden ? "opacity-50" : ""}`}>
+              <tr key={repo.repoId} className="border-b border-border last:border-0">
                 <td className="px-4 py-2 font-mono text-xs">{capitalize(repo.repoId.split("/")[1])}</td>
                 <td className="px-4 py-2 font-mono text-xs">{truncate(repo.payoutAddress)}</td>
                 <td className="px-4 py-2 text-right stats text-xs">{repo.tipCount}</td>
@@ -114,7 +114,7 @@ export default function AdminRepos() {
                   <button
                     onClick={() => handleToggleHidden(repo.repoId, !!repo.hidden)}
                     disabled={toggling === repo.repoId}
-                    className={`text-xs px-2 py-1 rounded-sm border rule transition-colors ${repo.hidden ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-zinc-50 text-zinc-600 hover:bg-zinc-100"}`}
+                    className={`text-xs px-2 py-1 rounded-[10px] border border-border transition-colors ${repo.hidden ? "bg-destructive/10 text-destructive hover:bg-destructive/15" : "bg-muted text-muted-foreground hover:bg-muted"}`}
                   >
                     {toggling === repo.repoId ? "..." : repo.hidden ? "Hidden" : "Visible"}
                   </button>
@@ -132,17 +132,17 @@ export default function AdminRepos() {
 
       {/* Reassign modal */}
       {reassignTarget && (
-        <div className="border rule rounded-sm p-4 space-y-3">
+        <div className="rounded-[10px] border border-border bg-card p-4 space-y-3">
           <h2 className="text-sm font-medium">Reassign payout for {reassignTarget}</h2>
           <div className="flex gap-3 items-end">
             <div className="flex-1">
-              <label className="block text-xs text-zinc-500 mb-1">New payout address</label>
+              <label className="block text-xs text-muted-foreground mb-1">New payout address</label>
               <input
                 type="text"
                 value={newPayout}
                 onChange={(e) => setNewPayout(e.target.value)}
                 placeholder="0x..."
-                className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 font-mono placeholder:text-zinc-500 outline-none focus:border-accent"
+                className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground font-mono placeholder:text-muted-foreground outline-none focus:border-accent"
               />
             </div>
             <Button onClick={handleReassign} disabled={reassigning || !newPayout}>

@@ -54,14 +54,14 @@ export default function AdminOverview() {
   }, []);
 
   if (loading) return <div className="py-20 flex justify-center"><Loader variant="spinner" size={24} /></div>;
-  if (!stats || (stats as any).error || !Array.isArray(stats.recentTips)) return <div className="py-20 text-sm text-zinc-600">Failed to load stats</div>;
+  if (!stats || (stats as any).error || !Array.isArray(stats.recentTips)) return <div className="py-20 text-sm text-muted-foreground">Failed to load stats</div>;
 
   return (
     <div className="space-y-8">
-      <h1 className="serif text-2xl font-semibold">Overview</h1>
+      <h1 className="font-display text-3xl tracking-tight">Overview</h1>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
         <StatCard label="Total tips" value={String(stats.totalTipCount)} />
         <StatCard label="Registered repos" value={String(stats.totalRepos)} />
         <StatCard label="Users" value={String(stats.totalUsers)} />
@@ -87,15 +87,15 @@ export default function AdminOverview() {
       {/* Token breakdown */}
       {stats.tokenTotals.length > 0 && (
         <div>
-          <h2 className="serif text-lg font-semibold mb-4">Volume by token</h2>
-          <div className="border rule rounded-sm overflow-x-auto">
+          <h2 className="mb-4 font-display text-xl">Volume by token</h2>
+          <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b rule bg-zinc-900/5">
-                  <th className="text-left px-4 py-2 font-medium text-zinc-600">Token</th>
-                  <th className="text-right px-4 py-2 font-medium text-zinc-600">Total Tipped</th>
-                  <th className="text-right px-4 py-2 font-medium text-zinc-600">Fees</th>
-                  <th className="text-right px-4 py-2 font-medium text-zinc-600">USD Value</th>
+                <tr className="border-b border-border bg-muted">
+                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Token</th>
+                  <th className="text-right px-4 py-2 font-medium text-muted-foreground">Total Tipped</th>
+                  <th className="text-right px-4 py-2 font-medium text-muted-foreground">Fees</th>
+                  <th className="text-right px-4 py-2 font-medium text-muted-foreground">USD Value</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,10 +106,10 @@ export default function AdminOverview() {
                     const amount = Number(t.total || 0) / Math.pow(10, decimals);
                     const price = prices[t.token?.toLowerCase()] ?? 0;
                     return (
-                      <tr key={t.token} className="border-b rule last:border-0">
+                      <tr key={t.token} className="border-b border-border last:border-0">
                         <td className="px-4 py-2 text-xs font-medium">{getTokenSymbol(t.token)}</td>
                         <td className="px-4 py-2 text-right stats text-xs">{formatAmount(t.total, t.token)} {getTokenSymbol(t.token)}</td>
-                        <td className="px-4 py-2 text-right stats text-xs text-zinc-500">{formatAmount(t.fees, t.token)} {getTokenSymbol(t.token)}</td>
+                        <td className="px-4 py-2 text-right stats text-xs text-muted-foreground">{formatAmount(t.fees, t.token)} {getTokenSymbol(t.token)}</td>
                         <td className="px-4 py-2 text-right stats text-xs">{fmtUsd(amount * price)}</td>
                       </tr>
                     );
@@ -123,7 +123,7 @@ export default function AdminOverview() {
       {/* Treasury balances */}
       {Object.keys(stats.treasuryBalances).length > 0 && (
         <div>
-          <h2 className="serif text-lg font-semibold mb-4">Treasury balances</h2>
+          <h2 className="mb-4 font-display text-xl">Treasury balances</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {Object.entries(stats.treasuryBalances).map(([addr, bal]) => {
               const symbol = getTokenSymbol(addr);
@@ -132,10 +132,10 @@ export default function AdminOverview() {
               const price = prices[addr.toLowerCase()] ?? 0;
               const usd = formatted * price;
               return (
-                <div key={addr} className="border rule rounded-sm p-4">
-                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-zinc-500">{symbol}</div>
-                  <div className="stats mt-2 text-xl text-zinc-900">{formatted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</div>
-                  {price > 0 && <div className="text-[0.65rem] text-zinc-500 mt-1">{fmtUsd(usd)}</div>}
+                <div key={addr} className="min-w-0 rounded-[10px] border border-border bg-card p-4">
+                  <div className="text-sm text-muted-foreground">{symbol}</div>
+                  <div className="stats mt-2 break-words text-xl leading-tight tracking-tight text-foreground sm:text-2xl">{formatted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</div>
+                  {price > 0 && <div className="mt-1 text-xs text-muted-foreground">{fmtUsd(usd)}</div>}
                 </div>
               );
             })}
@@ -145,31 +145,31 @@ export default function AdminOverview() {
 
       {/* Recent activity */}
       <div>
-        <h2 className="serif text-lg font-semibold mb-4">Recent tips</h2>
+        <h2 className="mb-4 font-display text-xl">Recent tips</h2>
         {stats.recentTips.length === 0 ? (
-          <p className="text-sm text-zinc-500">No tips yet</p>
+          <p className="text-sm text-muted-foreground">No tips yet</p>
         ) : (
-          <div className="border rule rounded-sm overflow-x-auto">
+          <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b rule bg-zinc-900/5">
-                  <th className="text-left px-4 py-2 font-medium text-zinc-600">Tipper</th>
-                  <th className="text-left px-4 py-2 font-medium text-zinc-600">Repo</th>
-                  <th className="text-right px-4 py-2 font-medium text-zinc-600">Amount</th>
-                  <th className="text-left px-4 py-2 font-medium text-zinc-600">Token</th>
-                  <th className="text-right px-4 py-2 font-medium text-zinc-600">Fee</th>
-                  <th className="text-right px-4 py-2 font-medium text-zinc-600">Time</th>
+                <tr className="border-b border-border bg-muted">
+                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Tipper</th>
+                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Repo</th>
+                  <th className="text-right px-4 py-2 font-medium text-muted-foreground">Amount</th>
+                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Token</th>
+                  <th className="text-right px-4 py-2 font-medium text-muted-foreground">Fee</th>
+                  <th className="text-right px-4 py-2 font-medium text-muted-foreground">Time</th>
                 </tr>
               </thead>
               <tbody>
                 {stats.recentTips.map((tip, i) => (
-                  <tr key={i} className="border-b rule last:border-0">
+                  <tr key={i} className="border-b border-border last:border-0">
                     <td className="px-4 py-2 font-mono text-xs">{truncate(tip.tipper_address)}</td>
                     <td className="px-4 py-2 font-mono text-xs">{tip.repo_id}</td>
                     <td className="px-4 py-2 text-right stats text-xs">{formatAmount(tip.amount, tip.token)}</td>
-                    <td className="px-4 py-2 text-xs text-zinc-500">{getTokenSymbol(tip.token)}</td>
-                    <td className="px-4 py-2 text-right stats text-xs text-zinc-500">{formatAmount(tip.fee_amount, tip.token)}</td>
-                    <td className="px-4 py-2 text-right text-xs text-zinc-500">{new Date(tip.timestamp).toLocaleString()}</td>
+                    <td className="px-4 py-2 text-xs text-muted-foreground">{getTokenSymbol(tip.token)}</td>
+                    <td className="px-4 py-2 text-right stats text-xs text-muted-foreground">{formatAmount(tip.fee_amount, tip.token)}</td>
+                    <td className="px-4 py-2 text-right text-xs text-muted-foreground">{new Date(tip.timestamp).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -183,12 +183,12 @@ export default function AdminOverview() {
 
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="border rule rounded-sm p-4">
-      <div className="text-[0.65rem] uppercase tracking-[0.2em] text-zinc-500">{label}</div>
-      <div className="stats mt-2 text-2xl text-zinc-900">
+    <div className="min-w-0 rounded-[10px] border border-border bg-card p-4">
+      <div className="text-sm text-muted-foreground">{label}</div>
+      <div className="stats mt-2 break-words text-xl leading-tight tracking-tight text-foreground sm:text-2xl">
         {value}
       </div>
-      {sub && <div className="text-[0.65rem] text-zinc-500 mt-1">{sub}</div>}
+      {sub && <div className="mt-1 break-words text-xs text-muted-foreground">{sub}</div>}
     </div>
   );
 }

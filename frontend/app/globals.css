@@ -25,7 +25,7 @@
     --secondary: 60 14% 94%;
     --secondary-foreground: 150 8% 5%;
     --muted: 60 14% 94%;
-    --muted-foreground: 133 3% 43%;
+    --muted-foreground: 133 3% 40%;
     --accent: 240 68% 50%;
     --accent-foreground: 0 0% 100%;
     --accent-hover: 241 70% 40%;
@@ -84,7 +84,7 @@
     --accent: 240 68% 50%;
     --accent-foreground: 0 0% 100%;
     --accent-hover: 241 70% 40%;
-    --brand: 234 100% 68%;
+    --brand: 234 100% 76%;
     --pending: 40 90% 61%;
     --fee: 140 5% 24%;
     --paper: 150 8% 5%;
@@ -110,10 +110,10 @@
   ::selection { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-  /* Dark-mode highlight is true blue, including existing text-accent links. */
+  /* Dark-mode highlight stays true blue and clears 4.5:1 on cards and tinted rows. */
   .dark .text-accent,
   .dark .hover\:text-accent:hover {
-    color: #5b6cff;
+    color: #8591ff;
   }
 }
 @layer utilities {

@@ -151,8 +151,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!adminRole) {
     return (
       <div className="py-20 text-center space-y-4">
-        <h1 className="serif text-2xl font-semibold">Access denied</h1>
-        <p className="text-sm text-zinc-600">You don't have admin access. Link an owner or admin wallet to continue.</p>
+        <h1 className="font-display text-3xl tracking-tight">Access denied</h1>
+        <p className="text-sm text-muted-foreground">You don't have admin access. Link an owner or admin wallet to continue.</p>
         <Link href="/dashboard" className="text-sm text-accent hover:underline">Go to dashboard</Link>
       </div>
     );
@@ -167,17 +167,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex min-h-[80vh] min-w-0">
       {/* Desktop sidebar */}
       <aside
-        className={`hidden md:flex flex-col border-r rule transition-all duration-200 ${
+        className={`hidden md:flex flex-col border-r border-border transition-all duration-200 ${
           collapsed ? "w-[60px]" : "w-[220px]"
         }`}
       >
-        <div className={`flex items-center border-b rule ${collapsed ? "justify-center py-4" : "justify-between px-4 py-4"}`}>
+        <div className={`flex items-center border-b border-border ${collapsed ? "justify-center py-4" : "justify-between px-4 py-4"}`}>
           {!collapsed && (
-            <span className="serif font-semibold text-sm">Admin</span>
+            <span className="font-display text-lg">Admin</span>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 hover:bg-zinc-900/5 rounded-sm transition-colors"
+            className="p-1 hover:bg-muted rounded-[10px] transition-colors"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -210,8 +210,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   collapsed ? "justify-center px-2 py-3" : "px-4 py-3"
                 } ${
                   active
-                    ? "bg-zinc-900/5 text-zinc-900 border-r-2 border-accent"
-                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-900/5"
+                    ? "bg-muted text-foreground border-r-2 border-accent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
                 <item.icon className="shrink-0" />
@@ -220,8 +220,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
         </nav>
-        <div className="border-t rule p-3">
-          <Link href="/dashboard" className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-700 transition-colors">
+        <div className="border-t border-border p-3">
+          <Link href="/dashboard" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5" />
               <polyline points="12 19 5 12 12 5" />
@@ -231,38 +231,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Mobile hamburger */}
-      <div className="md:hidden fixed top-5 left-4 z-overlay-control">
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 bg-card border rule rounded-sm"
-          aria-label="Toggle menu"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            {mobileOpen ? (
-              <>
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </>
-            ) : (
-              <>
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </>
-            )}
-          </svg>
-        </button>
-      </div>
-
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-overlay">
           <div className="absolute inset-0 bg-black/20" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-[240px] bg-card border-r rule">
-            <div className="flex items-center justify-between px-4 py-4 border-b rule">
-              <span className="serif font-semibold text-sm">Admin</span>
-              <button onClick={() => setMobileOpen(false)} className="p-1 hover:bg-zinc-900/5 rounded-sm">
+          <aside className="absolute left-0 top-0 bottom-0 w-[240px] bg-card border-r border-border">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-border">
+              <span className="font-display text-lg">Admin</span>
+              <button onClick={() => setMobileOpen(false)} className="p-1 hover:bg-muted rounded-[10px]">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
@@ -281,8 +257,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 transition-colors ${
                       active
-                        ? "bg-zinc-900/5 text-zinc-900 border-r-2 border-accent"
-                        : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-900/5"
+                        ? "bg-muted text-foreground border-r-2 border-accent"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
                     <item.icon className="shrink-0" />
@@ -291,8 +267,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 );
               })}
             </nav>
-            <div className="border-t rule p-3">
-              <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-700">
+            <div className="border-t border-border p-3">
+              <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 12H5" />
                   <polyline points="12 19 5 12 12 5" />
@@ -305,7 +281,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* Main content */}
-      <div className="flex-1 min-w-0 px-6 md:px-10 py-8">{children}</div>
+      <div className="min-w-0 flex-1 px-4 py-6 sm:px-6 md:px-10 md:py-8">
+        <div className="mb-4 md:hidden">
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="inline-flex items-center gap-2 rounded-[10px] border border-border bg-card px-3 py-2 text-sm"
+            aria-label="Toggle menu"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+            Admin
+          </button>
+        </div>
+        {children}
+      </div>
     </div>
   );
 }

@@ -56,36 +56,36 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      <h1 className="serif text-2xl font-semibold">Users</h1>
+      <h1 className="font-display text-3xl tracking-tight">Users</h1>
 
       <input
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search by login, email, or wallet..."
-        className="w-full max-w-sm bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none focus:border-accent"
+        className="w-full max-w-sm border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-accent"
       />
 
-      <div className="border rule rounded-sm overflow-x-auto">
+      <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b rule bg-zinc-900/5">
-              <th className="text-left px-4 py-2 font-medium text-zinc-600">User</th>
-              <th className="text-left px-4 py-2 font-medium text-zinc-600">Wallet(s)</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Tips sent</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Joined</th>
-              <th className="text-right px-4 py-2 font-medium text-zinc-600">Actions</th>
+            <tr className="border-b border-border bg-muted">
+              <th className="text-left px-4 py-2 font-medium text-muted-foreground">User</th>
+              <th className="text-left px-4 py-2 font-medium text-muted-foreground">Wallet(s)</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Tips sent</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Joined</th>
+              <th className="text-right px-4 py-2 font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((user) => (
-              <tr key={user.id} className="border-b rule last:border-0">
+              <tr key={user.id} className="border-b border-border last:border-0">
                 <td className="px-4 py-2">
                   <div className="text-xs font-medium">{user.login || user.email || "—"}</div>
                 </td>
                 <td className="px-4 py-2">
                   {user.wallets.length === 0 ? (
-                    <span className="text-xs text-zinc-500">No wallet</span>
+                    <span className="text-xs text-muted-foreground">No wallet</span>
                   ) : (
                     user.wallets.map((w: any) => (
                       <div key={w.address} className="font-mono text-xs">{truncate(w.address)}</div>
@@ -93,12 +93,12 @@ export default function AdminUsers() {
                   )}
                 </td>
                 <td className="px-4 py-2 text-right stats text-xs">{user.tipsReceived}</td>
-                <td className="px-4 py-2 text-right text-xs text-zinc-500">{new Date(user.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-2 text-right text-xs text-muted-foreground">{new Date(user.createdAt).toLocaleDateString()}</td>
                 <td className="px-4 py-2 text-right">
                   <button
                     onClick={() => deleteUser(user)}
                     disabled={deleting === user.id}
-                    className="text-xs text-red-600 hover:underline disabled:opacity-50"
+                    className="text-xs text-destructive hover:underline disabled:opacity-50"
                   >
                     {deleting === user.id ? "Deleting..." : "Delete"}
                   </button>

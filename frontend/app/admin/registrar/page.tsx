@@ -55,30 +55,30 @@ export default function AdminRegistrar() {
 
   return (
     <div className="space-y-8 max-w-lg">
-      <h1 className="serif text-2xl font-semibold">Registrar signer</h1>
+      <h1 className="font-display text-3xl tracking-tight">Registrar signer</h1>
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Current signer</h2>
-        <div className="border rule rounded-sm p-4">
-          <div className="font-mono text-sm text-zinc-900 break-all">{currentSigner || "Not set"}</div>
-          <div className="text-xs text-zinc-500 mt-1">This address signs registration permits.</div>
+        <div className="rounded-[10px] border border-border bg-card p-4">
+          <div className="font-mono text-sm text-foreground break-all">{currentSigner || "Not set"}</div>
+          <div className="text-xs text-muted-foreground mt-1">This address signs registration permits.</div>
         </div>
       </section>
 
-      <div className="border-t rule" />
+      <div className="border-t border-border" />
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Rotate signer</h2>
-        <p className="text-xs text-zinc-500">Changing the signer immediately invalidates all permits signed by the old key.</p>
+        <p className="text-xs text-muted-foreground">Changing the signer immediately invalidates all permits signed by the old key.</p>
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className="block text-xs text-zinc-500 mb-1">New signer address</label>
+            <label className="block text-xs text-muted-foreground mb-1">New signer address</label>
             <input
               type="text"
               value={newSigner}
               onChange={(e) => setNewSigner(e.target.value)}
               placeholder="0x..."
-              className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 font-mono placeholder:text-zinc-500 outline-none focus:border-accent"
+              className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground font-mono placeholder:text-muted-foreground outline-none focus:border-accent"
             />
           </div>
           <Button onClick={handleRotate} disabled={loading || !newSigner}>

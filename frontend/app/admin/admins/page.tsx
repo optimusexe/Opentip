@@ -78,39 +78,39 @@ export default function AdminAdmins() {
 
   return (
     <div className="space-y-8 max-w-lg">
-      <h1 className="serif text-2xl font-semibold">Admins</h1>
+      <h1 className="font-display text-3xl tracking-tight">Admins</h1>
 
       {/* Owner (hardcoded, not in DB) */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Owner</h2>
-        <div className="border rule rounded-sm p-4">
-          <div className="font-mono text-sm text-zinc-900">{ownerAddress || "Set OWNER_ADDRESS in .env"}</div>
-          <div className="text-xs text-zinc-500 mt-1">Cannot be removed. Has full access.</div>
+        <div className="rounded-[10px] border border-border bg-card p-4">
+          <div className="font-mono text-sm text-foreground">{ownerAddress || "Set OWNER_ADDRESS in .env"}</div>
+          <div className="text-xs text-muted-foreground mt-1">Cannot be removed. Has full access.</div>
         </div>
       </section>
 
-      <div className="border-t rule" />
+      <div className="border-t border-border" />
 
       {/* Add admin */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Add admin</h2>
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className="block text-xs text-zinc-500 mb-1">Wallet address</label>
+            <label className="block text-xs text-muted-foreground mb-1">Wallet address</label>
             <input
               type="text"
               value={newAddress}
               onChange={(e) => setNewAddress(e.target.value)}
               placeholder="0x..."
-              className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 font-mono placeholder:text-zinc-500 outline-none focus:border-accent"
+              className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground font-mono placeholder:text-muted-foreground outline-none focus:border-accent"
             />
           </div>
           <div className="w-28">
-            <label className="block text-xs text-zinc-500 mb-1">Role</label>
+            <label className="block text-xs text-muted-foreground mb-1">Role</label>
             <select
               value={newRole}
               onChange={(e) => setNewRole(e.target.value)}
-              className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 outline-none"
+              className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground outline-none"
             >
               <option value="admin">Admin</option>
               <option value="viewer">Viewer</option>
@@ -122,30 +122,30 @@ export default function AdminAdmins() {
         </div>
       </section>
 
-      <div className="border-t rule" />
+      <div className="border-t border-border" />
 
       {/* Admin list */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Current admins</h2>
         {admins.length === 0 ? (
-          <p className="text-sm text-zinc-500">No admins added yet</p>
+          <p className="text-sm text-muted-foreground">No admins added yet</p>
         ) : (
-          <div className="border rule rounded-sm overflow-hidden">
+          <div className="overflow-hidden rounded-[10px] border border-border bg-card">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b rule bg-zinc-900/5">
-                  <th className="text-left px-4 py-2 font-medium text-zinc-600">Address</th>
-                  <th className="text-left px-4 py-2 font-medium text-zinc-600">Role</th>
-                  <th className="text-left px-4 py-2 font-medium text-zinc-600">Added</th>
-                  <th className="text-right px-4 py-2 font-medium text-zinc-600"></th>
+                <tr className="border-b border-border bg-muted">
+                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Address</th>
+                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Role</th>
+                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Added</th>
+                  <th className="text-right px-4 py-2 font-medium text-muted-foreground"></th>
                 </tr>
               </thead>
               <tbody>
                 {admins.map((admin) => (
-                  <tr key={admin.id} className="border-b rule last:border-0">
+                  <tr key={admin.id} className="border-b border-border last:border-0">
                     <td className="px-4 py-2 font-mono text-xs">{truncate(admin.address)}</td>
                     <td className="px-4 py-2 text-xs">{admin.role}</td>
-                    <td className="px-4 py-2 text-xs text-zinc-500">{new Date(admin.createdAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-2 text-xs text-muted-foreground">{new Date(admin.createdAt).toLocaleDateString()}</td>
                     <td className="px-4 py-2 text-right">
                       <Button variant="ghost" size="sm" onClick={() => handleRemove(admin.address)}>
                         Remove

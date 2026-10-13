@@ -76,7 +76,7 @@ export default function AdminContract() {
 
   return (
     <div className="space-y-8 max-w-lg">
-      <h1 className="serif text-2xl font-semibold">Contract controls</h1>
+      <h1 className="font-display text-3xl tracking-tight">Contract controls</h1>
 
       {/* Pause / Unpause */}
       <section className="space-y-3">
@@ -89,17 +89,17 @@ export default function AdminContract() {
             {loading.unpause ? "Sending..." : "Unpause contract"}
           </Button>
         </div>
-        <p className="text-xs text-zinc-500">Pausing stops all tips and claims. Unpausing restores them.</p>
+        <p className="text-xs text-muted-foreground">Pausing stops all tips and claims. Unpausing restores them.</p>
       </section>
 
-      <div className="border-t rule" />
+      <div className="border-t border-border" />
 
       {/* Set fee */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Platform fee</h2>
         <div className="flex gap-3 items-end">
           <div className="flex-1 max-w-[160px]">
-            <label className="block text-xs text-zinc-500 mb-1">Fee (basis points)</label>
+            <label className="block text-xs text-muted-foreground mb-1">Fee (basis points)</label>
             <input
               type="number"
               value={feeBps}
@@ -107,30 +107,30 @@ export default function AdminContract() {
               placeholder="500"
               min="0"
               max="1000"
-              className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none focus:border-accent"
+              className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-accent"
             />
           </div>
           <Button onClick={() => action("setFee", "/api/admin/set-fee", { feeBps: Number(feeBps) })} disabled={loading.setFee || !feeBps}>
             {loading.setFee ? "Sending..." : "Update"}
           </Button>
         </div>
-        <p className="text-xs text-zinc-500">500 = 5%. Max 1000 (10%).</p>
+        <p className="text-xs text-muted-foreground">500 = 5%. Max 1000 (10%).</p>
       </section>
 
-      <div className="border-t rule" />
+      <div className="border-t border-border" />
 
       {/* Set treasury */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Treasury address</h2>
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className="block text-xs text-zinc-500 mb-1">New treasury address</label>
+            <label className="block text-xs text-muted-foreground mb-1">New treasury address</label>
             <input
               type="text"
               value={treasury}
               onChange={(e) => setTreasury(e.target.value)}
               placeholder="0x..."
-              className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 font-mono placeholder:text-zinc-500 outline-none focus:border-accent"
+              className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground font-mono placeholder:text-muted-foreground outline-none focus:border-accent"
             />
           </div>
           <Button onClick={() => action("setTreasury", "/api/admin/set-treasury", { address: treasury })} disabled={loading.setTreasury || !treasury}>
@@ -139,7 +139,7 @@ export default function AdminContract() {
         </div>
       </section>
 
-      <div className="border-t rule" />
+      <div className="border-t border-border" />
 
       {/* Withdraw */}
       <section className="space-y-3">
@@ -156,49 +156,49 @@ export default function AdminContract() {
               <button
                 key={t.address}
                 onClick={() => setWithdrawToken(t.address)}
-                className={`border rule rounded-sm p-2 text-left transition-colors ${withdrawToken === t.address ? "border-accent bg-accent/5" : "hover:bg-zinc-50"}`}
+                className={`min-w-0 rounded-[10px] border border-border bg-card p-2 text-left transition-colors ${withdrawToken === t.address ? "border-accent bg-accent/10" : "hover:bg-muted"}`}
               >
-                <div className="text-xs font-medium">{t.symbol}</div>
-                <div className="stats text-xs text-zinc-600">{bal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</div>
+                <div className="text-xs text-muted-foreground">{t.symbol}</div>
+                <div className="stats break-words text-xs text-foreground">{bal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</div>
               </button>
             );
           })}
         </div>
         <div className="flex gap-3 items-end">
           <div className="flex-1 max-w-[160px]">
-            <label className="block text-xs text-zinc-500 mb-1">Amount ({selectedTokenConfig.symbol})</label>
+            <label className="block text-xs text-muted-foreground mb-1">Amount ({selectedTokenConfig.symbol})</label>
             <input
               type="text"
               value={withdrawAmount}
               onChange={(e) => setWithdrawAmount(e.target.value)}
               placeholder="0.00"
-              className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none focus:border-accent"
+              className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-accent"
             />
           </div>
           <Button onClick={() => action("withdraw", "/api/admin/withdraw", { token: withdrawToken, amount: withdrawAmount })} disabled={loading.withdraw || !withdrawAmount}>
             {loading.withdraw ? "Sending..." : "Withdraw"}
           </Button>
         </div>
-        <p className="text-xs text-zinc-500">Sends accumulated fees for the selected token to the treasury address.</p>
+        <p className="text-xs text-muted-foreground">Sends accumulated fees for the selected token to the treasury address.</p>
       </section>
 
-      <div className="border-t rule" />
+      <div className="border-t border-border" />
 
       {/* Stray ETH */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Stray ETH</h2>
-        <p className="text-xs text-zinc-600">
+        <p className="text-xs text-muted-foreground">
           ETH accidentally sent directly to the contract. Balance: <span className="font-mono">{formattedStrayEth.toFixed(6)} ETH</span>
         </p>
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className="block text-xs text-zinc-500 mb-1">Send to address</label>
+            <label className="block text-xs text-muted-foreground mb-1">Send to address</label>
             <input
               type="text"
               value={sweepAddress}
               onChange={(e) => setSweepAddress(e.target.value)}
               placeholder="0x..."
-              className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 font-mono placeholder:text-zinc-500 outline-none focus:border-accent"
+              className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground font-mono placeholder:text-muted-foreground outline-none focus:border-accent"
             />
           </div>
           <Button
@@ -208,29 +208,29 @@ export default function AdminContract() {
             {loading.sweepStrayEth ? "Sending..." : "Sweep"}
           </Button>
         </div>
-        <p className="text-xs text-zinc-500">Sends all stray ETH to the specified address.</p>
+        <p className="text-xs text-muted-foreground">Sends all stray ETH to the specified address.</p>
       </section>
 
-      <div className="border-t rule" />
+      <div className="border-t border-border" />
 
       {/* Migration deadline */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Migration deadline</h2>
-        <p className="text-xs text-zinc-600">
+        <p className="text-xs text-muted-foreground">
           Controls when v1→v2 repo migration closes. {deadlineDate
             ? <>Current: <span className="font-mono">{deadlineDate.toUTCString()}</span></>
-            : <span className="text-zinc-400">Open-ended (no deadline set)</span>}
+            : <span className="text-muted-foreground">Open-ended (no deadline set)</span>}
         </p>
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className="block text-xs text-zinc-500 mb-1">Unix timestamp (0 = open-ended)</label>
+            <label className="block text-xs text-muted-foreground mb-1">Unix timestamp (0 = open-ended)</label>
             <input
               type="number"
               value={deadlineTimestamp}
               onChange={(e) => setDeadlineTimestamp(e.target.value)}
               placeholder={String(Math.floor(Date.now() / 1000))}
               min="0"
-              className="w-full bg-transparent border rule rounded-sm px-3 py-1.5 text-sm text-zinc-900 font-mono placeholder:text-zinc-500 outline-none focus:border-accent"
+              className="w-full border border-border bg-background rounded-[10px] px-3 py-1.5 text-sm text-foreground font-mono placeholder:text-muted-foreground outline-none focus:border-accent"
             />
           </div>
           <Button
@@ -256,7 +256,7 @@ export default function AdminContract() {
             {loading.setDeadline ? "Sending..." : "Remove deadline"}
           </Button>
         </div>
-        <p className="text-xs text-zinc-500">Sets the unix timestamp after which migration is no longer allowed. "Disable now" closes migration immediately. "Remove deadline" re-opens it.</p>
+        <p className="text-xs text-muted-foreground">Sets the unix timestamp after which migration is no longer allowed. "Disable now" closes migration immediately. "Remove deadline" re-opens it.</p>
       </section>
     </div>
   );

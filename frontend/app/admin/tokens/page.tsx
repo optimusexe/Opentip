@@ -73,33 +73,33 @@ export default function AdminTokensPage() {
     if (removeReceipt.isError) { setRemoveState("error"); showToast({ status: "error", title: "Failed to remove token" }); setTimeout(() => setRemoveState("idle"), 2000); }
   }, [removeReceipt.isSuccess, removeReceipt.isError]);
 
-  if (!contract) return <div className="py-12 text-sm text-zinc-600">Contract not configured.</div>;
+  if (!contract) return <div className="py-12 text-sm text-muted-foreground">Contract not configured.</div>;
 
   const tokenAddresses = Array.isArray(tokenList) ? tokenList : [];
 
   return (
     <div className="space-y-8">
-      <h1 className="serif text-2xl font-semibold">Token Management</h1>
+      <h1 className="font-display text-3xl tracking-tight">Token Management</h1>
 
       {/* Current tokens */}
       <section className="space-y-4">
-        <h2 className="serif font-semibold text-sm">Registered Tokens ({tokenCount?.toString() || "0"})</h2>
-        <div className="border rule rounded-sm overflow-x-auto">
+        <h2 className="text-sm font-medium">Registered Tokens ({tokenCount?.toString() || "0"})</h2>
+        <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b rule bg-zinc-900/5">
-                <th className="text-left px-4 py-2 font-medium text-zinc-600">Symbol</th>
-                <th className="text-left px-4 py-2 font-medium text-zinc-600">Address</th>
-                <th className="text-right px-4 py-2 font-medium text-zinc-600">Decimals</th>
+              <tr className="border-b border-border bg-muted">
+                <th className="text-left px-4 py-2 font-medium text-muted-foreground">Symbol</th>
+                <th className="text-left px-4 py-2 font-medium text-muted-foreground">Address</th>
+                <th className="text-right px-4 py-2 font-medium text-muted-foreground">Decimals</th>
               </tr>
             </thead>
             <tbody>
               {tokenAddresses.length === 0 ? (
-                <tr><td colSpan={3} className="px-4 py-4 text-center text-xs text-zinc-500">No tokens loaded</td></tr>
+                <tr><td colSpan={3} className="px-4 py-4 text-center text-xs text-muted-foreground">No tokens loaded</td></tr>
               ) : (
                 tokenAddresses.map((addr: string) => {
                   return (
-                    <tr key={addr} className="border-b rule last:border-0">
+                    <tr key={addr} className="border-b border-border last:border-0">
                       <td className="px-4 py-2 font-mono text-xs font-medium">{getTokenSymbol(addr)}</td>
                       <td className="px-4 py-2 font-mono text-xs">{addr}</td>
                       <td className="px-4 py-2 text-right text-xs">{getTokenDecimals(addr)}</td>
@@ -114,24 +114,24 @@ export default function AdminTokensPage() {
 
       {/* Add token */}
       <section className="space-y-4">
-        <h2 className="serif font-semibold text-sm">Add Token</h2>
+        <h2 className="text-sm font-medium">Add Token</h2>
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-0 max-w-[340px]">
-            <label className="text-xs text-zinc-500">Token Address</label>
+            <label className="text-xs text-muted-foreground">Token Address</label>
             <input
               value={addAddress}
               onChange={(e) => setAddAddress(e.target.value)}
               placeholder="0x..."
-              className="w-full h-9 bg-transparent border rule rounded-sm px-3 text-sm text-zinc-900 font-mono mt-1"
+              className="w-full h-9 border border-border bg-background rounded-[10px] px-3 text-sm text-foreground font-mono mt-1"
             />
           </div>
           <div className="w-[100px]">
-            <label className="text-xs text-zinc-500">Decimals</label>
+            <label className="text-xs text-muted-foreground">Decimals</label>
             <input
               value={addDecimals}
               onChange={(e) => setAddDecimals(e.target.value)}
               placeholder="18"
-              className="w-full h-9 bg-transparent border rule rounded-sm px-3 text-sm text-zinc-900 mt-1"
+              className="w-full h-9 border border-border bg-background rounded-[10px] px-3 text-sm text-foreground mt-1"
             />
           </div>
           {isConnected ? (
@@ -150,15 +150,15 @@ export default function AdminTokensPage() {
 
       {/* Remove token */}
       <section className="space-y-4">
-        <h2 className="serif font-semibold text-sm">Remove Token</h2>
+        <h2 className="text-sm font-medium">Remove Token</h2>
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-0 max-w-[340px]">
-            <label className="text-xs text-zinc-500">Token Address</label>
+            <label className="text-xs text-muted-foreground">Token Address</label>
             <input
               value={removeAddress}
               onChange={(e) => setRemoveAddress(e.target.value)}
               placeholder="0x..."
-              className="w-full h-9 bg-transparent border rule rounded-sm px-3 text-sm text-zinc-900 font-mono mt-1"
+              className="w-full h-9 border border-border bg-background rounded-[10px] px-3 text-sm text-foreground font-mono mt-1"
             />
           </div>
           {isConnected ? (
@@ -174,7 +174,7 @@ export default function AdminTokensPage() {
             <Button variant="secondary" onClick={() => open()}>Connect wallet</Button>
           )}
         </div>
-        <p className="text-xs text-zinc-500">Warning: Removing a token will prevent new tips in that token. Existing balances remain claimable.</p>
+        <p className="text-xs text-muted-foreground">Warning: Removing a token will prevent new tips in that token. Existing balances remain claimable.</p>
       </section>
     </div>
   );

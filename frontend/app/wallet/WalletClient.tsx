@@ -261,21 +261,21 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
   if (!walletAddress) {
     if (linkedLoading) {
       return (
-        <div className="max-w-3xl mx-auto px-6 md:px-10 py-8 space-y-6">
-          <h1 className="font-display text-3xl">Wallet</h1>
-          <div className="rounded-[10px] border border-border p-6 space-y-3 animate-pulse" aria-label="Loading wallet">
-            <div className="h-4 bg-muted rounded-sm w-2/3" />
-            <div className="h-9 bg-muted rounded-sm" />
+        <div>
+          <h1 className="font-display text-4xl tracking-tight">Smart wallet</h1>
+          <div className="mt-6 max-w-md animate-pulse space-y-3 rounded-[10px] border border-border bg-card p-6" aria-label="Loading wallet">
+            <div className="h-4 w-2/3 rounded-sm bg-muted" />
+            <div className="h-9 rounded-sm bg-muted" />
           </div>
         </div>
       );
     }
     return (
-      <div className="max-w-3xl mx-auto px-6 md:px-10 py-8 space-y-6">
-        <h1 className="font-display text-3xl">Wallet</h1>
-        <div className="rounded-[10px] border border-border p-6 text-center space-y-3">
+      <div>
+        <h1 className="font-display text-4xl tracking-tight">Smart wallet</h1>
+        <div className="mt-6 max-w-md space-y-3 rounded-[10px] border border-dashed border-border p-6 text-center">
           <p className="text-sm text-muted-foreground">Create your Opentip Smart Wallet to see balances, or connect an existing wallet.</p>
-          {!process.env.NEXT_PUBLIC_CDP_PROJECT_ID && <p className="text-xs text-red-600">Missing NEXT_PUBLIC_CDP_PROJECT_ID — add it to .env and restart dev.</p>}
+          {!process.env.NEXT_PUBLIC_CDP_PROJECT_ID && <p className="text-xs text-destructive">Missing NEXT_PUBLIC_CDP_PROJECT_ID — add it to .env and restart dev.</p>}
           <div className="flex gap-2 justify-center">
             <CdpCreateWalletButton onCreated={() => location.reload()} />
             <Button size="sm" variant="secondary" onClick={() => open()}>Connect wallet</Button>
@@ -286,26 +286,31 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 md:px-10 py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl">Wallet</h1>
-      </div>
+    <div>
+      <h1 className="font-display text-4xl tracking-tight">Smart wallet</h1>
 
-      {/* Address — Opentip Smart Wallet first */}
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span className="stats text-sm text-foreground">{truncate(displayAddress!)}</span>
-        {smartWallet && <span className="text-[0.6rem] bg-foreground text-background px-1.5 py-0.5 rounded">SMART</span>}
-        {!smartWallet && primaryWallet && <span className="text-[0.6rem] border border-border px-1.5 py-0.5 rounded">PRIMARY</span>}
-        <button onClick={() => copy(displayAddress!)} className="p-1 hover:text-foreground"><Copy className="h-3.5 w-3.5" /></button>
-        <a href={`https://basescan.org/address/${displayAddress}`} target="_blank" rel="noreferrer" className="p-1 hover:text-foreground"><ExternalLink className="h-3.5 w-3.5" /></a>
-      </div>
-
-      {/* Total */}
-      <div className="border-b border-border pb-6">
-        <div className="text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">Total balance</div>
-        <div className="stats text-4xl font-semibold mt-1">${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+      <section className="rounded-[10px] border border-border bg-foreground p-5 text-background">
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span>{activeIsSmart ? "Opentip Smart Wallet" : "Wallet"}</span>
+          {activeIsSmart && sponsor && (
+            <span className="shrink-0 rounded-full bg-background/10 px-2 py-0.5 text-xs">
+              {sponsor.sponsored ? "Gas sponsored" : "You pay gas"}
+            </span>
+          )}
+          {!smartWallet && primaryWallet && (
+            <span className="shrink-0 rounded-full bg-background/10 px-2 py-0.5 text-xs">Primary</span>
+          )}
+        </div>
+        <div className="mt-6 flex items-center gap-1 text-background/70">
+          <span className="font-mono text-xs">{truncate(displayAddress!)}</span>
+          <button onClick={() => copy(displayAddress!)} className="p-1 hover:text-background" aria-label="Copy address"><Copy className="h-3.5 w-3.5" /></button>
+          <a href={`https://basescan.org/address/${displayAddress}`} target="_blank" rel="noreferrer" className="p-1 hover:text-background" aria-label="View on Basescan"><ExternalLink className="h-3.5 w-3.5" /></a>
+        </div>
+        <p className="mt-3 text-sm text-background/70">Total balance</p>
+        <p className="mt-1 break-words font-mono text-4xl tabular-nums leading-none">${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         {activeIsSmart && (
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground" title="Sponsored transactions used today — resets daily">
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-background/70" title="Sponsored transactions used today — resets daily">
             <Fuel className="h-3.5 w-3.5" />
             {sponsor ? (
               <span className="stats">{sponsor.usedToday}/{sponsor.cap} sponsored today</span>
@@ -314,11 +319,13 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
             )}
           </div>
         )}
-        <div className="flex gap-3 mt-4">
+        <div className="mt-5 flex gap-3">
           <Button size="sm" onClick={openSend} className="flex-1">Send</Button>
           <Button size="sm" variant="secondary" onClick={() => setShowDeposit(true)} className="flex-1">Deposit</Button>
         </div>
-      </div>
+      </section>
+
+      <div className="min-w-0">
 
       <Modal open={showDeposit} onClose={() => setShowDeposit(false)} title="Deposit">
         <p className="text-xs text-muted-foreground">Send ETH, USDC or OAR to this address on Base:</p>
@@ -389,32 +396,36 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
       />
 
       {tab==="tokens" ? (
-        <div className="divide-y divide-border rounded-[10px] border border-border">
-          <div className="flex justify-between items-center px-4 py-3">
-            <div><div className="text-sm font-medium">ETH</div><div className="text-xs text-muted-foreground">Ethereum</div></div>
-            <div className="text-right"><div className="stats text-sm">{eth.toFixed(4)}</div><div className="text-xs text-muted-foreground">${(eth*ethPrice).toFixed(2)}</div></div>
+        <div className="mt-4 divide-y divide-border overflow-hidden rounded-[10px] border border-border bg-card">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="min-w-0"><div className="text-sm font-medium">ETH</div><div className="text-xs text-muted-foreground">Ethereum</div></div>
+            <div className="shrink-0 text-right"><div className="stats text-sm tabular-nums text-foreground">{eth.toFixed(4)}</div><div className="text-xs text-muted-foreground">${(eth*ethPrice).toFixed(2)}</div></div>
           </div>
-          <div className="flex justify-between items-center px-4 py-3">
-            <div><div className="text-sm font-medium">USDC</div><div className="text-xs text-muted-foreground">USD Coin</div></div>
-            <div className="text-right"><div className="stats text-sm">{usdc.toFixed(2)}</div><div className="text-xs text-muted-foreground">${(usdc*usdcPrice).toFixed(2)}</div></div>
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="min-w-0"><div className="text-sm font-medium">USDC</div><div className="text-xs text-muted-foreground">USD Coin</div></div>
+            <div className="shrink-0 text-right"><div className="stats text-sm tabular-nums text-foreground">{usdc.toFixed(2)}</div><div className="text-xs text-muted-foreground">${(usdc*usdcPrice).toFixed(2)}</div></div>
           </div>
-          <div className="flex justify-between items-center px-4 py-3">
-            <div><div className="text-sm font-medium">OAR</div><div className="text-xs text-muted-foreground">Oarcoin</div></div>
-            <div className="text-right"><div className="stats text-sm">{oar.toFixed(4)}</div><div className="text-xs text-muted-foreground">${(oar * (prices[OAR_ADDRESS.toLowerCase()] || 0)).toFixed(2)}</div></div>
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="min-w-0"><div className="text-sm font-medium">OAR</div><div className="text-xs text-muted-foreground">Oarcoin</div></div>
+            <div className="shrink-0 text-right"><div className="stats text-sm tabular-nums text-foreground">{oar.toFixed(4)}</div><div className="text-xs text-muted-foreground">${(oar * (prices[OAR_ADDRESS.toLowerCase()] || 0)).toFixed(2)}</div></div>
           </div>
         </div>
       ) : (
-        <div className="space-y-2">
-          {chainUnavailable && !chainError && <p className="text-xs text-muted-foreground">Showing Opentip tips only — full chain history needs an explorer key.</p>}
-          {chainUnavailable && chainError && <p className="text-xs text-red-600">Chain history unavailable ({chainError}) — showing Opentip tips and claims only.</p>}
+        <div className="mt-4">
+          {chainUnavailable && !chainError && <p className="mb-3 text-sm text-muted-foreground">Showing Opentip tips only — full chain history needs an explorer key.</p>}
+          {chainUnavailable && chainError && <p className="mb-3 text-sm text-destructive">Chain history unavailable ({chainError}) — showing Opentip tips and claims only.</p>}
           {historyLoading ? (
-            [0,1,2].map(i => (
-              <div key={i} className="flex justify-between items-center rounded-[10px] border border-border px-3 py-2 animate-pulse">
-                <div className="space-y-1.5"><div className="h-3 w-32 bg-muted rounded-sm" /><div className="h-2.5 w-20 bg-muted rounded-sm" /></div>
-                <div className="h-3 w-16 bg-muted rounded-sm" />
+            <div className="divide-y divide-border overflow-hidden rounded-[10px] border border-border bg-card">
+            {[0,1,2].map(i => (
+              <div key={i} className="flex animate-pulse items-center justify-between px-4 py-3">
+                <div className="space-y-1.5"><div className="h-3 w-32 rounded-sm bg-muted" /><div className="h-2.5 w-20 rounded-sm bg-muted" /></div>
+                <div className="h-3 w-16 rounded-sm bg-muted" />
               </div>
-            ))
-          ) : history.length===0 ? <p className="text-xs text-muted-foreground py-6 text-center">No history yet.</p> : history.map((h:any)=>{
+            ))}
+            </div>
+          ) : history.length===0 ? <div className="rounded-[10px] border border-border bg-card px-4 py-6 text-center text-sm text-muted-foreground">No history yet.</div> : (
+          <div className="divide-y divide-border overflow-hidden rounded-[10px] border border-border bg-card">
+          {history.map((h:any)=>{
             const decimals = h.decimals ?? getTokenDecimals(h.token);
             const val = h.amount ? Number(h.amount)/Math.pow(10,decimals) : 0;
             const formatted = decimals === 6 ? val.toFixed(2) : val >= 1000 ? `${(val/1000).toFixed(1)}k` : val >= 1 ? val.toFixed(2) : val.toFixed(4);
@@ -427,21 +438,25 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
             const symbol = (h.symbol || "").toString().replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12) || "—";
             const pending = h.status === "pending";
             return (
-            <div key={`${h.direction}-${h.kind}-${h.hash}`} className="flex justify-between items-center rounded-[10px] border border-border px-3 py-2">
-              <div className="text-xs">
-                <div className="font-medium flex items-center gap-2">
-                  <span className={isOut ? "text-red-600" : "text-emerald-700"}>{label}</span>
-                  {pending && <span className="text-[0.6rem] border border-border px-1.5 py-0.5 rounded text-muted-foreground">PENDING</span>}
-                  <span className="text-muted-foreground">{detail}</span>
+            <div key={`${h.direction}-${h.kind}-${h.hash}`} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0 text-sm">
+                <div className="flex items-center gap-2 font-medium">
+                  <span className={isOut ? "text-destructive" : "text-emerald-800 dark:text-emerald-300"}>{label}</span>
+                  {pending && <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">Pending</span>}
+                  <span className="truncate text-muted-foreground">{detail}</span>
                 </div>
-                <div className="text-muted-foreground">{new Date(h.timestamp).toLocaleDateString()}</div>
+                <div className="text-xs text-muted-foreground">{new Date(h.timestamp).toLocaleDateString()}</div>
               </div>
-              <div className="text-right"><div className="stats text-sm">{isOut ? "−" : "+"}{formatted} {symbol}</div>{h.isUserOp ? <span className="text-xs text-muted-foreground">UserOp {h.hash?.slice(0,6)}...</span> : <a href={`https://basescan.org/tx/${h.hash}`} target="_blank" className="text-xs text-accent hover:underline">{h.hash?.slice(0,6)}...</a>}</div>
+              <div className="shrink-0 text-right"><div className="stats text-sm tabular-nums text-foreground">{isOut ? "−" : "+"}{formatted} {symbol}</div>{h.isUserOp ? <span className="text-xs text-muted-foreground">UserOp {h.hash?.slice(0,6)}...</span> : <a href={`https://basescan.org/tx/${h.hash}`} target="_blank" className="text-xs text-accent hover:underline">{h.hash?.slice(0,6)}...</a>}</div>
             </div>
             );
           })}
+          </div>
+          )}
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 }

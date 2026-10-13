@@ -15,10 +15,10 @@ const fmtUsd = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionD
 
 function Stat({ label, v }: { label: string; v: Totals }) {
   return (
-    <div className="border rule rounded-sm p-4">
-      <div className="text-[0.65rem] uppercase tracking-[0.2em] text-zinc-500">{label}</div>
-      <div className="stats text-2xl font-semibold mt-1">{fmtUsd(v.usd)}</div>
-      <div className="text-xs text-zinc-500 mt-1">{v.txs} sponsored txs</div>
+    <div className="min-w-0 rounded-[10px] border border-border bg-card p-4">
+      <div className="text-sm text-muted-foreground">{label}</div>
+      <div className="stats mt-1 break-words text-xl font-medium leading-tight tracking-tight text-foreground sm:text-2xl">{fmtUsd(v.usd)}</div>
+      <div className="mt-1 text-xs text-muted-foreground">{v.txs} sponsored txs</div>
     </div>
   );
 }
@@ -36,14 +36,14 @@ export default function AdminSponsorship() {
   }, []);
 
   if (loading) return <div className="py-20 flex justify-center"><Loader variant="spinner" size={24} /></div>;
-  if (!data) return <div className="py-20 text-center text-sm text-zinc-500">Failed to load sponsorship data.</div>;
+  if (!data) return <div className="py-20 text-center text-sm text-muted-foreground">Failed to load sponsorship data.</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <h1 className="serif text-2xl font-semibold">Sponsorship</h1>
-        <span className={`text-[0.65rem] px-1.5 py-0.5 rounded ${data.circuitHealthy ? "bg-emerald-700 text-white" : "bg-red-700 text-white"}`}>
-          {data.circuitHealthy ? "PAYMASTER HEALTHY" : "PAYMASTER DOWN"}
+        <h1 className="font-display text-3xl tracking-tight">Sponsorship</h1>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium text-white ${data.circuitHealthy ? "bg-emerald-700" : "bg-red-700"}`}>
+          {data.circuitHealthy ? "Paymaster healthy" : "Paymaster down"}
         </span>
       </div>
 
@@ -53,56 +53,56 @@ export default function AdminSponsorship() {
         <Stat label="Last 30 days" v={data.totals.month} />
       </div>
 
-      <div className="border rule rounded-sm overflow-x-auto">
-        <div className="px-4 py-2 text-xs font-medium text-zinc-600 border-b rule">Daily spend</div>
+      <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
+        <div className="px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">Daily spend</div>
         <table className="w-full text-sm">
           <tbody>
             {data.perDay.map((d) => (
-              <tr key={d.date} className="border-b rule last:border-0">
+              <tr key={d.date} className="border-b border-border last:border-0">
                 <td className="px-4 py-2 stats text-xs">{d.date}</td>
                 <td className="px-4 py-2 text-right stats text-xs">{d.txs} txs</td>
                 <td className="px-4 py-2 text-right stats text-xs">{fmtUsd(d.usd)}</td>
               </tr>
             ))}
             {data.perDay.length === 0 && (
-              <tr><td className="px-4 py-3 text-xs text-zinc-500">No sponsored transactions yet.</td></tr>
+              <tr><td className="px-4 py-3 text-xs text-muted-foreground">No sponsored transactions yet.</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <div className="border rule rounded-sm overflow-x-auto">
-        <div className="px-4 py-2 text-xs font-medium text-zinc-600 border-b rule">Top users by spend</div>
+      <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
+        <div className="px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">Top users by spend</div>
         <table className="w-full text-sm">
           <tbody>
             {data.topUsers.map((u) => (
-              <tr key={u.label} className="border-b rule last:border-0">
+              <tr key={u.label} className="border-b border-border last:border-0">
                 <td className="px-4 py-2 text-xs font-medium">{u.label}</td>
                 <td className="px-4 py-2 text-right stats text-xs">{u.txs} txs</td>
                 <td className="px-4 py-2 text-right stats text-xs">{fmtUsd(u.usd)}</td>
               </tr>
             ))}
             {data.topUsers.length === 0 && (
-              <tr><td className="px-4 py-3 text-xs text-zinc-500">No data yet.</td></tr>
+              <tr><td className="px-4 py-3 text-xs text-muted-foreground">No data yet.</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <div className="border rule rounded-sm overflow-x-auto">
-        <div className="px-4 py-2 text-xs font-medium text-zinc-600 border-b rule">Recent sponsored transactions</div>
+      <div className="overflow-x-auto rounded-[10px] border border-border bg-card">
+        <div className="px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">Recent sponsored transactions</div>
         <table className="w-full text-sm">
           <tbody>
             {data.recent.map((r) => (
-              <tr key={r.id} className="border-b rule last:border-0">
-                <td className="px-4 py-2 text-xs text-zinc-500 whitespace-nowrap">{new Date(r.createdAt).toLocaleString()}</td>
+              <tr key={r.id} className="border-b border-border last:border-0">
+                <td className="px-4 py-2 text-xs text-muted-foreground whitespace-nowrap">{new Date(r.createdAt).toLocaleString()}</td>
                 <td className="px-4 py-2 text-xs font-medium">{r.user}</td>
-                <td className="px-4 py-2 text-xs text-zinc-500">{r.kind} · {r.status}</td>
+                <td className="px-4 py-2 text-xs text-muted-foreground">{r.kind} · {r.status}</td>
                 <td className="px-4 py-2 text-right stats text-xs">{fmtUsd(r.gasUsd)}</td>
               </tr>
             ))}
             {data.recent.length === 0 && (
-              <tr><td className="px-4 py-3 text-xs text-zinc-500">No transactions yet.</td></tr>
+              <tr><td className="px-4 py-3 text-xs text-muted-foreground">No transactions yet.</td></tr>
             )}
           </tbody>
         </table>
