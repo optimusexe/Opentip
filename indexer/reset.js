@@ -1,4 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { refuseUnlessLocalDatabase } from "../.cursor/skills/verify-opentip/local-database.mjs";
+
+refuseUnlessLocalDatabase();
+
+const { PrismaClient } = await import("@prisma/client");
 const p = new PrismaClient();
 await p.indexerState.update({
   where: { id: "singleton" },
