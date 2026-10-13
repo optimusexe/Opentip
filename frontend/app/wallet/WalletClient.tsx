@@ -16,6 +16,7 @@ import { useToast } from "@/app/providers";
 import CdpCreateWalletButton from "@/components/cdp/CdpCreateWalletButton";
 import { Copy, ExternalLink, Fuel } from "lucide-react";
 import { Segmented } from "@/components/ledger/Segmented";
+import { TokenLogo } from "@/components/ledger/TokenLogo";
 
 function truncate(a: string) { return a.slice(0, 6) + "..." + a.slice(-4); }
 
@@ -262,7 +263,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
     if (linkedLoading) {
       return (
         <div>
-          <h1 className="font-display text-4xl tracking-tight">Smart wallet</h1>
+          <h1 className="font-display text-4xl tracking-tight">Wallet</h1>
           <div className="mt-6 max-w-md animate-pulse space-y-3 rounded-[10px] border border-border bg-card p-6" aria-label="Loading wallet">
             <div className="h-4 w-2/3 rounded-sm bg-muted" />
             <div className="h-9 rounded-sm bg-muted" />
@@ -272,7 +273,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
     }
     return (
       <div>
-        <h1 className="font-display text-4xl tracking-tight">Smart wallet</h1>
+        <h1 className="font-display text-4xl tracking-tight">Wallet</h1>
         <div className="mt-6 max-w-md space-y-3 rounded-[10px] border border-dashed border-border p-6 text-center">
           <p className="text-sm text-muted-foreground">Create your Opentip Smart Wallet to see balances, or connect an existing wallet.</p>
           {!process.env.NEXT_PUBLIC_CDP_PROJECT_ID && <p className="text-xs text-destructive">Missing NEXT_PUBLIC_CDP_PROJECT_ID — add it to .env and restart dev.</p>}
@@ -287,22 +288,11 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
 
   return (
     <div>
-      <h1 className="font-display text-4xl tracking-tight">Smart wallet</h1>
+      <h1 className="font-display text-4xl tracking-tight">Wallet</h1>
 
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
       <section className="rounded-[10px] border border-border bg-foreground p-5 text-background">
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <span>{activeIsSmart ? "Opentip Smart Wallet" : "Wallet"}</span>
-          {activeIsSmart && sponsor && (
-            <span className="shrink-0 rounded-full bg-background/10 px-2 py-0.5 text-xs">
-              {sponsor.sponsored ? "Gas sponsored" : "You pay gas"}
-            </span>
-          )}
-          {!smartWallet && primaryWallet && (
-            <span className="shrink-0 rounded-full bg-background/10 px-2 py-0.5 text-xs">Primary</span>
-          )}
-        </div>
-        <div className="mt-6 flex items-center gap-1 text-background/70">
+        <div className="flex items-center gap-1 text-background/70">
           <span className="font-mono text-xs">{truncate(displayAddress!)}</span>
           <button onClick={() => copy(displayAddress!)} className="p-1 hover:text-background" aria-label="Copy address"><Copy className="h-3.5 w-3.5" /></button>
           <a href={`https://basescan.org/address/${displayAddress}`} target="_blank" rel="noreferrer" className="p-1 hover:text-background" aria-label="View on Basescan"><ExternalLink className="h-3.5 w-3.5" /></a>
@@ -398,15 +388,15 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
       {tab==="tokens" ? (
         <div className="mt-4 divide-y divide-border overflow-hidden rounded-[10px] border border-border bg-card">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="min-w-0"><div className="text-sm font-medium">ETH</div><div className="text-xs text-muted-foreground">Ethereum</div></div>
+            <div className="flex min-w-0 items-center gap-3"><TokenLogo symbol="ETH" /><div className="min-w-0"><div className="text-sm font-medium">ETH</div><div className="text-xs text-muted-foreground">Ethereum</div></div></div>
             <div className="shrink-0 text-right"><div className="stats text-sm tabular-nums text-foreground">{eth.toFixed(4)}</div><div className="text-xs text-muted-foreground">${(eth*ethPrice).toFixed(2)}</div></div>
           </div>
           <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="min-w-0"><div className="text-sm font-medium">USDC</div><div className="text-xs text-muted-foreground">USD Coin</div></div>
+            <div className="flex min-w-0 items-center gap-3"><TokenLogo symbol="USDC" /><div className="min-w-0"><div className="text-sm font-medium">USDC</div><div className="text-xs text-muted-foreground">USD Coin</div></div></div>
             <div className="shrink-0 text-right"><div className="stats text-sm tabular-nums text-foreground">{usdc.toFixed(2)}</div><div className="text-xs text-muted-foreground">${(usdc*usdcPrice).toFixed(2)}</div></div>
           </div>
           <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="min-w-0"><div className="text-sm font-medium">OAR</div><div className="text-xs text-muted-foreground">Oarcoin</div></div>
+            <div className="flex min-w-0 items-center gap-3"><TokenLogo symbol="OAR" /><div className="min-w-0"><div className="text-sm font-medium">OAR</div><div className="text-xs text-muted-foreground">Oarcoin</div></div></div>
             <div className="shrink-0 text-right"><div className="stats text-sm tabular-nums text-foreground">{oar.toFixed(4)}</div><div className="text-xs text-muted-foreground">${(oar * (prices[OAR_ADDRESS.toLowerCase()] || 0)).toFixed(2)}</div></div>
           </div>
         </div>

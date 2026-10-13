@@ -4,6 +4,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadCont
 import { useAppKit } from "@reown/appkit/react";
 import { opentipV2Abi } from "@/lib/contract";
 import { CONTRACT_ADDRESS, CHAIN_ID, getTokenSymbol, getTokenDecimals } from "@/lib/chain";
+import { TokenLogo } from "@/components/ledger/TokenLogo";
 import { Button, StatefulButton } from "@/components/motion/button";
 import { useToast } from "@/app/providers";
 
@@ -100,7 +101,7 @@ export default function AdminTokensPage() {
                 tokenAddresses.map((addr: string) => {
                   return (
                     <tr key={addr} className="border-b border-border last:border-0">
-                      <td className="px-4 py-2 font-mono text-xs font-medium">{getTokenSymbol(addr)}</td>
+                      <td className="px-4 py-2 font-mono text-xs font-medium"><span className="inline-flex items-center gap-2"><TokenLogo symbol={getTokenSymbol(addr)} />{getTokenSymbol(addr)}</span></td>
                       <td className="px-4 py-2 font-mono text-xs">{addr}</td>
                       <td className="px-4 py-2 text-right text-xs">{getTokenDecimals(addr)}</td>
                     </tr>

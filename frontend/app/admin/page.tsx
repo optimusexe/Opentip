@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Loader } from "@/components/motion/loader";
 import { getTokenSymbol, getTokenDecimals, ETH_ADDRESS, USDC_ADDRESS, OAR_ADDRESS } from "@/lib/chain";
+import { TokenLogo } from "@/components/ledger/TokenLogo";
 import { fmtUsd } from "@/lib/prices";
 
 interface Stats {
@@ -107,7 +108,7 @@ export default function AdminOverview() {
                     const price = prices[t.token?.toLowerCase()] ?? 0;
                     return (
                       <tr key={t.token} className="border-b border-border last:border-0">
-                        <td className="px-4 py-2 text-xs font-medium">{getTokenSymbol(t.token)}</td>
+                        <td className="px-4 py-2 text-xs font-medium"><span className="inline-flex items-center gap-2"><TokenLogo symbol={getTokenSymbol(t.token)} />{getTokenSymbol(t.token)}</span></td>
                         <td className="px-4 py-2 text-right stats text-xs">{formatAmount(t.total, t.token)} {getTokenSymbol(t.token)}</td>
                         <td className="px-4 py-2 text-right stats text-xs text-muted-foreground">{formatAmount(t.fees, t.token)} {getTokenSymbol(t.token)}</td>
                         <td className="px-4 py-2 text-right stats text-xs">{fmtUsd(amount * price)}</td>
@@ -133,7 +134,7 @@ export default function AdminOverview() {
               const usd = formatted * price;
               return (
                 <div key={addr} className="min-w-0 rounded-[10px] border border-border bg-card p-4">
-                  <div className="text-sm text-muted-foreground">{symbol}</div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground"><TokenLogo symbol={symbol} />{symbol}</div>
                   <div className="stats mt-2 break-words text-xl leading-tight tracking-tight text-foreground sm:text-2xl">{formatted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</div>
                   {price > 0 && <div className="mt-1 text-xs text-muted-foreground">{fmtUsd(usd)}</div>}
                 </div>
