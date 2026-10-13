@@ -5,6 +5,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { refuseUnlessLocalDatabase } from "./local-database.mjs";
 import {
   FIXTURE_BIO,
   FIXTURE_EMAIL,
@@ -20,11 +21,7 @@ import {
   FIXTURE_USDC,
 } from "./fixture.mjs";
 
-const databaseUrl = process.env.DATABASE_URL || "";
-if (!/^postgres(?:ql)?:\/\/[^@]+@(?:127\.0\.0\.1|localhost)(?::\d+)?\//.test(databaseUrl)) {
-  console.error("Refusing to seed. DATABASE_URL must target 127.0.0.1 or localhost.");
-  process.exit(1);
-}
+refuseUnlessLocalDatabase();
 
 const prisma = new PrismaClient();
 
