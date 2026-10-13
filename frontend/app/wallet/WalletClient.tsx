@@ -386,7 +386,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
       />
 
       {tab==="tokens" ? (
-        <div className="mt-4 divide-y divide-border overflow-hidden rounded-[10px] border border-border bg-card">
+        <div key="tokens" className="mt-4 divide-y divide-border overflow-hidden rounded-[10px] border border-border bg-card">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="flex min-w-0 items-center gap-3"><TokenLogo symbol="ETH" /><div className="min-w-0"><div className="text-sm font-medium">ETH</div><div className="text-xs text-muted-foreground">Ethereum</div></div></div>
             <div className="shrink-0 text-right"><div className="stats text-sm tabular-nums text-foreground">{eth.toFixed(4)}</div><div className="text-xs text-muted-foreground">${(eth*ethPrice).toFixed(2)}</div></div>
@@ -401,7 +401,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
           </div>
         </div>
       ) : (
-        <div className="mt-4">
+        <div key="history" className="mt-4">
           {chainUnavailable && !chainError && <p className="mb-3 text-sm text-muted-foreground">Showing Opentip tips only — full chain history needs an explorer key.</p>}
           {chainUnavailable && chainError && <p className="mb-3 text-sm text-destructive">Chain history unavailable ({chainError}) — showing Opentip tips and claims only.</p>}
           {historyLoading ? (
@@ -415,7 +415,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
             </div>
           ) : history.length===0 ? <div className="rounded-[10px] border border-border bg-card px-4 py-6 text-center text-sm text-muted-foreground">No history yet.</div> : (
           <div className="divide-y divide-border overflow-hidden rounded-[10px] border border-border bg-card">
-          {history.map((h:any)=>{
+          {history.map((h:any, i:number)=>{
             const decimals = h.decimals ?? getTokenDecimals(h.token);
             const val = h.amount ? Number(h.amount)/Math.pow(10,decimals) : 0;
             const formatted = decimals === 6 ? val.toFixed(2) : val >= 1000 ? `${(val/1000).toFixed(1)}k` : val >= 1 ? val.toFixed(2) : val.toFixed(4);
@@ -428,7 +428,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
             const symbol = (h.symbol || "").toString().replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12) || "—";
             const pending = h.status === "pending";
             return (
-            <div key={`${h.direction}-${h.kind}-${h.hash}`} className="flex items-center justify-between gap-3 px-4 py-3">
+            <div key={`${h.direction}-${h.kind}-${h.hash}-${h.token ?? h.symbol}-${i}`} className="flex items-center justify-between gap-3 px-4 py-3">
               <div className="min-w-0 text-sm">
                 <div className="flex items-center gap-2 font-medium">
                   <span className={isOut ? "text-destructive" : "text-emerald-800 dark:text-emerald-300"}>{label}</span>
