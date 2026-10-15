@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getTokenPrices, usdValue } from "@/lib/prices";
 import { usdByRepo, type RepoTokenTotal } from "@/lib/leaderboard-rank";
+import { directoryItemForSort, type DirectorySort } from "@/lib/repo-icon";
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;
@@ -39,13 +40,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       items: repos.map(r => {
         const agg = tipMap.get(r.repo_id);
-        return {
-          repo_id: r.repo_id,
-          payout_address: r.payout_address,
-          registered_at: r.registered_at,
+        return directoryItemForSort(r, "recent", {
           total_tipped: agg?.total ?? "0",
           tip_count: agg?.count ?? 0,
-        };
+        });
       }),
       total,
       page,
@@ -74,21 +72,18 @@ export async function GET(req: NextRequest) {
     try { rawByRepo.set(row.repo_id, current + BigInt(row.total)); } catch { /* skip a bad amount */ }
   }
 
+  const rankedSort: DirectorySort = sort === "tips" ? "tips" : "tipped";
   let items = repos.map(r => {
     const agg = byRepo.get(r.repo_id);
-    return {
-      repo_id: r.repo_id,
-      payout_address: r.payout_address,
-      registered_at: r.registered_at,
+    return directoryItemForSort(r, rankedSort, {
       total_tipped: (rawByRepo.get(r.repo_id) ?? 0n).toString(),
       tip_count: agg?.count ?? 0,
       tipped_usd: agg?.usd ?? 0,
-      icon: r.icon,
-    };
+    });
   });
 
   if (sort === "tipped") {
-    items.sort((a, b) => b.tipped_usd - a.tipped_usd || a.repo_id.localeCompare(b.repo_id));
+    items.sort((a, b) => (b.tipped_usd ?? 0) - (a.tipped_usd ?? 0) || a.repo_id.localeCompare(b.repo_id));
   } else if (sort === "tips") {
     items.sort((a, b) => b.tip_count - a.tip_count);
   }

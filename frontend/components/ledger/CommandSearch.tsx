@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { capitalize } from "@/lib/chain";
 import { UrlSwap } from "@/components/ledger/UrlSwap";
+import { RepoIcon } from "@/components/RepoIcon";
 
 const PAGES = [
   ["Home", "/"],
@@ -16,7 +17,7 @@ const PAGES = [
   ["Sign in", "/signin"],
 ];
 
-type RepoHit = { repo_id: string; tipped_usd?: number };
+type RepoHit = { repo_id: string; tipped_usd?: number; icon?: string | null };
 
 export function CommandSearch() {
   const router = useRouter();
@@ -103,9 +104,10 @@ export function CommandSearch() {
             const name = capitalize(repo.repo_id.split("/")[1] || repo.repo_id);
             return (
               <li key={repo.repo_id}>
-                <button type="button" className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left text-sm hover:bg-muted" onClick={() => go(`/${repo.repo_id}`)}>
-                  <span className="font-medium">{name}</span>
-                  <span className="font-mono text-[11px] text-muted-foreground">{repo.repo_id}</span>
+                <button type="button" className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm hover:bg-muted" onClick={() => go(`/${repo.repo_id}`)}>
+                  <RepoIcon repoId={repo.repo_id} logo={repo.icon} loadDeveloperPfp size={28} className="size-7" />
+                  <span className="min-w-0 flex-1 truncate font-medium">{name}</span>
+                  <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{repo.repo_id}</span>
                 </button>
               </li>
             );

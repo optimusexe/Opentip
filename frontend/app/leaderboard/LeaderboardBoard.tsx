@@ -5,9 +5,10 @@ import Link from "next/link";
 import { capitalize } from "@/lib/chain";
 import { fmtUsd } from "@/lib/prices";
 import { Segmented } from "@/components/ledger/Segmented";
+import { RepoIcon } from "@/components/RepoIcon";
 
 type Funder = { tipper_address: string; display_name: string | null; usd: number };
-type RepoRow = { repo_id: string; usd: number; funders: number };
+type RepoRow = { repo_id: string; usd: number; funders: number; icon: string | null };
 
 export function LeaderboardBoard({
   funders,
@@ -51,6 +52,7 @@ export function LeaderboardBoard({
                 <li key={repo.repo_id}>
                   <Link href={`/${repo.repo_id}`} className="flex min-w-0 items-center gap-3 rounded-[10px] border border-border px-4 py-3 hover:bg-muted/50">
                     <span className="w-6 font-mono text-sm text-brand">{index + 1}</span>
+                    <RepoIcon repoId={repo.repo_id} logo={repo.icon} loadDeveloperPfp />
                     <span className="min-w-0 flex-1 truncate text-sm font-medium">{capitalize(repo.repo_id.split("/")[1] || repo.repo_id)}</span>
                     <span className="hidden text-xs text-muted-foreground sm:inline">{repo.funders.toLocaleString("en-US")} {repo.funders === 1 ? "supporter" : "supporters"}</span>
                     <span className="font-mono text-sm tabular-nums">{fmtUsd(repo.usd)}</span>

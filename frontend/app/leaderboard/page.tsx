@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getTokenPrices, usdValue } from "@/lib/prices";
 import { rankTippersByUsd, usdByRepo, type RepoTokenTotal, type TipAggregateRow } from "@/lib/leaderboard-rank";
+import { normalizeRepoIcon } from "@/lib/repo-icon";
 import { LeaderboardBoard } from "./LeaderboardBoard";
 
 async function getLeaderboard(): Promise<{ rows: { tipper_address: string; display_name: string | null; usd: number }[]; error: boolean }> {
@@ -36,7 +37,7 @@ async function getLeaderboard(): Promise<{ rows: { tipper_address: string; displ
 
 async function getRepoBoard() {
   try {
-    const repos = await prisma.repo.findMany({ where: { hidden: false }, select: { repo_id: true } });
+    const repos = await prisma.repo.findMany({ where: { hidden: false }, select: { repo_id: true, icon: true } });
     if (repos.length === 0) return [];
     const repoIds = repos.map((repo) => repo.repo_id);
     const [tipAgg, prices, funders] = await Promise.all([
@@ -61,6 +62,7 @@ async function getRepoBoard() {
         repo_id: repo.repo_id,
         usd: byRepo.get(repo.repo_id)?.usd ?? 0,
         funders: funderMap.get(repo.repo_id) ?? 0,
+        icon: normalizeRepoIcon(repo.icon),
       }))
       .sort((a, b) => b.usd - a.usd || a.repo_id.localeCompare(b.repo_id))
       .slice(0, 20);

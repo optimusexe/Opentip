@@ -6,6 +6,7 @@ import { getTokenPrices, usdValue, fmtUsd } from "@/lib/prices";
 import { generateRepoSummary, type RepoSummary } from "@/lib/ai";
 import { capitalize } from "@/lib/chain";
 import { isHiddenRepo } from "@/lib/repo-visibility";
+import { resolveRepoIcon } from "@/lib/repo-icon";
 import TipClient from "./TipClient";
 
 type Link = { title: string; url: string };
@@ -130,12 +131,18 @@ export default async function RepoPage({ params }: { params: Promise<{ owner: st
 
   if (isHiddenRepo(repoRecord)) notFound();
 
+  const resolvedIcon = resolveRepoIcon({
+    logo: repoRecord?.icon,
+    developerPfp: meta?.owner.avatar_url,
+    name: repo,
+  });
+
   return (
     <TipClient
       repoId={repoId}
       project={capitalize(repo)}
       description={meta?.description ?? null}
-      icon={repoRecord?.icon || meta?.owner.avatar_url || null}
+      icon={resolvedIcon.kind === "image" ? resolvedIcon.src : null}
       summary={summary}
       links={links}
       developer={developer}
