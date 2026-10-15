@@ -35,11 +35,10 @@ export function visibleFundingUsd(
   return any ? total : null;
 }
 
-// A stored display name of "Unknown" is a placeholder, not a name. Empty
-// and whitespace-only values are missing too. Callers then use the address.
+// Only a missing, blank, or whitespace-only name falls back to the address.
+// Any other saved display name is shown as stored, including "Unknown".
 export function isMissingTipperName(name: string | null | undefined): boolean {
-  const trimmed = name?.trim() ?? "";
-  return trimmed.length === 0 || trimmed.toLowerCase() === "unknown";
+  return (name?.trim() ?? "").length === 0;
 }
 
 export function shortAddress(address: string): string {
@@ -48,8 +47,8 @@ export function shortAddress(address: string): string {
 }
 
 export function tipperLabel(name: string | null | undefined, address: string): string {
-  if (isMissingTipperName(name)) return shortAddress(address);
-  return name!.trim();
+  if (name == null || isMissingTipperName(name)) return shortAddress(address);
+  return name;
 }
 
 // Repo portion only, first letter capitalized. "vercel/next.js" -> "Next.js".

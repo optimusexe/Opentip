@@ -44,17 +44,22 @@ test("returns null when every tip is on a hidden repo", () => {
   );
 });
 
-test("treats empty and Unknown display names as missing", () => {
+test("shows a saved display name, including Unknown", () => {
   const address = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   assert.equal(isMissingTipperName(null), true);
+  assert.equal(isMissingTipperName(undefined), true);
   assert.equal(isMissingTipperName(""), true);
   assert.equal(isMissingTipperName("   "), true);
-  assert.equal(isMissingTipperName("Unknown"), true);
-  assert.equal(isMissingTipperName(" unknown "), true);
-  assert.equal(isMissingTipperName("Ada"), false);
-  assert.equal(tipperLabel("Unknown", address), "0xaaaa…aaaa");
-  assert.equal(tipperLabel("  ", address), "0xaaaa…aaaa");
-  assert.equal(tipperLabel("  Ada  ", address), "Ada");
+  assert.equal(isMissingTipperName("Unknown"), false);
+  assert.equal(isMissingTipperName("unknown"), false);
+  assert.equal(isMissingTipperName("UNKNOWN"), false);
+  assert.equal(tipperLabel(null, address), "0xaaaa…aaaa");
+  assert.equal(tipperLabel("   ", address), "0xaaaa…aaaa");
+  assert.equal(tipperLabel("Unknown", address), "Unknown");
+  assert.equal(tipperLabel("unknown", address), "unknown");
+  assert.equal(tipperLabel("UNKNOWN", address), "UNKNOWN");
+  assert.equal(tipperLabel(" unknown ", address), " unknown ");
+  assert.equal(tipperLabel("  Ada  ", address), "  Ada  ");
 });
 
 test("labels a tip with the capitalized repo name", () => {
