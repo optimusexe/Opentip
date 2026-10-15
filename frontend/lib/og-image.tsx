@@ -1,4 +1,6 @@
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { ImageResponse } from "next/og";
 import type { ReactElement } from "react";
 import { displayOwner } from "@/lib/og-layout";
@@ -16,32 +18,66 @@ const QUIET = "#55555f";
 type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 type OgFont = { name: string; data: ArrayBuffer; weight: FontWeight; style: "normal" };
 
-const FACES: { file: string; name: string; weight: FontWeight }[] = [
-  { file: "BricolageGrotesque-800.ttf", name: "Bricolage Grotesque", weight: 800 },
-  { file: "Geist-500.ttf", name: "Geist", weight: 500 },
-  { file: "Geist-600.ttf", name: "Geist", weight: 600 },
-  { file: "GeistMono-500.ttf", name: "Geist Mono", weight: 500 },
-];
-
-// Faces live next to this module and are read from disk (or fetched as a
-// bundled asset). No Google Fonts request. Geist Mono ships with its GSUB
-// table removed: Satori's parser rejects that file's liga lookup (type 6
-// format 1). Glyphs and advances are unchanged.
+// Each path is a string literal on purpose. Turbopack traces
+// `new URL("./file", import.meta.url)` and `readFile(join(process.cwd(), "file"))`
+// only when the path is static. A template string is not traced, so the
+// Vercel function looks up `/var/task/lib/og-fonts/...` and the file is absent.
+// `import.meta.url` also resolves one directory above this package on the
+// monorepo lambda, so the cwd fallbacks cover both layouts.
+// Geist Mono ships with its GSUB table removed: Satori rejects that file's
+// liga lookup (type 6 format 1). Glyphs and advances are unchanged.
 export async function loadOgFonts(): Promise<OgFont[]> {
-  const fonts: OgFont[] = [];
-  for (const face of FACES) {
-    const buf = await readBundledAsset(`./og-fonts/${face.file}`);
-    if (buf.byteLength < 1000) throw new Error(`Font ${face.file} did not load`);
-    fonts.push({ name: face.name, data: asArrayBuffer(buf), weight: face.weight, style: "normal" });
-  }
-  return fonts;
+  const [bricolage, geist500, geist600, mono] = await Promise.all([
+    readBundled([
+      () => readFile(fileURLToPath(new URL("./og-fonts/BricolageGrotesque-800.ttf", import.meta.url))),
+      () => readFile(join(process.cwd(), "lib/og-fonts/BricolageGrotesque-800.ttf")),
+      () => readFile(join(process.cwd(), "frontend/lib/og-fonts/BricolageGrotesque-800.ttf")),
+    ]),
+    readBundled([
+      () => readFile(fileURLToPath(new URL("./og-fonts/Geist-500.ttf", import.meta.url))),
+      () => readFile(join(process.cwd(), "lib/og-fonts/Geist-500.ttf")),
+      () => readFile(join(process.cwd(), "frontend/lib/og-fonts/Geist-500.ttf")),
+    ]),
+    readBundled([
+      () => readFile(fileURLToPath(new URL("./og-fonts/Geist-600.ttf", import.meta.url))),
+      () => readFile(join(process.cwd(), "lib/og-fonts/Geist-600.ttf")),
+      () => readFile(join(process.cwd(), "frontend/lib/og-fonts/Geist-600.ttf")),
+    ]),
+    readBundled([
+      () => readFile(fileURLToPath(new URL("./og-fonts/GeistMono-500.ttf", import.meta.url))),
+      () => readFile(join(process.cwd(), "lib/og-fonts/GeistMono-500.ttf")),
+      () => readFile(join(process.cwd(), "frontend/lib/og-fonts/GeistMono-500.ttf")),
+    ]),
+  ]);
+  const faces: { buf: Buffer; name: string; weight: FontWeight }[] = [
+    { buf: bricolage, name: "Bricolage Grotesque", weight: 800 },
+    { buf: geist500, name: "Geist", weight: 500 },
+    { buf: geist600, name: "Geist", weight: 600 },
+    { buf: mono, name: "Geist Mono", weight: 500 },
+  ];
+  return faces.map((face) => {
+    if (face.buf.byteLength < 1000) throw new Error(`Font ${face.name} did not load`);
+    return { name: face.name, data: asArrayBuffer(face.buf), weight: face.weight, style: "normal" as const };
+  });
 }
 
 export async function loadOgAssets(): Promise<{ mark: string; eth: string; usdc: string }> {
   const [mark, eth, usdc] = await Promise.all([
-    bundledPng("../public/mark-blue.png"),
-    bundledPng("../public/tokens/eth.png"),
-    bundledPng("../public/tokens/usdc.png"),
+    bundledPng([
+      () => readFile(fileURLToPath(new URL("../public/mark-blue.png", import.meta.url))),
+      () => readFile(join(process.cwd(), "public/mark-blue.png")),
+      () => readFile(join(process.cwd(), "frontend/public/mark-blue.png")),
+    ]),
+    bundledPng([
+      () => readFile(fileURLToPath(new URL("../public/tokens/eth.png", import.meta.url))),
+      () => readFile(join(process.cwd(), "public/tokens/eth.png")),
+      () => readFile(join(process.cwd(), "frontend/public/tokens/eth.png")),
+    ]),
+    bundledPng([
+      () => readFile(fileURLToPath(new URL("../public/tokens/usdc.png", import.meta.url))),
+      () => readFile(join(process.cwd(), "public/tokens/usdc.png")),
+      () => readFile(join(process.cwd(), "frontend/public/tokens/usdc.png")),
+    ]),
   ]);
   return { mark, eth, usdc };
 }
@@ -341,26 +377,22 @@ function Coin({ src, left, top, size, rotate }: { src: string; left: number; top
   );
 }
 
-async function bundledPng(relativePath: string): Promise<string> {
-  const buf = await readBundledAsset(relativePath);
+async function bundledPng(attempts: Array<() => Promise<Buffer>>): Promise<string> {
+  const buf = await readBundled(attempts);
   return `data:image/png;base64,${buf.toString("base64")}`;
 }
 
-async function readBundledAsset(relativeToThisFile: string): Promise<Buffer> {
-  // `new URL(..., import.meta.url)` is the static asset pattern Next traces into
-  // the server bundle. A dynamic process.cwd() join makes Turbopack trace the
-  // whole project and fail the Vercel build.
-  const url = new URL(relativeToThisFile, import.meta.url);
-  try {
-    const res = await fetch(url);
-    if (res.ok) {
-      const buf = Buffer.from(await res.arrayBuffer());
+async function readBundled(attempts: Array<() => Promise<Buffer>>): Promise<Buffer> {
+  let last: unknown;
+  for (const attempt of attempts) {
+    try {
+      const buf = await attempt();
       if (buf.byteLength > 0) return buf;
+    } catch (err) {
+      last = err;
     }
-  } catch {
-    // A file URL fetch fails when the bundler did not rewrite the asset.
   }
-  return readFile(url);
+  throw last instanceof Error ? last : new Error("Bundled asset did not load");
 }
 
 function asArrayBuffer(buf: Buffer): ArrayBuffer {

@@ -1,5 +1,14 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const projectDir = path.dirname(fileURLToPath(import.meta.url));
+// The lockfile is in the repo root. Pin tracing there so local and Vercel
+// bundles resolve this package the same way.
+const repoRoot = path.join(projectDir, "..");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: repoRoot,
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
@@ -43,6 +52,7 @@ const nextConfig = {
     ];
   },
   turbopack: {
+    root: repoRoot,
     resolveAlias: {
       "@x402/evm/upto/client": "./lib/stub.ts",
       "@x402/svm/exact/client": "./lib/stub.ts",
