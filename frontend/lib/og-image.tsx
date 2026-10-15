@@ -1,5 +1,4 @@
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import type { ReactElement } from "react";
 import { displayOwner } from "@/lib/og-layout";
@@ -348,6 +347,9 @@ async function bundledPng(relativePath: string): Promise<string> {
 }
 
 async function readBundledAsset(relativeToThisFile: string): Promise<Buffer> {
+  // `new URL(..., import.meta.url)` is the static asset pattern Next traces into
+  // the server bundle. A dynamic process.cwd() join makes Turbopack trace the
+  // whole project and fail the Vercel build.
   const url = new URL(relativeToThisFile, import.meta.url);
   try {
     const res = await fetch(url);
@@ -358,23 +360,7 @@ async function readBundledAsset(relativeToThisFile: string): Promise<Buffer> {
   } catch {
     // A file URL fetch fails when the bundler did not rewrite the asset.
   }
-  try {
-    return await readFile(url);
-  } catch {
-    // Fall through to paths included with outputFileTracingIncludes.
-  }
-  const normalized = relativeToThisFile.replace(/^\.\//, "");
-  const fromProject = normalized.startsWith("../") ? normalized.slice(3) : join("lib", normalized);
-  const candidates = [join(process.cwd(), fromProject), join(process.cwd(), "frontend", fromProject)];
-  const errors: string[] = [];
-  for (const candidate of candidates) {
-    try {
-      return await readFile(candidate);
-    } catch (error) {
-      errors.push(error instanceof Error ? error.message : String(error));
-    }
-  }
-  throw new Error(`Missing bundled asset ${relativeToThisFile} (${errors.join("; ")})`);
+  return readFile(url);
 }
 
 function asArrayBuffer(buf: Buffer): ArrayBuffer {
