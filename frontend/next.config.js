@@ -1,5 +1,14 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const projectDir = path.dirname(fileURLToPath(import.meta.url));
+// The lockfile is in the repo root. Pin tracing there so local and Vercel
+// bundles resolve this package the same way.
+const repoRoot = path.join(projectDir, "..");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: repoRoot,
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
@@ -9,6 +18,22 @@ const nextConfig = {
     ],
   },
   transpilePackages: ["wagmi", "@wagmi/core", "@wagmi/connectors", "ox", "@coinbase/cdp-hooks", "@coinbase/cdp-core", "@coinbase/cdp-api-client"],
+  // OG fonts and coins are read from disk inside the image route. Trace them
+  // into the serverless bundle so production does not depend on a font CDN.
+  outputFileTracingIncludes: {
+    "/[owner]/[repo]/opengraph-image": [
+      "./lib/og-fonts/**/*",
+      "./public/mark-blue.png",
+      "./public/tokens/eth.png",
+      "./public/tokens/usdc.png",
+    ],
+    "/:owner/:repo/opengraph-image": [
+      "./lib/og-fonts/**/*",
+      "./public/mark-blue.png",
+      "./public/tokens/eth.png",
+      "./public/tokens/usdc.png",
+    ],
+  },
   async redirects() {
     return [
       { source: "/terms", destination: "/legal/terms", permanent: false },
@@ -27,6 +52,7 @@ const nextConfig = {
     ];
   },
   turbopack: {
+    root: repoRoot,
     resolveAlias: {
       "@x402/evm/upto/client": "./lib/stub.ts",
       "@x402/svm/exact/client": "./lib/stub.ts",

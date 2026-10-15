@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     url: "https://opentip.tech",
     siteName: "Opentip",
     type: "website",
-    images: [{ url: "/ogimage.png", width: 1200, height: 630, alt: "Opentip" }],
+    images: [{ url: "/ogimage.png", width: 1200, height: 630, alt: "Tip any repo in crypto." }],
   },
   twitter: {
     card: "summary_large_image",
