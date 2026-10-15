@@ -9,6 +9,22 @@ const nextConfig = {
     ],
   },
   transpilePackages: ["wagmi", "@wagmi/core", "@wagmi/connectors", "ox", "@coinbase/cdp-hooks", "@coinbase/cdp-core", "@coinbase/cdp-api-client"],
+  // OG fonts and coins are read from disk inside the image route. Trace them
+  // into the serverless bundle so production does not depend on a font CDN.
+  outputFileTracingIncludes: {
+    "/[owner]/[repo]/opengraph-image": [
+      "./lib/og-fonts/**/*",
+      "./public/mark-blue.png",
+      "./public/tokens/eth.png",
+      "./public/tokens/usdc.png",
+    ],
+    "/:owner/:repo/opengraph-image": [
+      "./lib/og-fonts/**/*",
+      "./public/mark-blue.png",
+      "./public/tokens/eth.png",
+      "./public/tokens/usdc.png",
+    ],
+  },
   async redirects() {
     return [
       { source: "/terms", destination: "/legal/terms", permanent: false },

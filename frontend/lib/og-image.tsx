@@ -1,65 +1,52 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
-
-// Shared building blocks for dynamic OG images (Satori-compatible JSX only:
-// flexbox + absolute positioning, no exotic CSS).
+import type { ReactElement } from "react";
+import { displayOwner } from "@/lib/og-layout";
 
 export const OG_W = 1200;
 export const OG_H = 630;
-export const PAPER = "#c1c0b6";
-export const INK = "#1a1a1a";
-export const ACCENT = "#1f21b6";
+export const PAPER = "#F7F7F3";
+export const INK = "#0B0B0F";
+export const ACCENT = "#2A2AD6";
 export const SITE = "https://opentip.tech";
 
-type LoadedFont = { name: string; data: ArrayBuffer; weight: 400 | 600 | 700; style: "normal" | "italic" };
+const LABEL = "#6b6b75";
+const QUIET = "#55555f";
 
-// Fraunces (display) + Inter (body/labels) fetched once per render.
-// Falls back gracefully: whatever loads is used; Georgia/sans fallbacks
-// are declared in every fontFamily stack.
-export async function loadOgFonts(): Promise<LoadedFont[]> {
-  const css = async (family: string, weights: string) => {
-    const res = await fetch(
-      `https://fonts.googleapis.com/css2?family=${family}:ital,wght@${weights}&display=swap`,
-      { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } }
-    );
-    if (!res.ok) throw new Error(`font css ${family}`);
-    return res.text();
-  };
-  const woff2 = async (cssText: string, weight: number, italic: boolean) => {
-    // Pick the latin block (last @font-face with U+0000-00FF).
-    const blocks = cssText.split("@font-face").slice(1);
-    const pick =
-      [...blocks].reverse().find((b) => b.includes(`font-weight: ${weight};`) && (italic ? b.includes("font-style: italic;") : !b.includes("font-style: italic;"))) ??
-      blocks.find((b) => b.includes(`font-weight: ${weight};`));
-    if (!pick) throw new Error("no font block");
-    const url = pick.match(/url\((https:[^)]+\.woff2)\)/)?.[1];
-    if (!url) throw new Error("no woff2 url");
-    const buf = await (await fetch(url)).arrayBuffer();
-    return buf;
-  };
-  const out: LoadedFont[] = [];
-  const jobs: Promise<void>[] = [
-    (async () => {
-      try {
-        out.push({ name: "Fraunces", data: await woff2(await css("Fraunces", "0,600;1,600"), 600, false), weight: 600, style: "normal" });
-      } catch {}
-    })(),
-    (async () => {
-      try {
-        out.push({ name: "Fraunces", data: await woff2(await css("Fraunces", "0,600;1,600"), 600, true), weight: 600, style: "italic" });
-      } catch {}
-    })(),
-    (async () => {
-      try {
-        out.push({ name: "Inter", data: await woff2(await css("Inter", "0,500;0,700"), 500, false), weight: 400, style: "normal" });
-      } catch {}
-    })(),
-  ];
-  await Promise.all(jobs);
-  return out;
+type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+type OgFont = { name: string; data: ArrayBuffer; weight: FontWeight; style: "normal" };
+
+const FACES: { file: string; name: string; weight: FontWeight }[] = [
+  { file: "BricolageGrotesque-800.ttf", name: "Bricolage Grotesque", weight: 800 },
+  { file: "Geist-500.ttf", name: "Geist", weight: 500 },
+  { file: "Geist-600.ttf", name: "Geist", weight: 600 },
+  { file: "GeistMono-500.ttf", name: "Geist Mono", weight: 500 },
+];
+
+// Faces live next to this module and are read from disk (or fetched as a
+// bundled asset). No Google Fonts request. Geist Mono ships with its GSUB
+// table removed: Satori's parser rejects that file's liga lookup (type 6
+// format 1). Glyphs and advances are unchanged.
+export async function loadOgFonts(): Promise<OgFont[]> {
+  const fonts: OgFont[] = [];
+  for (const face of FACES) {
+    const buf = await readBundledAsset(`./og-fonts/${face.file}`);
+    if (buf.byteLength < 1000) throw new Error(`Font ${face.file} did not load`);
+    fonts.push({ name: face.name, data: asArrayBuffer(buf), weight: face.weight, style: "normal" });
+  }
+  return fonts;
 }
 
-// Fetch any image URL to a data URL for embedding. Relative site paths
-// are resolved against the site origin. Null on any failure.
+export async function loadOgAssets(): Promise<{ mark: string; eth: string; usdc: string }> {
+  const [mark, eth, usdc] = await Promise.all([
+    bundledPng("../public/mark-blue.png"),
+    bundledPng("../public/tokens/eth.png"),
+    bundledPng("../public/tokens/usdc.png"),
+  ]);
+  return { mark, eth, usdc };
+}
+
 export async function imgToDataUrl(src: string | null | undefined): Promise<string | null> {
   if (!src) return null;
   try {
@@ -76,81 +63,320 @@ export async function imgToDataUrl(src: string | null | undefined): Promise<stri
   }
 }
 
-export function ogResponse(
-  element: React.ReactElement,
-  fonts: LoadedFont[],
-  debugKey: string,
-): ImageResponse {
+export function ogResponse(element: ReactElement, fonts: OgFont[], debugKey: string): ImageResponse {
+  const fontHeader = fonts.map((font) => `${font.name} ${font.weight} ${font.data.byteLength}`).join("; ");
   return new ImageResponse(element, {
     width: OG_W,
     height: OG_H,
     fonts: fonts.length > 0 ? fonts : undefined,
-    headers: { "x-og-debug": debugKey },
+    headers: {
+      "x-og-debug": debugKey,
+      "x-og-fonts": fontHeader,
+    },
   });
 }
 
-// Shared frame: paper bg, corner ticks, footer strip. Children compose inside.
-export function OgFrame({ children }: { children: React.ReactNode }) {
+export function RepoOgCard({
+  hasTips,
+  totalLabel,
+  amountSize,
+  supporterCount,
+  repoName,
+  repoNameSize,
+  owner,
+  icon,
+  avatar,
+  url,
+  urlSize,
+  mark,
+  eth,
+  usdc,
+}: {
+  hasTips: boolean;
+  totalLabel: string;
+  amountSize: number;
+  supporterCount: number | null;
+  repoName: string;
+  repoNameSize: number;
+  owner: string;
+  icon: string | null;
+  avatar: string | null;
+  url: string;
+  urlSize: number;
+  mark: string;
+  eth: string;
+  usdc: string;
+}) {
+  const headline = hasTips ? totalLabel : "No tips yet";
+  const headlineSize = hasTips ? amountSize : 104;
+  const ownerLabel = displayOwner(owner);
   return (
     <div
       style={{
         width: OG_W,
         height: OG_H,
+        display: "flex",
+        position: "relative",
         backgroundColor: PAPER,
         color: INK,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "56px 72px 40px 72px",
-        position: "relative",
-        fontFamily: "Inter, sans-serif",
+        overflow: "hidden",
       }}
     >
-      <div style={{ position: "absolute", top: 28, left: 32, width: 30, height: 30, borderTop: `3px solid ${INK}`, borderLeft: `3px solid ${INK}`, opacity: 0.5 }} />
-      <div style={{ position: "absolute", top: 28, right: 32, width: 30, height: 30, borderTop: `3px solid ${INK}`, borderRight: `3px solid ${INK}`, opacity: 0.5 }} />
-      <div style={{ position: "absolute", bottom: 28, left: 32, width: 30, height: 30, borderBottom: `3px solid ${INK}`, borderLeft: `3px solid ${INK}`, opacity: 0.5 }} />
-      <div style={{ position: "absolute", bottom: 28, right: 32, width: 30, height: 30, borderBottom: `3px solid ${INK}`, borderRight: `3px solid ${INK}`, opacity: 0.5 }} />
-      <div style={{ display: "flex", flexDirection: "column" }}>{children}</div>
       <div
         style={{
+          position: "absolute",
+          left: 72,
+          top: 56,
           display: "flex",
           flexDirection: "row",
-          justifyContent: "space-between",
           alignItems: "center",
-          borderTop: `2px solid ${INK}33`,
-          paddingTop: 20,
-          fontFamily: "Inter, sans-serif",
-          fontSize: 24,
-          letterSpacing: 4,
-          opacity: 0.75,
+          gap: 12,
+          fontFamily: "Geist",
+          fontWeight: 600,
+          fontSize: 30,
+          letterSpacing: -0.4,
+          color: INK,
         }}
       >
-        <span>OPENTIP.TECH</span>
-        <span style={{ color: ACCENT }}>TIP ANY GITHUB REPO</span>
+        <img src={mark} width={38} height={38} />
+        Opentip
       </div>
+
+      <div
+        style={{
+          position: "absolute",
+          left: 72,
+          top: 140,
+          display: "flex",
+          flexDirection: "column",
+          width: 640,
+        }}
+      >
+        <div style={{ display: "flex", fontFamily: "Geist", fontWeight: 500, fontSize: 26, color: LABEL }}>
+          {hasTips ? "Total tipped" : "Be the first. Tips start at $1."}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            fontFamily: "Bricolage Grotesque",
+            fontWeight: 800,
+            fontSize: headlineSize,
+            letterSpacing: !hasTips || headlineSize >= 140 ? -4 : -3,
+            lineHeight: 1.02,
+            color: ACCENT,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {headline}
+        </div>
+        {hasTips && supporterCount != null ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "baseline",
+              marginTop: 6,
+              fontFamily: "Geist",
+              fontWeight: 500,
+              fontSize: 26,
+              color: QUIET,
+            }}
+          >
+            <span style={{ display: "flex", color: INK, fontWeight: 600, marginRight: 8 }}>
+              {supporterCount.toLocaleString("en-US")}
+            </span>
+            Supporters
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          right: 72,
+          top: 110,
+          width: 400,
+          height: 410,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: 36,
+          backgroundColor: "#ffffff",
+          borderRadius: 24,
+          border: "1px solid #e6e6df",
+          boxShadow: "0 30px 60px rgba(10,10,40,0.10)",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          {icon ? <RoundedImage src={icon} size={88} radius={20} bordered /> : <Monogram letter={repoName} />}
+          <div
+            style={{
+              display: "flex",
+              fontFamily: "Bricolage Grotesque",
+              fontWeight: 800,
+              fontSize: repoNameSize,
+              letterSpacing: -1,
+              lineHeight: 1.05,
+              color: INK,
+            }}
+          >
+            {repoName}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              fontFamily: "Geist",
+              fontWeight: 500,
+              fontSize: 22,
+              color: QUIET,
+            }}
+          >
+            <span style={{ display: "flex" }}>by</span>
+            {avatar ? <RoundedImage src={avatar} size={28} radius={28} /> : null}
+            <span style={{ display: "flex", color: INK, fontWeight: 600 }}>{ownerLabel}</span>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: ACCENT,
+            color: "#ffffff",
+            fontFamily: "Geist",
+            fontWeight: 600,
+            fontSize: 26,
+            paddingTop: 18,
+            paddingBottom: 18,
+            borderRadius: 999,
+          }}
+        >
+          Tip this repo
+        </div>
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          left: 72,
+          bottom: 60,
+          display: "flex",
+          fontFamily: "Geist Mono",
+          fontWeight: 500,
+          fontSize: urlSize,
+          color: QUIET,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {url}
+      </div>
+
+      <Coin src={usdc} left={560} top={470} size={80} rotate={-8} />
+      <Coin src={eth} left={640} top={96} size={64} rotate={-14} />
     </div>
   );
 }
 
-// Monogram fallback block (initial letter) when no image is available.
-export function Monogram({ letter, size = 120 }: { letter: string; size?: number }) {
+function RoundedImage({ src, size, radius, bordered }: { src: string; size: number; radius: number; bordered?: boolean }) {
   return (
     <div
       style={{
         width: size,
         height: size,
-        borderRadius: 12,
-        backgroundColor: INK,
-        color: PAPER,
+        display: "flex",
+        borderRadius: radius,
+        overflow: "hidden",
+        border: bordered ? "1px solid #e3e3dc" : "none",
+        backgroundColor: "#ffffff",
+      }}
+    >
+      <img src={src} width={size} height={size} style={{ objectFit: "cover", borderRadius: radius }} />
+    </div>
+  );
+}
+
+function Monogram({ letter }: { letter: string }) {
+  const glyph = (letter.replace(/\u200b/g, "") || "?").slice(0, 1).toUpperCase();
+  return (
+    <div
+      style={{
+        width: 88,
+        height: 88,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "Fraunces, Georgia, serif",
-        fontWeight: 600,
-        fontSize: Math.round(size * 0.5),
+        borderRadius: 20,
+        border: "1px solid #e3e3dc",
+        backgroundColor: PAPER,
+        color: INK,
+        fontFamily: "Bricolage Grotesque",
+        fontWeight: 800,
+        fontSize: 40,
       }}
     >
-      {(letter || "?").slice(0, 1).toUpperCase()}
+      {glyph}
     </div>
   );
+}
+
+function Coin({ src, left, top, size, rotate }: { src: string; left: number; top: number; size: number; rotate: number }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left,
+        top,
+        width: size,
+        height: size,
+        display: "flex",
+        borderRadius: size,
+        boxShadow: "0 14px 24px rgba(20,20,60,0.18)",
+        transform: `rotate(${rotate}deg)`,
+      }}
+    >
+      <img src={src} width={size} height={size} />
+    </div>
+  );
+}
+
+async function bundledPng(relativePath: string): Promise<string> {
+  const buf = await readBundledAsset(relativePath);
+  return `data:image/png;base64,${buf.toString("base64")}`;
+}
+
+async function readBundledAsset(relativeToThisFile: string): Promise<Buffer> {
+  const url = new URL(relativeToThisFile, import.meta.url);
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.byteLength > 0) return buf;
+    }
+  } catch {
+    // A file URL fetch fails when the bundler did not rewrite the asset.
+  }
+  try {
+    return await readFile(url);
+  } catch {
+    // Fall through to paths included with outputFileTracingIncludes.
+  }
+  const normalized = relativeToThisFile.replace(/^\.\//, "");
+  const fromProject = normalized.startsWith("../") ? normalized.slice(3) : join("lib", normalized);
+  const candidates = [join(process.cwd(), fromProject), join(process.cwd(), "frontend", fromProject)];
+  const errors: string[] = [];
+  for (const candidate of candidates) {
+    try {
+      return await readFile(candidate);
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+  throw new Error(`Missing bundled asset ${relativeToThisFile} (${errors.join("; ")})`);
+}
+
+function asArrayBuffer(buf: Buffer): ArrayBuffer {
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
 }
