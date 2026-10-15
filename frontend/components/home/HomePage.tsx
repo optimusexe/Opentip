@@ -49,7 +49,7 @@ export async function HomePage() {
             <UrlSwap />
             <p className="text-sm text-muted-foreground">Swap one word in any repo link. Paste owner/repo or a full GitHub URL.</p>
           </div>
-          <aside className="rounded-[10px] border border-border bg-card p-4 shadow-[0_18px_50px_-32px_rgba(11,13,12,0.45)] sm:p-5">
+          <aside className="min-w-0 rounded-[10px] border border-border bg-card p-4 shadow-[0_18px_50px_-32px_rgba(11,13,12,0.45)] sm:p-5">
             <p className="text-sm font-medium">{ledger?.project ?? "No tips yet"}</p>
             <p className="mt-5 text-xs text-muted-foreground">Total tipped</p>
             <p className="mt-1 font-mono text-4xl tracking-tight">
@@ -65,10 +65,11 @@ export async function HomePage() {
             {ledger && ledger.tips.length > 0 ? (
               <ul className="mt-4 divide-y divide-border">
                 {ledger.tips.map((row) => (
-                  <li key={row.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                    <span className="truncate font-mono text-xs text-muted-foreground">{row.name}</span>
-                    <span className="font-mono text-xs text-brand tabular-nums">+{row.amount} {row.symbol}</span>
-                    <span className="w-8 text-right text-xs text-muted-foreground">{row.when}</span>
+                  <li key={row.id} className="grid grid-cols-[minmax(0,1.15fr)_auto_minmax(0,0.8fr)_auto] items-center gap-x-2 py-2.5 text-sm sm:gap-x-3">
+                    <span className="min-w-0 truncate font-mono text-xs text-muted-foreground">{row.name}</span>
+                    <span className="whitespace-nowrap font-mono text-xs text-brand tabular-nums">+{row.amount} {row.symbol}</span>
+                    <span className="min-w-0 truncate text-xs text-foreground">{row.repo}</span>
+                    <span className="whitespace-nowrap text-right text-xs tabular-nums text-muted-foreground">{row.when}</span>
                   </li>
                 ))}
               </ul>
