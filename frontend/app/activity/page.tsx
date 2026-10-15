@@ -6,6 +6,7 @@ import { Loader } from "@/components/motion/loader";
 import { ExternalLink } from "lucide-react";
 import { getBasescanTxUrl } from "@/lib/basescan";
 import { getTokenSymbol, getTokenDecimals, capitalize } from "@/lib/chain";
+import { RepoIcon } from "@/components/RepoIcon";
 
 const PAGE_SIZE = 20;
 
@@ -62,24 +63,29 @@ export default function ActivityFeed() {
                 const hash = typeof t.tx_hash === "string" ? t.tx_hash : "";
                 const onChain = /^0x[0-9a-fA-F]{64}$/.test(hash);
                 return (
-                <li key={t.id} className="rounded-[10px] border border-border px-4 py-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm">
-                      <span className="font-mono text-xs">{t.display_name || truncate(t.tipper_address)}</span>
-                      {" tipped "}
-                      <Link href={`/${t.repo_id}`} className="font-medium text-brand">{capitalize(t.repo_id.split("/")[1])}</Link>
-                    </p>
-                    <span className="font-mono text-xs tabular-nums text-brand">+{(Number(t.amount) / Math.pow(10, getTokenDecimals(t.token))).toFixed(2)} {getTokenSymbol(t.token)}</span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                    {onChain ? (
-                      <a href={getBasescanTxUrl(hash)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-mono text-[11px] hover:text-brand">
-                        {truncate(hash)} <ExternalLink className="h-3 w-3" />
-                      </a>
-                    ) : (
-                      <span className="font-mono text-[11px]">{hash ? truncate(hash) : "—"}</span>
-                    )}
-                    <span className="ml-auto">{timeAgo(t.timestamp)}</span>
+                <li key={t.id} className="flex items-center gap-3 rounded-[10px] border border-border px-4 py-3">
+                  <Link href={`/${t.repo_id}`} className="shrink-0" aria-label={capitalize(t.repo_id.split("/")[1] || t.repo_id)}>
+                    <RepoIcon repoId={t.repo_id} logo={t.icon} loadDeveloperPfp />
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm">
+                        <span className="font-mono text-xs">{t.display_name || truncate(t.tipper_address)}</span>
+                        {" tipped "}
+                        <Link href={`/${t.repo_id}`} className="font-medium text-brand">{capitalize(t.repo_id.split("/")[1])}</Link>
+                      </p>
+                      <span className="font-mono text-xs tabular-nums text-brand">+{(Number(t.amount) / Math.pow(10, getTokenDecimals(t.token))).toFixed(2)} {getTokenSymbol(t.token)}</span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                      {onChain ? (
+                        <a href={getBasescanTxUrl(hash)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-mono text-[11px] hover:text-brand">
+                          {truncate(hash)} <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <span className="font-mono text-[11px]">{hash ? truncate(hash) : "—"}</span>
+                      )}
+                      <span className="ml-auto">{timeAgo(t.timestamp)}</span>
+                    </div>
                   </div>
                 </li>
                 );

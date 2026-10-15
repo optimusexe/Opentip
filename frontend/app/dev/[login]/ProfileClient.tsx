@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { fmtUsd } from "@/lib/prices";
 import { capitalize } from "@/lib/chain";
+import { RepoIcon } from "@/components/RepoIcon";
 
 function renderBioWithLinks(bio: string) {
   const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s]*)/g;
@@ -46,6 +47,7 @@ interface ProfileData {
     total_tipped: number;
     tip_count: number;
     usd: number;
+    icon: string | null;
   }[];
   stats: {
     total_tipped_usd: number;
@@ -159,8 +161,9 @@ export default function ProfileClient({ data, contributions }: { data: ProfileDa
           <ul className="mt-3 flex flex-col gap-2">
             {data.repos.map((r) => (
               <li key={r.repo_id}>
-                <Link href={`/${r.repo_id}`} className="flex min-w-0 items-center justify-between gap-3 rounded-[10px] border border-border px-4 py-3 hover:bg-muted/50">
-                  <span className="min-w-0">
+                <Link href={`/${r.repo_id}`} className="flex min-w-0 items-center gap-3 rounded-[10px] border border-border px-4 py-3 hover:bg-muted/50">
+                  <RepoIcon repoId={r.repo_id} logo={r.icon} loadDeveloperPfp />
+                  <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">{capitalize(r.repo_id.split("/")[1] || r.repo_id)}</span>
                     <span className="text-xs text-muted-foreground">{r.tip_count.toLocaleString("en-US")} {r.tip_count === 1 ? "tip" : "tips"}</span>
                   </span>

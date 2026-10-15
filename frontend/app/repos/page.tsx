@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/motion/button";
 import { Loader } from "@/components/motion/loader";
+import { RepoIcon } from "@/components/RepoIcon";
 import { Search } from "lucide-react";
 import { capitalize } from "@/lib/chain";
 import { fmtUsd } from "@/lib/prices";
@@ -113,17 +113,10 @@ export default function ReposDirectory() {
             <ul className="divide-y divide-border rounded-[10px] border border-border">
               {repos.map((r: any) => {
                 const meta = metaMap[r.repo_id];
-                const [owner] = r.repo_id.split("/");
                 return (
                   <li key={r.repo_id}>
                     <Link href={`/${r.repo_id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/60">
-                      {r.icon ? (
-                        <Image src={r.icon} alt={capitalize(r.repo_id.split("/")[1])} width={36} height={36} className="size-9 flex-shrink-0 rounded-[8px]" />
-                      ) : meta ? (
-                        <Image src={meta.owner.avatar_url} alt={owner} width={36} height={36} className="size-9 flex-shrink-0 rounded-[8px]" />
-                      ) : (
-                        <span className="flex size-9 flex-shrink-0 items-center justify-center rounded-[8px] border border-border font-display">{capitalize(r.repo_id.split("/")[1]).slice(0, 1)}</span>
-                      )}
+                      <RepoIcon repoId={r.repo_id} logo={r.icon} developerPfp={meta?.owner?.avatar_url ?? null} />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium">{capitalize(r.repo_id.split("/")[1])}</span>
                         {meta?.description ? <span className="block truncate text-xs text-muted-foreground">{meta.description}</span> : null}

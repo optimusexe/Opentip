@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getTokenDecimals } from "@/lib/chain";
 import { prisma } from "@/lib/prisma";
 import { getTokenPrices, usdValue, fmtUsd } from "@/lib/prices";
+import { normalizeRepoIcon } from "@/lib/repo-icon";
 import ProfileClient from "./ProfileClient";
 
 async function fetchContributions(login: string) {
@@ -122,6 +123,7 @@ export default async function DevProfilePage({
         select: {
           repo_id: true,
           registered_at: true,
+          icon: true,
         },
       })
     : [];
@@ -161,6 +163,7 @@ export default async function DevProfilePage({
     total_tipped: tipMap.get(r.repo_id)?.total ?? 0,
     tip_count: tipMap.get(r.repo_id)?.count ?? 0,
     usd: tipMap.get(r.repo_id)?.usd ?? 0,
+    icon: normalizeRepoIcon(r.icon),
   }));
 
   const totalTips = enrichedRepos.reduce((sum, r) => sum + r.tip_count, 0);

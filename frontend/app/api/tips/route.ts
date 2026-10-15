@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getTokenSymbol, getTokenDecimals } from "@/lib/chain";
+import { normalizeRepoIcon } from "@/lib/repo-icon";
 
 export async function GET(req: NextRequest) {
   const repoId = req.nextUrl.searchParams.get("repoId")?.toLowerCase() || null;
@@ -25,6 +26,11 @@ export async function GET(req: NextRequest) {
     ? await prisma.displayName.findMany({ where: { tipper_address: { in: tipperAddresses } } })
     : [];
   const nameMap = new Map(displayNames.map(n => [n.tipper_address.toLowerCase(), n.display_name]));
+  const repoIds = [...new Set(tips.map(t => t.repo_id))];
+  const iconRows = repoIds.length
+    ? await prisma.repo.findMany({ where: { repo_id: { in: repoIds } }, select: { repo_id: true, icon: true } })
+    : [];
+  const iconMap = new Map(iconRows.map(row => [row.repo_id, normalizeRepoIcon(row.icon)]));
 
   return NextResponse.json(
     tips.map(t => ({
@@ -36,6 +42,7 @@ export async function GET(req: NextRequest) {
       fee_amount: t.fee_amount.toString(),
       block_number: t.block_number.toString(),
       display_name: nameMap.get(t.tipper_address.toLowerCase()) || null,
+      icon: iconMap.get(t.repo_id) ?? null,
     }))
   );
 }
