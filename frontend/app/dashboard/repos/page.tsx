@@ -10,6 +10,7 @@ import { useAccount, useReadContracts } from "wagmi";
 import { opentipV2Abi } from "@/lib/contract";
 import { CONTRACT_ADDRESS, CHAIN_ID, USDC_ADDRESS, ETH_ADDRESS, OAR_ADDRESS, getTokenDecimals, capitalize } from "@/lib/chain";
 import { fmtUsd } from "@/lib/prices";
+import { resolveRepoIcon } from "@/lib/repo-icon";
 import { useToast } from "@/app/providers";
 
 type LinkItem = { title: string; url: string };
@@ -217,6 +218,7 @@ export default function DashboardRepos() {
             const onChain = onChainMap[r.repo_id];
             const isClaimant = address && contract && r.payout_address.toLowerCase() === address.toLowerCase();
             const isExpanded = expandedRepo === r.repo_id;
+            const iconPreview = resolveRepoIcon({ logo: r.icon, name: capitalize(r.repo_id.split("/")[1]) });
 
             let pendingUsd = 0;
             let totalUsd = 0;
@@ -234,11 +236,11 @@ export default function DashboardRepos() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 items-start gap-3">
                     <label className="relative cursor-pointer flex-shrink-0">
-                      {r.icon ? (
-                        <Image src={r.icon} alt={capitalize(r.repo_id.split("/")[1])} width={40} height={40} className="size-10 rounded-[8px] object-cover" />
+                      {iconPreview.kind === "image" ? (
+                        <Image src={iconPreview.src} alt={capitalize(r.repo_id.split("/")[1])} width={40} height={40} className="size-10 rounded-[8px] object-cover" />
                       ) : (
                         <div className="flex size-10 items-center justify-center rounded-[8px] border border-border bg-muted text-xs text-muted-foreground">
-                          {uploadingIcon === r.repo_id ? <Loader variant="spinner" size={16} /> : capitalize(r.repo_id.split("/")[1]).slice(0, 1)}
+                          {uploadingIcon === r.repo_id ? <Loader variant="spinner" size={16} /> : iconPreview.letter}
                         </div>
                       )}
                       <input

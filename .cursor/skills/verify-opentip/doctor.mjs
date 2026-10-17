@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
+import { assertLocalDb } from "../../../scripts/assert-local-db.mjs";
 import { FIXTURE_REPO, FIXTURE_SUPPORTER, PORT } from "./fixture.mjs";
 
 const STATE = "/tmp/opentip-verify/state.json";
@@ -173,6 +174,7 @@ process.env.DATABASE_URL = env.DATABASE_URL || "";
 if (!process.env.DATABASE_URL) {
   fail("DATABASE_URL missing from frontend/.env.local");
 } else {
+  assertLocalDb();
   const prisma = new PrismaClient();
   try {
     await prisma.$queryRaw`SELECT 1`;

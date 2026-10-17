@@ -1,3 +1,5 @@
+import { copyTipLinkLabel, displayNameSaveLabel } from "@/lib/ui-labels";
+
 export const metadata = {
   title: "Getting Started",
   description: "How to tip an open-source repository on Opentip — connect a wallet, choose an amount, and send.",
@@ -94,14 +96,14 @@ export default function GettingStartedPage() {
           By default, tippers are identified by their wallet address. You can set a display name (like &quot;Alice&quot; or &quot;Satoshi&quot;) that appears in activity feeds and leaderboards.
         </p>
         <p className="text-sm text-foreground/80 leading-relaxed">
-          On any repo page, enter a name next to the amount and click <strong>Save</strong>. You will need to sign a message with your wallet to prove ownership. The name is stored and shown for later payments from that address. An Opentip Smart Wallet can sign this too.
+          On any repo page, enter a name next to the amount and click <strong>{displayNameSaveLabel}</strong>. You will need to sign a message with your wallet to prove ownership. The name is stored and shown for later payments from that address. An Opentip Smart Wallet can sign this too.
         </p>
       </section>
 
       <section className="border-t border-border pt-10 space-y-6">
         <h2 className="font-display text-xl">Sharing a tip link</h2>
         <p className="text-sm text-foreground/80 leading-relaxed">
-          Every repo page has a <strong>Copy tip link</strong> button. Share it on social media, in READMEs, or in issues so others can tip the same project.
+          Every repo page has a <strong>{copyTipLinkLabel}</strong> button. Share it on social media, in READMEs, or in issues so others can tip the same project.
         </p>
         <code className="block bg-zinc-950 text-zinc-100 p-4 rounded-sm font-mono text-sm">
           https://opentip.tech/{'{owner}'}/{'{repo}'}
@@ -111,7 +113,7 @@ export default function GettingStartedPage() {
       <section className="border-t border-border pt-10 space-y-6">
         <h2 className="font-display text-xl">How fees work</h2>
         <p className="text-sm text-foreground/80 leading-relaxed">
-          Opentip charges a 5% platform fee on every tip. The fee is deducted automatically by the smart contract before the developer can claim. For example, a $100 tip results in $95 going to the developer and $5 to the Opentip treasury.
+          The contract deducts its platform fee before a maintainer can claim. The tip page shows that split before you confirm.
         </p>
         <p className="text-sm text-foreground/80 leading-relaxed">
           Fees are non-refundable once a transaction is confirmed on-chain. The fee rate is capped at 10% and can only be changed by the contract owner.

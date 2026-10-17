@@ -3,6 +3,7 @@ import { getTokenPrices, usdValue, fmtUsd } from "@/lib/prices";
 import { fetchRepoMeta } from "@/lib/github";
 import { RepoOgCard, imgToDataUrl, loadOgAssets, loadOgFonts, ogResponse } from "@/lib/og-image";
 import { amountFontSize, displayRepoName, displayRepoUrl } from "@/lib/og-layout";
+import { resolveRepoIcon } from "@/lib/repo-icon";
 
 export const runtime = "nodejs";
 export const alt = "Tip this repo";
@@ -58,7 +59,8 @@ export default async function Image({
   const name = displayRepoName(repo);
   const url = displayRepoUrl(owner.toLowerCase(), repo.toLowerCase());
   const avatarSource = meta?.owner.avatar_url || `https://github.com/${owner}.png`;
-  const iconSource = record?.icon || avatarSource;
+  const resolvedIcon = resolveRepoIcon({ logo: record?.icon, developerPfp: avatarSource, name: repo });
+  const iconSource = resolvedIcon.kind === "image" ? resolvedIcon.src : avatarSource;
   const [icon, avatar] = await Promise.all([imgToDataUrl(iconSource), imgToDataUrl(avatarSource)]);
 
   const element = (

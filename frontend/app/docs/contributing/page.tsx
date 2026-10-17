@@ -1,3 +1,5 @@
+import { claimButtonLabel } from "@/lib/ui-labels";
+
 export const metadata = {
   title: "Contributing",
   description: "Self-host Opentip, run the development environment, or contribute to the codebase.",
@@ -321,7 +323,7 @@ forge test`}</CodeBlock>
           <li>Send a USDC tip (approve + receiveTip)</li>
           <li>Send an ETH tip (payable receiveTipEth)</li>
           <li>OAR tipping is coming soon. The token menu shows &quot;OAR tipping coming soon&quot; and keeps the current token.</li>
-          <li>Claim tips as the payout address holder</li>
+          <li>Press {claimButtonLabel} as the payout address holder</li>
           <li>Set a display name</li>
           <li>Edit profile (bio, social links, pfp, header)</li>
           <li>Test forgot password flow</li>

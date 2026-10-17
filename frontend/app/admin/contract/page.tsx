@@ -114,7 +114,7 @@ export default function AdminContract() {
             {loading.setFee ? "Sending..." : "Update"}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">500 = 5%. Max 1000 (10%).</p>
+        <p className="text-xs text-muted-foreground">Basis points. 100 = 1%. Max 1000 (10%).</p>
       </section>
 
       <div className="border-t border-border" />

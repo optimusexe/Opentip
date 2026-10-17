@@ -1,11 +1,10 @@
 import { cn } from "@/lib/utils";
 
-/** Fee explanation bar. Pass maintainer share in basis points (9500 = 95%). */
 export function SplitBar({
-  maintainerBps = 9500,
+  maintainerBps,
   className,
 }: {
-  maintainerBps?: number;
+  maintainerBps: number;
   className?: string;
 }) {
   const maintainer = Math.max(0, Math.min(10000, Math.round(maintainerBps)));

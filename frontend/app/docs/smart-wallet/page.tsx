@@ -1,3 +1,6 @@
+import { selfPaidCapStatuses, selfPaidPaymasterStatuses } from "@/lib/paymaster-fallback";
+import { claimButtonLabel, gasNote } from "@/lib/ui-labels";
+
 export const metadata = {
   title: "Smart Wallet",
   description: "Your Opentip Smart Wallet — one address on every device. How to create it, use it, and keep it safe.",
@@ -72,7 +75,7 @@ export default function SmartWalletPage() {
           </div>
           <div className="p-4 rounded-[10px] border border-border">
             <h3 className="font-medium text-sm">Claiming</h3>
-            <p className="text-sm text-muted-foreground mt-1">From the payout wallet, press <strong>Claim tips</strong> to withdraw every pending token at once.</p>
+            <p className="text-sm text-muted-foreground mt-1">From the payout wallet, press <strong>{claimButtonLabel}</strong> to withdraw every pending token at once.</p>
           </div>
           <div className="p-4 rounded-[10px] border border-border">
             <h3 className="font-medium text-sm">Send & deposit</h3>
@@ -80,7 +83,7 @@ export default function SmartWalletPage() {
           </div>
           <div className="p-4 rounded-[10px] border border-border">
             <h3 className="font-medium text-sm">Gas fees</h3>
-            <p className="text-sm text-muted-foreground mt-1">When a paymaster is configured, Opentip can sponsor up to 10 Smart Wallet transactions per account per UTC day. Sponsorship is not always on. If the paymaster is not configured, or it returns 429, 502, or 503, the wallet pays its own gas. A successful payment then includes &quot;(you paid gas — daily sponsorship used up)&quot; when the daily cap was hit, or &quot;(you paid gas)&quot; when the paymaster was unavailable. Keep a little ETH in the wallet for those times. A tip sent without an Opentip account is never sponsored.</p>
+            <p className="text-sm text-muted-foreground mt-1">When a paymaster is configured, Opentip can sponsor up to 10 Smart Wallet transactions per account per UTC day. Sponsorship is not always on. A missing paymaster returns 500 and does not fall back to self-paid gas. Statuses {selfPaidCapStatuses.join(", ")} and {selfPaidPaymasterStatuses.join(", ")} do, and the wallet pays its own gas. The payment then includes {gasNote.cap} when the daily cap was hit, or {gasNote.paymaster} when the paymaster was unavailable. Keep a little ETH in the wallet for those times. A tip sent without an Opentip account is never sponsored.</p>
           </div>
         </div>
       </section>

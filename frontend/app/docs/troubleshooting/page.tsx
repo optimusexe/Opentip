@@ -1,3 +1,6 @@
+import { selfPaidCapStatuses, selfPaidPaymasterStatuses } from "@/lib/paymaster-fallback";
+import { claimButtonLabel, displayNameSaveLabel, gasNote } from "@/lib/ui-labels";
+
 export const metadata = {
   title: "Troubleshooting",
   description: "Fixes for common Opentip problems: tipping, registering and claiming repos, sign-in, notifications, and running your own instance.",
@@ -125,12 +128,12 @@ export default function TroubleshootingPage() {
                   <td className="py-3 text-muted-foreground">Check your controls at <a href="/wallet/security" className="text-accent underline underline-offset-4">Wallet → Security</a>.</td>
                 </tr>
                 <tr className="border-b border-border">
-                  <td className="py-3 pr-4 text-foreground/80">&quot;… (you paid gas — daily sponsorship used up)&quot; after a successful payment</td>
+                  <td className="py-3 pr-4 text-foreground/80">&quot;… {gasNote.cap}&quot; after a successful payment</td>
                   <td className="py-3 text-muted-foreground">Your payment went through. Today&apos;s sponsored transactions (10 per account, reset at midnight UTC) were used up, so the wallet paid its own gas. Sponsorship only runs when a paymaster is configured.</td>
                 </tr>
                 <tr className="border-b border-border">
-                  <td className="py-3 pr-4 text-foreground/80">&quot;… (you paid gas)&quot; after a successful payment</td>
-                  <td className="py-3 text-muted-foreground">The paymaster was unavailable, so the wallet paid its own gas. This happens on 502 and 503 from the paymaster.</td>
+                  <td className="py-3 pr-4 text-foreground/80">&quot;… {gasNote.paymaster}&quot; after a successful payment</td>
+                  <td className="py-3 text-muted-foreground">The paymaster was unavailable, so the wallet paid its own gas. This happens on {selfPaidPaymasterStatuses.join(" and ")} from the paymaster.</td>
                 </tr>
               </tbody>
             </table>
@@ -152,7 +155,7 @@ export default function TroubleshootingPage() {
           <h4 className="font-medium text-sm">Display name</h4>
           <ul className="text-sm text-foreground/80 space-y-2 list-disc pl-5">
             <li><strong>Why:</strong> Saving a name needs a signature from the wallet you tip with. That works for a connected external wallet and for the Opentip Smart Wallet. The name is stored for that wallet&apos;s address.</li>
-            <li><strong>Fix:</strong> Type a name of 1–64 characters, press <strong>Save</strong>, and sign the message.</li>
+            <li><strong>Fix:</strong> Type a name of 1–64 characters, press <strong>{displayNameSaveLabel}</strong>, and sign the message.</li>
             <li><strong>&quot;Enter a display name&quot;</strong> means the name is empty, or no wallet address is available yet.</li>
             <li><strong>&quot;Save failed&quot;</strong> with <strong>&quot;invalid signature&quot;</strong> means the signature didn&apos;t match that address.</li>
           </ul>
@@ -427,7 +430,7 @@ export default function TroubleshootingPage() {
         <h3 id="claiming-funds-maintainers" className="font-medium text-lg">Claiming tips (maintainers)</h3>
 
         <div className="space-y-2">
-          <h4 className="font-medium text-sm">There&apos;s no &quot;Claim tips&quot; button</h4>
+          <h4 className="font-medium text-sm">There&apos;s no &quot;{claimButtonLabel}&quot; button</h4>
           <ul className="text-sm text-foreground/80 space-y-2 list-disc pl-5">
             <li><strong>Why:</strong> The button shows only when two things are true. The wallet you&apos;re using must be the repo&apos;s payout wallet, and the repo must have a pending balance.</li>
             <li><strong>Check:</strong> Compare the <strong>Payout</strong> address on the repo page with your wallet. <strong>Pending</strong> must show an amount.</li>
@@ -645,7 +648,7 @@ export default function TroubleshootingPage() {
                 </tr>
                 <tr className="border-b border-border">
                   <td className="py-3 pr-4 text-foreground/80">Smart Wallet payments fail and <code className="bg-muted px-1.5 py-0.5 rounded-sm font-mono text-xs">/api/paymaster</code> returns &quot;paymaster not configured&quot;</td>
-                  <td className="py-3 text-muted-foreground">Set <code className="bg-muted px-1.5 py-0.5 rounded-sm font-mono text-xs">CDP_PAYMASTER_URL</code>. Keep it server-only. A missing paymaster (500) does not fall back to self-paid gas. 429, 502, and 503 do: the wallet pays its own gas.</td>
+                  <td className="py-3 text-muted-foreground">Set <code className="bg-muted px-1.5 py-0.5 rounded-sm font-mono text-xs">CDP_PAYMASTER_URL</code>. Keep it server-only. A missing paymaster (500) does not fall back to self-paid gas. {selfPaidCapStatuses.join(", ")} and {selfPaidPaymasterStatuses.join(", ")} do, and the wallet pays its own gas.</td>
                 </tr>
               </tbody>
             </table>

@@ -12,6 +12,7 @@ import { claimShareTotal } from "@/lib/receipt-display";
 import { SPRING_PRESS } from "@/lib/ease";
 import { useHoverCapable } from "@/lib/hooks/use-hover-capable";
 import type { LoadedReceipt } from "@/lib/receipt";
+import { receiptClaimHeadline, receiptTipHeadline } from "@/lib/ui-labels";
 
 export function ReceiptScreen({
   receipt,
@@ -97,7 +98,7 @@ export function ReceiptScreen({
       {ready ? (
         <>
           <span className="flex size-12 items-center justify-center rounded-full bg-accent/15 text-brand">✓</span>
-          <h1 className="mt-4 font-display text-5xl">{receipt.kind === "claim" ? "Claimed." : "Tip sent."}</h1>
+          <h1 className="mt-4 font-display text-5xl">{receipt.kind === "claim" ? receiptClaimHeadline : receiptTipHeadline}</h1>
           <div ref={cardRef} className="mt-8 w-full bg-background px-3 py-2">
             <ReceiptCard
               kind={receipt.kind!}

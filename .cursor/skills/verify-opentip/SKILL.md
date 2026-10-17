@@ -5,7 +5,7 @@ description: Launch the Opentip Next.js web app (frontend/) and drive it in a br
 
 # Verify Opentip
 
-The surface is the Next.js App Router app in `frontend/`. It serves the public site on port 3000: home, repo funding pages (`/[owner]/[repo]`), `/docs`, `/leaderboard`, `/repos`, `/signin`, `/dashboard`, and `/notifications`. The indexer and Foundry contracts are not part of this loop.
+The surface is the Next.js App Router app in `frontend/`. It serves the public site on port 3000: home, repo tip pages (`/[owner]/[repo]`), `/docs`, `/leaderboard`, `/repos`, `/signin`, `/dashboard`, and `/notifications`. The indexer and Foundry contracts are not part of this loop.
 
 Run every command from the repo root. The helpers live in this directory. `playwright-core` is a `frontend` devDependency and resolves from the repo `node_modules`. Chrome on this environment is `/usr/bin/google-chrome`.
 
@@ -21,7 +21,7 @@ That script:
 2. Creates the local role and database `opentip` / `opentip` if they are missing.
 3. Writes `frontend/.env.local` (gitignored) marked `OPENTIP_VERIFY_SCAFFOLDING`. It refuses to overwrite an `.env.local` that does not start with that marker.
 4. Runs `npm install` at the repo root when `node_modules/.bin/next` is missing, then `npx prisma generate` if the client is missing.
-5. Runs `npx prisma db push --skip-generate --accept-data-loss` in `frontend/`, then `node .cursor/skills/verify-opentip/seed.mjs`. `npx prisma migrate deploy` cannot build this database from empty. Migration `20261006140000_notification_subscription_default_types` runs `ALTER TABLE "NotificationSubscription"`, and that table is never created in `frontend/prisma/migrations`. `Claim`, `WalletTx`, `UserPolicy`, `Notification`, `NotificationSubscription`, and `SponsoredTx` exist in `schema.prisma` only. `db push` applies `schema.prisma` to the local verification database. Do not point it at a shared database.
+5. Runs `npx prisma migrate deploy` in `frontend/`, then `node .cursor/skills/verify-opentip/seed.mjs`. Migrations are the only way to build this database. `20261005120000_baseline_missing_tables` creates the tables that used to exist only in `schema.prisma`. Do not point it at a shared database. Do not use `prisma db push`.
 6. Starts `npm run dev -- --hostname 127.0.0.1 --port 3000` in `frontend/` with `nohup`, which is `next dev --turbopack`. The npm PID is stored in `/tmp/opentip-verify/state.json`. If that PID is already alive, it is reused. If port 3000 is open and the PID is not ours, the script exits and does not kill the other process.
 
 Ready means the script prints `READY http://127.0.0.1:3000` after `GET /docs` returns 200 and the HTML contains `Documentation`. The dev log is `/tmp/opentip-verify/next.log`.

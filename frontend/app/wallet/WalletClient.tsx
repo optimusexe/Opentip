@@ -17,6 +17,8 @@ import CdpCreateWalletButton from "@/components/cdp/CdpCreateWalletButton";
 import { Copy, ExternalLink, Fuel } from "lucide-react";
 import { Segmented } from "@/components/ledger/Segmented";
 import { TokenLogo } from "@/components/ledger/TokenLogo";
+import { gasNote } from "@/lib/ui-labels";
+import { historyRowKey } from "@/lib/history-row-key";
 
 function truncate(a: string) { return a.slice(0, 6) + "..." + a.slice(-4); }
 
@@ -208,7 +210,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
         }
         setSendHash(userOperationHash || null);
         setSendState("success");
-        showToast({ status: "success", title: "Send submitted", description: sponsored === false ? (selfPaidBecause === "paymaster" ? "Paymaster unavailable — you paid gas this time" : "Daily sponsorship used up — you paid gas this time") : undefined });
+        showToast({ status: "success", title: "Send submitted", description: sponsored === false ? (selfPaidBecause === "paymaster" ? gasNote.paymaster : gasNote.cap) : undefined });
       } catch (e: any) {
         setSendError(e.message?.slice(0, 160) || "Send failed");
         setSendState("error");
@@ -428,7 +430,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
             const symbol = (h.symbol || "").toString().replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12) || "—";
             const pending = h.status === "pending";
             return (
-            <div key={`${h.direction}-${h.kind}-${h.hash}-${h.token ?? h.symbol}-${i}`} className="flex items-center justify-between gap-3 px-4 py-3">
+            <div key={historyRowKey({ direction: h.direction, kind: h.kind, hash: h.hash, token: h.token, symbol: h.symbol }, i)} className="flex items-center justify-between gap-3 px-4 py-3">
               <div className="min-w-0 text-sm">
                 <div className="flex items-center gap-2 font-medium">
                   <span className={isOut ? "text-destructive" : "text-emerald-800 dark:text-emerald-300"}>{label}</span>

@@ -8,7 +8,7 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { launchBrowser, signIn } from "../../.cursor/skills/verify-opentip/browser.mjs";
 import { FIXTURE_PAYOUT, FIXTURE_USDC } from "../../.cursor/skills/verify-opentip/fixture.mjs";
-import { refuseUnlessLocalDatabase } from "../../.cursor/skills/verify-opentip/local-database.mjs";
+import { assertLocalDb } from "../../scripts/assert-local-db.mjs";
 
 const BASE = process.env.OPENTIP_BASE_URL || "http://127.0.0.1:3000";
 const ETH = "0x0000000000000000000000000000000000000000";
@@ -107,7 +107,7 @@ async function toggleWallet(page, shot) {
 // Fill unset vars from the local env file, then refuse a non-local URL
 // before the Prisma client is loaded or constructed.
 loadLocalEnv();
-refuseUnlessLocalDatabase();
+assertLocalDb();
 
 const { PrismaClient } = await import("@prisma/client");
 const prisma = new PrismaClient();

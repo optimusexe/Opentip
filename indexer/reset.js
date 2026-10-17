@@ -1,6 +1,6 @@
-import { refuseUnlessLocalDatabase } from "../.cursor/skills/verify-opentip/local-database.mjs";
+import { assertLocalDb } from "../scripts/assert-local-db.mjs";
 
-refuseUnlessLocalDatabase();
+assertLocalDb();
 
 const { PrismaClient } = await import("@prisma/client");
 const p = new PrismaClient();
