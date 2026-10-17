@@ -115,7 +115,7 @@ export default function ForDevelopersPage() {
           When someone tips your repo, the tokens (USDC or ETH; OAR is coming soon) are held by the smart contract in a per-token pending balance. To withdraw, connect the wallet that was registered as the payout address and click <strong>Claim tips</strong>.
         </p>
         <p className="text-sm text-foreground/80 leading-relaxed">
-          The full pending balance (after the 5% fee) is transferred to your wallet in one transaction.
+          The full pending balance, after the platform fee, is transferred to your wallet in one transaction.
         </p>
         <div className="p-4 rounded-[10px] border border-border bg-accent/5">
           <p className="text-sm text-foreground/80">
@@ -173,7 +173,7 @@ export default function ForDevelopersPage() {
         </p>
         <ol className="text-sm text-foreground/80 space-y-2 list-decimal pl-5">
           <li>The tipper sends tokens (USDC via approve+transfer, ETH via payable call, or OAR via approve+transfer) to the contract.</li>
-          <li>The contract deducts 5% to the treasury and credits 95% to the repo&apos;s pending balance for that token.</li>
+          <li>The contract deducts its platform fee to the treasury and credits the remainder to the repo&apos;s pending balance for that token. The tip page shows the split.</li>
           <li>You (the payout address holder) call <code className="bg-muted px-1.5 py-0.5 rounded-sm font-mono text-xs">claimAll()</code> to withdraw all tokens at once.</li>
         </ol>
         <p className="text-sm text-foreground/80 leading-relaxed">

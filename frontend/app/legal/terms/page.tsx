@@ -44,7 +44,7 @@ export default function TermsPage() {
       <section className="flex flex-col gap-2">
         <h2 className="text-xl font-medium">5. Fees</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Opentip charges a 5% platform fee on all tips, deducted automatically by the smart contract before distribution to developers. Fees are non-refundable once a transaction is confirmed on-chain.
+          Opentip deducts the platform fee set on the contract. The tip page shows that fee before you confirm. Fees are non-refundable once a transaction is confirmed on-chain.
         </p>
       </section>
 

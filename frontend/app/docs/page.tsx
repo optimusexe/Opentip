@@ -36,7 +36,7 @@ export default function DocsPage() {
             <div className="stats text-3xl font-semibold text-accent">03</div>
             <h3 className="font-medium text-lg">Developers claim</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              95% of every payment goes to maintainers. They connect a payout wallet and claim anytime.
+              The contract keeps a platform fee and credits the rest to the maintainer. The tip page shows the split before you confirm. Maintainers connect a payout wallet and claim anytime.
             </p>
           </div>
         </div>
@@ -46,8 +46,8 @@ export default function DocsPage() {
         <h2 className="font-display text-xl mb-6">Quick facts</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div>
-            <div className="stats text-2xl font-semibold">5%</div>
-            <p className="text-xs text-muted-foreground mt-1">Platform fee</p>
+            <div className="stats text-2xl font-semibold">Live</div>
+            <p className="text-xs text-muted-foreground mt-1">Platform fee, shown on the tip page</p>
           </div>
           <div>
             <div className="stats text-2xl font-semibold">$1</div>

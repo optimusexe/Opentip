@@ -27,8 +27,9 @@ const faqs = [
 
 export async function HomePage() {
   const [ledger, feeBps] = await Promise.all([getHomeLedger(), readFeeBps()]);
-  const fee = feeBps ?? 500;
-  const maintainer = 10000 - fee;
+  const feeKnown = feeBps != null;
+  const fee = feeKnown ? feeBps : 0;
+  const maintainer = feeKnown ? 10000 - fee : 0;
   const feeText = bpsLabel(fee);
   const maintainerText = bpsLabel(maintainer);
   const explorerHost = process.env.NEXT_PUBLIC_CHAIN === "base" ? "https://basescan.org" : "https://sepolia.basescan.org";
@@ -55,13 +56,15 @@ export async function HomePage() {
             <p className="mt-1 font-mono text-4xl tracking-tight">
               <NumberTicker value={ledger?.fundedUsd ?? 0} />
             </p>
-            <div className="mt-4 flex flex-col gap-2">
-              <SplitBar maintainerBps={maintainer} />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{maintainerText}% maintainers</span>
-                <span>{feeText}% fee</span>
+            {feeKnown ? (
+              <div className="mt-4 flex flex-col gap-2">
+                <SplitBar maintainerBps={maintainer} />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{maintainerText}% maintainers</span>
+                  <span>{feeText}% fee</span>
+                </div>
               </div>
-            </div>
+            ) : null}
             {ledger && ledger.tips.length > 0 ? (
               <ul className="mt-4 divide-y divide-border">
                 {ledger.tips.map((row) => (

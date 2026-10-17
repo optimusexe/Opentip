@@ -106,7 +106,7 @@ export default function SmartContractPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Fee</p>
-              <p className="font-mono text-sm">5% (500 bps)</p>
+              <p className="font-mono text-sm">feeBps, shown on the tip page</p>
             </div>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function SmartContractPage() {
       <Section title="Fee Structure">
         <div className="space-y-4">
           <p className="text-sm text-foreground/80 leading-relaxed">
-            The platform fee is expressed in basis points (bps). 500 bps = 5%. The fee is capped at 1000 bps (10%) and enforced in both the constructor and <code className="bg-muted px-1.5 py-0.5 rounded-sm font-mono text-xs">setFeeBps</code>.
+            The platform fee is expressed in basis points (bps). 100 bps is 1 percent. The fee is capped at 1000 bps (10%) and enforced in both the constructor and <code className="bg-muted px-1.5 py-0.5 rounded-sm font-mono text-xs">setFeeBps</code>. The tip page shows the current rate.
           </p>
           <div className="p-4 rounded-[10px] border border-border">
             <h3 className="font-medium text-sm">How fees flow</h3>

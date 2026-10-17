@@ -111,7 +111,7 @@ export default function GettingStartedPage() {
       <section className="border-t border-border pt-10 space-y-6">
         <h2 className="font-display text-xl">How fees work</h2>
         <p className="text-sm text-foreground/80 leading-relaxed">
-          Opentip charges a 5% platform fee on every tip. The fee is deducted automatically by the smart contract before the developer can claim. For example, a $100 tip results in $95 going to the developer and $5 to the Opentip treasury.
+          The contract deducts its platform fee before a maintainer can claim. The tip page shows that split before you confirm.
         </p>
         <p className="text-sm text-foreground/80 leading-relaxed">
           Fees are non-refundable once a transaction is confirmed on-chain. The fee rate is capped at 10% and can only be changed by the contract owner.
