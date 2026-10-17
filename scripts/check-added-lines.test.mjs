@@ -38,6 +38,7 @@ test("the self-paid gas sentence from TipClient before the shared label is a new
   assert.equal(problems.length, 1);
   assert.match(problems[0], /no em dash/);
 });
+
 test("keeping an em dash that was already on the line does not add one", () => {
   const file = "frontend/app/docs/smart-contract/page.tsx";
   const diff = [
@@ -48,6 +49,19 @@ test("keeping an em dash that was already on the line does not add one", () => {
   ].join("\n");
   assert.deepEqual(scanDiff(diff), []);
 });
+
+test("key={i} is a new index key", () => {
+  const file = "frontend/app/wallet/WalletClient.tsx";
+  const diff = [
+    `diff --git a/${file} b/${file}`,
+    "@@ -400,0 +400,1 @@",
+    "+              <div key={i} className=\"row\">",
+  ].join("\n");
+  const problems = scanDiff(diff);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /historyRowKey from frontend\/lib\/history-row-key\.ts/);
+});
+
 test("a file outside the UI trees is ignored", () => {
   const diff = [
     "diff --git a/frontend/lib/notes.ts b/frontend/lib/notes.ts",

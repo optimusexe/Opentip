@@ -12,6 +12,11 @@ export const ADDED_LINE_RULES = [
     re: /(?:text|bg|border|ring|from|via|to|fill|stroke|placeholder|divide|outline|decoration)-(?:zinc|gray|neutral|slate|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}/g,
     message: "Use foreground, muted-foreground, brand, card, or border. Raw palette utilities fail in dark mode.",
   },
+  {
+    name: "index-key",
+    re: /\bkey=\{\s*(?:i|index|idx)\s*\}/g,
+    message: "Do not key a row with the array index. Use historyRowKey from frontend/lib/history-row-key.ts.",
+  },
 ];
 
 const UI_FILE = /^frontend\/(?:app|components)\/.+\.(?:tsx|ts|css)$/;

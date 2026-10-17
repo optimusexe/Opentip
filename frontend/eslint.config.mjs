@@ -1,4 +1,5 @@
 import tsParser from "@typescript-eslint/parser";
+import react from "eslint-plugin-react";
 import opentip from "./eslint-rules/opentip.js";
 
 export default [
@@ -20,7 +21,11 @@ export default [
         sourceType: "module",
       },
     },
-    plugins: { opentip },
+    plugins: { react, opentip },
+    settings: { react: { version: "19" } },
+    rules: {
+      "react/jsx-key": ["error", { checkFragmentShorthand: true, checkKeyMustBeforeSpread: true }],
+    },
   },
   {
     files: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}"],
