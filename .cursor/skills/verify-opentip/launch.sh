@@ -78,11 +78,9 @@ set -a
 source "$ENV_FILE"
 set +a
 
-# migrate deploy cannot build a fresh database: Claim, WalletTx, UserPolicy,
-# Notification, NotificationSubscription, and SponsoredTx have no CREATE TABLE
-# in frontend/prisma/migrations, and 20261006140000 alters NotificationSubscription.
-# db push follows schema.prisma. This URL is the local verification database only.
-(cd "$ROOT/frontend" && npx prisma db push --skip-generate --accept-data-loss)
+# This URL is the local verification database only. migrate deploy builds it
+# from frontend/prisma/migrations, including 20261005120000_baseline_missing_tables.
+(cd "$ROOT/frontend" && npx prisma migrate deploy)
 (cd "$ROOT" && node .cursor/skills/verify-opentip/seed.mjs)
 
 reuse=0
