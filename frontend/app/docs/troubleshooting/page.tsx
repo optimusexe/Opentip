@@ -66,7 +66,7 @@ export default function TroubleshootingPage() {
         <div className="space-y-2">
           <h4 className="font-medium text-sm">&quot;OAR tipping coming soon&quot;</h4>
           <ul className="text-sm text-foreground/80 space-y-2 list-disc pl-5">
-            <li><strong>Why:</strong> Choosing OAR in the token menu shows this message and keeps your current token. OAR isn&apos;t available in the tip form yet.</li>
+            <li><strong>Why:</strong> Choosing OAR in the token menu shows this message and keeps your current token. OAR is coming soon, so it isn&apos;t available in the tip form yet.</li>
             <li><strong>Fix:</strong> Tip in USDC or ETH.</li>
           </ul>
         </div>

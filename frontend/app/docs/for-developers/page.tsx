@@ -174,7 +174,7 @@ export default function ForDevelopersPage() {
           Opentip uses a pull payment pattern. Tips are not sent directly to your wallet. Instead:
         </p>
         <ol className="text-sm text-foreground/80 space-y-2 list-decimal pl-5">
-          <li>The tipper sends tokens (USDC via approve+transfer, ETH via payable call, or OAR via approve+transfer) to the contract.</li>
+          <li>The tipper sends USDC (approve and transfer) or ETH (a payable call) to the contract. OAR is coming soon.</li>
           <li>The contract deducts its platform fee to the treasury and credits the remainder to the repo&apos;s pending balance for that token. The tip page shows the split.</li>
           <li>You (the payout address holder) call <code className="bg-muted px-1.5 py-0.5 rounded-sm font-mono text-xs">claimAll()</code> to withdraw all tokens at once.</li>
         </ol>

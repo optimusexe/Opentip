@@ -1,4 +1,5 @@
 import tsParser from "@typescript-eslint/parser";
+import opentip from "./eslint-rules/opentip.js";
 
 export default [
   {
@@ -18,6 +19,13 @@ export default [
         ecmaFeatures: { jsx: true },
         sourceType: "module",
       },
+    },
+    plugins: { opentip },
+  },
+  {
+    files: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}"],
+    rules: {
+      "opentip/ui-copy": "error",
     },
   },
 ];
