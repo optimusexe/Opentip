@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 
-/** Fee bar. maintainerBps is the maintainer share in basis points, from the chain. */
 export function SplitBar({
   maintainerBps,
   className,

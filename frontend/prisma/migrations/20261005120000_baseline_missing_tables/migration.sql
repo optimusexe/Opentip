@@ -1,10 +1,3 @@
--- Additive baseline for objects that reached production through `prisma db push`
--- and had no CREATE TABLE in this folder. Ordered before
--- 20261006140000_notification_subscription_default_types, which alters
--- NotificationSubscription. IF NOT EXISTS keeps this safe on a database that
--- already has the objects. Do not replay the earlier migrations onto a
--- database that was built with db push. Those files still use plain CREATE.
-
 ALTER TABLE "Repo" ADD COLUMN IF NOT EXISTS "icon" TEXT;
 
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboardingComplete" BOOLEAN NOT NULL DEFAULT false;

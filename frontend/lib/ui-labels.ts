@@ -1,5 +1,3 @@
-/** Button and receipt strings. Docs pages import these so the label and the sentence stay the same. */
-
 export const displayNameSaveLabel = "Save";
 export const copyTipLinkLabel = "Copy tip link";
 export const claimButtonLabel = "Claim all";

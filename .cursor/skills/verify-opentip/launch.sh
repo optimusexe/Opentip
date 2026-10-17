@@ -78,8 +78,6 @@ set -a
 source "$ENV_FILE"
 set +a
 
-# This URL is the local verification database only. migrate deploy builds it
-# from frontend/prisma/migrations, including 20261005120000_baseline_missing_tables.
 (cd "$ROOT/frontend" && npx prisma migrate deploy)
 (cd "$ROOT" && node .cursor/skills/verify-opentip/seed.mjs)
 
