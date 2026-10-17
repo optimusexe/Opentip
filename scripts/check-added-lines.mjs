@@ -7,6 +7,11 @@ export const ADDED_LINE_RULES = [
     re: /—/g,
     message: "User-facing copy has no em dash. Use a period, a comma, or parentheses.",
   },
+  {
+    name: "palette",
+    re: /(?:text|bg|border|ring|from|via|to|fill|stroke|placeholder|divide|outline|decoration)-(?:zinc|gray|neutral|slate|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}/g,
+    message: "Use foreground, muted-foreground, brand, card, or border. Raw palette utilities fail in dark mode.",
+  },
 ];
 
 const UI_FILE = /^frontend\/(?:app|components)\/.+\.(?:tsx|ts|css)$/;
