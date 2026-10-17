@@ -1,4 +1,4 @@
-import { RepoOgCard, loadOgAssets, loadOgFonts, ogResponse } from "../lib/og-image.tsx";
+import { RepoOgCard, loadOgAssets, loadOgFonts, ogResponse } from "../lib/og-image";
 
 const fonts = await loadOgFonts();
 const assets = await loadOgAssets();
