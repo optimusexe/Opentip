@@ -104,7 +104,6 @@
   * { @apply border-border; }
   html { overflow-x: clip; }
   body { @apply bg-background text-foreground antialiased; overflow-x: clip; }
-  .serif { font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif; font-weight: 800; letter-spacing: -0.03em; }
   .stats { font-family: var(--font-geist-mono), ui-monospace, monospace; }
   .rule { border-color: hsl(var(--hairline)); }
   ::selection { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
@@ -118,7 +117,6 @@
 }
 @layer utilities {
   .fluid-page { padding-inline: var(--space-page); }
-  .fluid-page-neg { margin-inline: calc(var(--space-page) * -1); }
   .fluid-display { font-size: var(--text-display); }
   .fluid-hero { font-size: var(--text-hero); }
   .fluid-page-title { font-size: var(--text-page); }
