@@ -88,6 +88,27 @@ const plugin = {
         return { Literal: check, JSXText: check, TemplateLiteral: check };
       },
     },
+    "no-serif": {
+      create(context) {
+        const message = "Do not use Fraunces or font-serif. Use font-sans or font-display. Toggles are the Segmented component in frontend/components/ledger/Segmented.tsx.";
+        function report(node, value) {
+          if (typeof value === "string" && (/Fraunces/.test(value) || /\bfont-serif\b/.test(value))) {
+            context.report({ node, message });
+          }
+        }
+        return {
+          ImportDeclaration(node) {
+            report(node, node.source.value);
+          },
+          Literal(node) {
+            report(node, node.value);
+          },
+          TemplateLiteral(node) {
+            if (node.expressions.length === 0) report(node, node.quasis.map((part) => part.value.cooked ?? "").join(""));
+          },
+        };
+      },
+    },
   },
 };
 

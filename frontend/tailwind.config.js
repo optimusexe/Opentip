@@ -24,7 +24,6 @@ export default {
       borderRadius: { lg: "10px", md: "8px", sm: "6px" },
       fontFamily: {
         sans: ["var(--font-geist)", "ui-sans-serif", "system-ui", "sans-serif"],
-        serif: ["var(--font-bricolage)", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["var(--font-bricolage)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },

@@ -26,6 +26,7 @@ export default [
     files: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}"],
     rules: {
       "opentip/ui-copy": "error",
+      "opentip/no-serif": "error",
     },
   },
 ];
