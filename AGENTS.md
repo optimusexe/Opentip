@@ -14,7 +14,7 @@ UI pull requests need before and after screenshots at desktop (1440×900) and mo
 | Docs, the home page, and the root layout say OAR is coming soon when they mention OAR and tipping. Marketing names ETH and USDC. | `opentip/ui-copy` |
 | Do not add an em dash under `frontend/app` or `frontend/components`. Use a period, a comma, or parentheses. | `scripts/check-added-lines.mjs` |
 | Do not add raw palette utilities (`text-zinc-900` and the rest). Use `foreground`, `muted-foreground`, `brand`, `card`, or `border`. | `scripts/check-added-lines.mjs` |
-| Do not import Fraunces or use `font-serif`. The toggle is `Segmented` in `frontend/components/ledger/Segmented.tsx`. | `opentip/no-serif`. `fontFamily.serif` is not in `frontend/tailwind.config.js`. |
+| Do not import Fraunces or use `font-serif`. The toggle is `Segmented` in `frontend/components/ledger/Segmented.tsx`. | `opentip/no-serif`. `fontFamily.serif` is not in `frontend/tailwind.config.js`. `.serif` is not in `frontend/app/globals.css`. |
 | A displayed repo logo goes through `resolveRepoIcon`. A directory row goes through `directoryItemForSort` in `frontend/lib/repo-icon.ts`. | `opentip/no-icon-src`, `opentip/directory-icon` |
 | A wallet history row uses `historyRowKey` in `frontend/lib/history-row-key.ts`. A list item has a key. Do not add `key={i}`. | `react/jsx-key`, `scripts/check-added-lines.mjs`, `frontend/lib/history-row-key.test.ts` |
 | A script that opens Prisma imports `assertLocalDb` from `scripts/assert-local-db.mjs` and calls it first. Do not run `indexer/reset.js`. | `scripts/check-local-db.mjs` |
@@ -27,7 +27,7 @@ UI pull requests need before and after screenshots at desktop (1440×900) and mo
 
 Nothing fails if you skip these.
 
-- Do not repair a layout with a negative margin. Do not leave an overlay on `position: static` at mobile width. PR #11 pulled a page wider with a negative margin. PR #21 left the mobile nav static, so it covered the page. Check 390px.
+- Do not repair a layout with a negative margin. `.fluid-page-neg` is gone. Do not leave an overlay on `position: static` at mobile width. PR #11 pulled a page wider with a negative margin. PR #21 left the mobile nav static, so it covered the page. Check 390px.
 - The wallet and onboarding screens may name OAR as a balance the wallet can hold. Tip marketing still says ETH and USDC, with OAR coming soon. `opentip/ui-copy` does not read wallet balances.
 - An underline tab is the wrong control. Use `Segmented`. The lint names that component and does not parse every tab style.
 - Frontend migrations are the schema source of truth. Do not squash the indexer history to match them. That diff drops columns.
