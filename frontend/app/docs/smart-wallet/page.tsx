@@ -104,7 +104,7 @@ export default function SmartWalletPage() {
       <section className="border-t border-border pt-10 space-y-6">
         <h2 className="font-display text-xl">Supported assets</h2>
         <p className="text-sm text-foreground/80 leading-relaxed">
-          You can tip a repo in <strong>ETH or USDC</strong> on Base. <strong>OAR is coming soon.</strong> The wallet can still show an OAR balance, and you can send OAR from the wallet, but the tip form does not accept it yet.
+          You can tip a repo in <strong>ETH or USDC</strong> on Base. <strong>OAR is coming soon.</strong> The wallet can still show an OAR balance, and you can send OAR from the wallet, but OAR tipping is coming soon and the tip form does not accept it yet.
         </p>
         <div className="p-4 rounded-[10px] border border-border bg-accent/5">
           <p className="text-sm text-foreground/80">

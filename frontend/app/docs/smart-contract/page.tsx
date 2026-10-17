@@ -88,7 +88,7 @@ export default function SmartContractPage() {
               <p className="text-xs text-muted-foreground uppercase tracking-wider">V2 (Multi-token)</p>
               <code className="block mt-2 font-mono text-sm break-all">0xAf1b70F5BdDFfD64c5D7B971bA670e1ff65cB1bC</code>
               <a href="https://basescan.org/address/0xAf1b70F5BdDFfD64c5D7B971bA670e1ff65cB1bC" target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-xs text-accent underline underline-offset-4">Basescan →</a>
-              <p className="text-xs text-muted-foreground mt-2">Supports USDC, ETH, OAR</p>
+              <p className="text-xs text-muted-foreground mt-2">Supports USDC and ETH. OAR is coming soon.</p>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -102,7 +102,7 @@ export default function SmartContractPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Tokens</p>
-              <p className="font-mono text-sm">USDC · ETH · OAR</p>
+              <p className="font-mono text-sm">USDC · ETH</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Fee</p>
@@ -166,7 +166,7 @@ export default function SmartContractPage() {
           { name: "registerRepo", params: "repoId, payoutAddress, expiry, nonce, signature", returns: "—", modifier: "whenNotPaused", description: "Register a repo with an EIP-712 signed permit. Validates format, expiry, and signature." },
           { name: "updatePayoutAddress", params: "repoId, newAddress", returns: "—", modifier: "whenNotPaused", description: "Rotate the payout wallet for a registered repo. Only callable by current payout address." },
           { name: "receiveTipEth", params: "repoId", returns: "—", modifier: "payable, nonReentrant, whenNotPaused", description: "Accept an ETH tip. Splits fee, credits pending balance in ETH." },
-          { name: "receiveTip", params: "repoId, token, amount", returns: "—", modifier: "nonReentrant, whenNotPaused", description: "Accept an ERC-20 tip (USDC, OAR, etc). Pulls tokens from msg.sender, splits fee, credits pending balance." },
+          { name: "receiveTip", params: "repoId, token, amount", returns: "—", modifier: "nonReentrant, whenNotPaused", description: "Accept an ERC-20 tip (USDC). OAR is coming soon. Pulls tokens from msg.sender, splits fee, credits pending balance." },
           { name: "claimAll", params: "repoId", returns: "—", modifier: "nonReentrant, whenNotPaused", description: "Withdraw all pending tokens (ETH + ERC-20) in a single transaction. Only callable by the payout address." },
         ]} />
 
