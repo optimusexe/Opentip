@@ -5,7 +5,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { refuseUnlessLocalDatabase } from "./local-database.mjs";
+import { assertLocalDb } from "../../../scripts/assert-local-db.mjs";
 import {
   FIXTURE_BIO,
   FIXTURE_EMAIL,
@@ -21,7 +21,7 @@ import {
   FIXTURE_USDC,
 } from "./fixture.mjs";
 
-refuseUnlessLocalDatabase();
+assertLocalDb();
 
 const prisma = new PrismaClient();
 
