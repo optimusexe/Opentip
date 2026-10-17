@@ -27,6 +27,8 @@ export default [
     rules: {
       "opentip/ui-copy": "error",
       "opentip/no-serif": "error",
+      "opentip/no-icon-src": "error",
+      "opentip/directory-icon": "error",
     },
   },
 ];

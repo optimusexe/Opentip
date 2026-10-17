@@ -109,6 +109,37 @@ const plugin = {
         };
       },
     },
+    "no-icon-src": {
+      create(context) {
+        return {
+          JSXAttribute(node) {
+            if (!node.name || node.name.name !== "src" || !node.value) return;
+            const expr = node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value;
+            if (memberNamedIcon(expr)) {
+              context.report({ node, message: "Do not read .icon for display. Use RepoIcon or resolveRepoIcon from frontend/lib/repo-icon.ts." });
+            }
+          },
+        };
+      },
+    },
+    "directory-icon": {
+      create(context) {
+        return {
+          ObjectExpression(node) {
+            const names = new Set();
+            let spread = false;
+            for (const prop of node.properties) {
+              if (prop.type === "SpreadElement") spread = true;
+              if (prop.type === "Property" && prop.key && prop.key.type === "Identifier") names.add(prop.key.name);
+            }
+            if (spread) return;
+            if (names.has("total_tipped") && names.has("repo_id") && !names.has("icon")) {
+              context.report({ node, message: "Directory rows must include icon. Build them with directoryItemForSort in frontend/lib/repo-icon.ts." });
+            }
+          },
+        };
+      },
+    },
   },
 };
 
