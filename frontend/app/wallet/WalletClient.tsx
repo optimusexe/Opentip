@@ -17,6 +17,7 @@ import CdpCreateWalletButton from "@/components/cdp/CdpCreateWalletButton";
 import { Copy, ExternalLink, Fuel } from "lucide-react";
 import { Segmented } from "@/components/ledger/Segmented";
 import { TokenLogo } from "@/components/ledger/TokenLogo";
+import { gasNote } from "@/lib/ui-labels";
 
 function truncate(a: string) { return a.slice(0, 6) + "..." + a.slice(-4); }
 
@@ -208,7 +209,7 @@ export default function WalletClient({ initialLinked }: { initialLinked?: any[] 
         }
         setSendHash(userOperationHash || null);
         setSendState("success");
-        showToast({ status: "success", title: "Send submitted", description: sponsored === false ? (selfPaidBecause === "paymaster" ? "Paymaster unavailable — you paid gas this time" : "Daily sponsorship used up — you paid gas this time") : undefined });
+        showToast({ status: "success", title: "Send submitted", description: sponsored === false ? (selfPaidBecause === "paymaster" ? gasNote.paymaster : gasNote.cap) : undefined });
       } catch (e: any) {
         setSendError(e.message?.slice(0, 160) || "Send failed");
         setSendState("error");

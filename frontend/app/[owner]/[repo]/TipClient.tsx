@@ -25,6 +25,7 @@ import { Loader } from "@/components/motion/loader";
 import { SplitBar } from "@/components/ledger/SplitBar";
 import { Segmented } from "@/components/ledger/Segmented";
 import { bpsLabel } from "@/lib/fee-bps";
+import { claimButtonLabel, copyTipLinkLabel, displayNameSaveLabel, gasNote, tipSentToast } from "@/lib/ui-labels";
 import { Copy } from "lucide-react";
 import Image from "next/image";
 import type { RepoSummary } from "@/lib/ai";
@@ -342,7 +343,7 @@ export default function TipClient({
           logWalletTx({ walletAddress: address, kind: "tip", repoId: repoIdLower, token: selectedToken, amount: parseUnits(amount, currentToken.decimals).toString(), toAddress: contract!, txHash: tipW.data });
         } catch {}
       }
-      showToast({ status:"success", title:"Tip sent", description:`${amount} ${currentToken.symbol} → ${repoIdLower}` });
+      showToast({ status:"success", title: tipSentToast, description:`${amount} ${currentToken.symbol} → ${repoIdLower}` });
       markInstallTipped();
       setTipFlow("success");
       fetch(`/api/tips?repoId=${encodeURIComponent(repoIdLower)}`).then(r=>r.json()).then(setTips).catch(()=>{});
@@ -372,7 +373,7 @@ export default function TipClient({
           logWalletTx({ walletAddress: address, kind: "tip", repoId: repoIdLower, token: ETH_ADDRESS, amount: parseEther(amount).toString(), toAddress: contract!, txHash: ethSend.data });
         } catch {}
       }
-      showToast({ status:"success", title:"Tip sent", description:`${amount} ETH → ${repoIdLower}` });
+      showToast({ status:"success", title: tipSentToast, description:`${amount} ETH → ${repoIdLower}` });
       markInstallTipped();
       setTipFlow("success");
       fetch(`/api/tips?repoId=${encodeURIComponent(repoIdLower)}`).then(r=>r.json()).then(setTips).catch(()=>{});
@@ -465,12 +466,12 @@ export default function TipClient({
           setPendingUserOp(userOperationHash);
           logWalletTx({ walletAddress: smartAddr, kind: "tip", repoId: repoIdLower, token: selectedToken, amount: baseUnits.toString(), toAddress: contract, userOpHash: userOperationHash });
         }
-        const gasNote = sponsored === false
+        const gasSuffix = sponsored === false
           ? selfPaidBecause === "paymaster"
-            ? " (you paid gas)"
-            : " (you paid gas — daily sponsorship used up)"
+            ? ` ${gasNote.paymaster}`
+            : ` ${gasNote.cap}`
           : "";
-        showToast({ status:"success", title:"Tip sent", description:`${amount} ${currentToken.symbol} → ${repoIdLower}${gasNote}${userOperationHash ? ` (${userOperationHash.slice(0,10)}…)` : ""}` });
+        showToast({ status:"success", title: tipSentToast, description:`${amount} ${currentToken.symbol} → ${repoIdLower}${gasSuffix}${userOperationHash ? ` (${userOperationHash.slice(0,10)}…)` : ""}` });
         markInstallTipped();
         setTipFlow("success"); setTimeout(()=>setTipFlow("idle"), 1600);
         fetch(`/api/tips?repoId=${encodeURIComponent(repoIdLower)}`).then(r=>r.json()).then(setTips).catch(()=>{});
@@ -634,7 +635,7 @@ export default function TipClient({
     } catch(e:any){ showToast({ status:"error", title:"Save failed", description: e.message?.slice(0,100) }); }
   };
 
-  const tipButtonText = tipFlow==="approving" ? "Approving spend..." : tipFlow==="sending" ? "Sending..." : tipFlow==="success" ? "Tip sent" : tipFlow==="error" ? "Try again" : `Tip ${amount} ${currentToken.symbol}`;
+  const tipButtonText = tipFlow==="approving" ? "Approving spend..." : tipFlow==="sending" ? "Sending..." : tipFlow==="success" ? tipSentToast : tipFlow==="error" ? "Try again" : `Tip ${amount} ${currentToken.symbol}`;
   const feeBps = feeBpsRaw == null ? null : Number(feeBpsRaw);
   const knownFee = feeBps != null && Number.isFinite(feeBps) && feeBps >= 0 && feeBps <= 10000;
   const split = knownFee ? previewSplit(amount, currentToken.decimals, feeBps) : null;
@@ -716,7 +717,7 @@ export default function TipClient({
           </div>
         </div>
         <Button variant="outline" onClick={copyLink}>
-          <Copy className="h-3.5 w-3.5" /> Copy tip link
+          <Copy className="h-3.5 w-3.5" /> {copyTipLinkLabel}
         </Button>
       </div>
 
@@ -980,7 +981,7 @@ export default function TipClient({
                   <div className="min-w-0 flex-1">
                     <Input value={displayName} onChange={setDisplayName} placeholder="Display name (optional)" aria-label="Display name" className="gap-0" />
                   </div>
-                  <Button variant="ghost" size="sm" onClick={saveDisplayName}>Save</Button>
+                  <Button variant="ghost" size="sm" onClick={saveDisplayName}>{displayNameSaveLabel}</Button>
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {useSmart && smartAddr ? (
@@ -1024,7 +1025,7 @@ export default function TipClient({
                 </ul>
                 {isPayoutWallet && hasPendingClaim ? (
                   <StatefulButton className="mt-3 w-full" state={claimState==="loading"?"loading": claimState==="success"?"success": claimState==="error"?"error":"idle"} onClick={onClaimAll} variant="secondary">
-                    Claim all
+                    {claimButtonLabel}
                   </StatefulButton>
                 ) : isPayoutWallet ? (
                   <Button className="mt-3 w-full" variant="secondary" disabled>Nothing to claim</Button>
