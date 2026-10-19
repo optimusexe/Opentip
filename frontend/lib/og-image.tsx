@@ -107,6 +107,8 @@ export function ogResponse(element: ReactElement, fonts: OgFont[], debugKey: str
     headers: {
       "x-og-debug": debugKey,
       "x-og-fonts": fontHeader,
+      // Public so crawlers and the CDN can fetch and store the PNG. No auth.
+      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
     },
   });
 }

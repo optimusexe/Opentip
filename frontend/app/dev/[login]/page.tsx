@@ -4,6 +4,7 @@ import { getTokenDecimals } from "@/lib/chain";
 import { prisma } from "@/lib/prisma";
 import { getTokenPrices, usdValue, fmtUsd } from "@/lib/prices";
 import { normalizeRepoIcon } from "@/lib/repo-icon";
+import { pageShareMetadata } from "@/lib/share-metadata";
 import ProfileClient from "./ProfileClient";
 
 async function fetchContributions(login: string) {
@@ -28,6 +29,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { login } = await params;
   if (!/^[a-zA-Z0-9-]+$/.test(login)) return { title: "Developer" };
+  const share = (description: string) =>
+    pageShareMetadata({
+      title: `@${login} on Opentip`,
+      description,
+      path: `/dev/${login}`,
+    });
   try {
     const user = await prisma.user.findUnique({
       where: { login },
@@ -37,7 +44,7 @@ export async function generateMetadata({
         profile: { select: { bio: true } },
       },
     });
-    if (!user) return { title: `@${login} | Opentip` };
+    if (!user) return share(`Tip @${login}'s open-source work on Opentip.`);
     const addresses = user.wallets.map((w) => w.address);
     let description = user.profile?.bio || `Tip @${login}'s open-source work on Opentip.`;
     if (addresses.length > 0) {
@@ -66,9 +73,9 @@ export async function generateMetadata({
         }
       }
     }
-    return { title: `@${login}`, description };
+    return share(description);
   } catch {
-    return { title: `@${login}` };
+    return share(`Tip @${login}'s open-source work on Opentip.`);
   }
 }
 

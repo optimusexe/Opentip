@@ -32,13 +32,23 @@ export const metadata = {
     url: "https://opentip.tech",
     siteName: "Opentip",
     type: "website",
-    images: [{ url: "/ogimage.png", width: 1200, height: 630, alt: "Tip any repo in crypto." }],
+    images: [
+      {
+        url: "/ogimage.png",
+        secureUrl: "https://opentip.tech/ogimage.png",
+        width: 1200,
+        height: 630,
+        alt: "Tip any repo in crypto.",
+        type: "image/png",
+      },
+    ],
   },
+  // No twitter.images here. A root image replaces the route image, so X keeps
+  // the site card. Pages that do not set their own image inherit openGraph.images.
   twitter: {
     card: "summary_large_image",
     title: "Opentip | Tips for open source",
     description: "Tips for open source, from the open market. Tip maintainers in ETH or USDC. OAR is coming soon.",
-    images: ["/ogimage.png"],
   },
 };
 
