@@ -7,6 +7,7 @@ import { generateRepoSummary, type RepoSummary } from "@/lib/ai";
 import { capitalize } from "@/lib/chain";
 import { isHiddenRepo } from "@/lib/repo-visibility";
 import { resolveRepoIcon } from "@/lib/repo-icon";
+import { pageShareMetadata } from "@/lib/share-metadata";
 import TipClient from "./TipClient";
 
 type Link = { title: string; url: string };
@@ -60,6 +61,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { owner, repo } = await params;
   const repoId = `${owner}/${repo}`;
+  const path = `/${owner}/${repo}`;
+  const share = (description: string) =>
+    pageShareMetadata({
+      title: `${repoId} on Opentip`,
+      description,
+      path,
+      imagePath: `${path}/opengraph-image`,
+      imageAlt: "Tip this repo",
+    });
   try {
     const [tips, prices] = await Promise.all([
       prisma.tip
@@ -76,11 +86,11 @@ export async function generateMetadata({
     const count = tips.reduce((s, t) => s + (t._count ?? 0), 0);
     const description =
       count > 0
-        ? `${fmtUsd(totalUsd)} tipped across ${count} tip${count === 1 ? "" : "s"} — tip ${repoId} on Opentip.`
-        : `Tip ${repoId} on Opentip — be the first, from $1.`;
-    return { title: repoId, description };
+        ? `${fmtUsd(totalUsd)} tipped across ${count} tip${count === 1 ? "" : "s"}. Tip ${repoId} on Opentip.`
+        : `Tip ${repoId} on Opentip. Be the first, from $1.`;
+    return share(description);
   } catch {
-    return { title: repoId, description: `Tip ${repoId} on Opentip.` };
+    return share(`Tip ${repoId} on Opentip.`);
   }
 }
 

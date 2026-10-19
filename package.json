@@ -7,6 +7,6 @@
     "build:frontend": "npm --workspace frontend run build",
     "dev:indexer": "npm --workspace indexer run dev",
     "test:contracts": "npm --workspace contracts run test",
-    "check": "node scripts/check-local-db.mjs && node scripts/check-added-lines.mjs && node scripts/check-prisma-drift.mjs && node scripts/check-og.mjs && npm --workspace frontend run lint && node --test scripts/*.test.mjs && node --experimental-strip-types --test frontend/lib/history-row-key.test.ts frontend/lib/paymaster-fallback.test.ts frontend/lib/repo-icon.test.ts && npm --workspace frontend exec -- prisma generate && npx tsc --noEmit -p frontend"
+    "check": "node scripts/check-local-db.mjs && node scripts/check-added-lines.mjs && node scripts/check-prisma-drift.mjs && node scripts/check-og.mjs && node scripts/check-share-cards.mjs && npm --workspace frontend run lint && node --test scripts/*.test.mjs && node --experimental-strip-types --test frontend/lib/history-row-key.test.ts frontend/lib/paymaster-fallback.test.ts frontend/lib/repo-icon.test.ts frontend/lib/share-metadata.test.ts && npm --workspace frontend exec -- prisma generate && npx tsc --noEmit -p frontend"
   }
 }

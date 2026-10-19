@@ -1,5 +1,9 @@
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+const require = createRequire(import.meta.url);
+const { HTML_LIMITED_BOT_UA_RE } = require("next/dist/shared/lib/router/utils/html-bots.js");
 
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
 // The lockfile is in the repo root. Pin tracing there so local and Vercel
@@ -9,6 +13,9 @@ const repoRoot = path.join(projectDir, "..");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: repoRoot,
+  // Next waits for metadata in <head> for this list. TelegramBot is not in the
+  // default set, so Telegram would otherwise see a head without the card tags.
+  htmlLimitedBots: new RegExp(`${HTML_LIMITED_BOT_UA_RE.source}|TelegramBot`, "i"),
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
@@ -28,6 +35,18 @@ const nextConfig = {
       "./public/tokens/usdc.png",
     ],
     "/:owner/:repo/opengraph-image": [
+      "./lib/og-fonts/**/*",
+      "./public/mark-blue.png",
+      "./public/tokens/eth.png",
+      "./public/tokens/usdc.png",
+    ],
+    "/[owner]/[repo]/twitter-image": [
+      "./lib/og-fonts/**/*",
+      "./public/mark-blue.png",
+      "./public/tokens/eth.png",
+      "./public/tokens/usdc.png",
+    ],
+    "/:owner/:repo/twitter-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
