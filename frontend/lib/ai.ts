@@ -1,4 +1,12 @@
 import { fetchRepoFilesForSummary, type RepoFiles } from "./github";
+import {
+  buildWorklogPrompt,
+  draftWorklogEntries,
+  entriesFromModel,
+  parseWorklogModel,
+  type WorklogDraft,
+  type WorklogSourceCommit,
+} from "./worklog";
 
 export type RepoSummary = {
   description: string;
@@ -105,5 +113,51 @@ export async function generateRepoSummary(owner: string, repo: string): Promise<
   } catch (e) {
     console.error("generateRepoSummary error:", e);
     return fallbackSummary(owner, repo);
+  }
+}
+
+export async function summarizeWorklogCommits(
+  owner: string,
+  repo: string,
+  branch: string,
+  commits: WorklogSourceCommit[],
+): Promise<WorklogDraft[]> {
+  const local = draftWorklogEntries(commits);
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey || local.length === 0) return local;
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-20b",
+        messages: [
+          {
+            role: "system",
+            content: "You group repository commits into a Worklog. Always respond with valid JSON only. No markdown fences.",
+          },
+          { role: "user", content: buildWorklogPrompt(owner, repo, branch, commits) },
+        ],
+        temperature: 0.2,
+        max_completion_tokens: 2048,
+      }),
+    });
+    if (!res.ok) {
+      console.error("Groq worklog error:", res.status);
+      return local;
+    }
+    const json = await res.json();
+    const content = json.choices?.[0]?.message?.content;
+    if (typeof content !== "string") return local;
+    const parsed = parseWorklogModel(content);
+    if (!parsed) return local;
+    return entriesFromModel(commits, parsed) ?? local;
+  } catch (error) {
+    console.error("summarizeWorklogCommits error:", error);
+    return local;
   }
 }

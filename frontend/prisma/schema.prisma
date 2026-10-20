@@ -85,6 +85,47 @@ model Repo {
   links                String?   @db.Text
   hidden               Boolean   @default(false)
   icon                 String?
+  worklogCursor        WorklogCursor?
+  worklogEntries       WorklogEntry[]
+}
+
+// Last commit the Worklog has already covered, plus the latest update state.
+model WorklogCursor {
+  repo_id    String   @id
+  sha        String   @db.VarChar(40)
+  message    String   @db.Text
+  branch     String   @db.VarChar(255)
+  status     String   @default("current") @db.VarChar(32)
+  detail     String?  @db.Text
+  updated_at DateTime @updatedAt
+  repo       Repo     @relation(fields: [repo_id], references: [repo_id], onDelete: Cascade)
+}
+
+model WorklogEntry {
+  id         String          @id @default(cuid())
+  repo_id    String
+  starts_at  DateTime
+  ends_at    DateTime
+  title      String          @db.Text
+  why        String          @db.Text
+  created_at DateTime        @default(now())
+  repo       Repo            @relation(fields: [repo_id], references: [repo_id], onDelete: Cascade)
+  commits    WorklogCommit[]
+
+  @@index([repo_id, ends_at])
+}
+
+model WorklogCommit {
+  id           String       @id @default(cuid())
+  entry_id     String
+  sha          String       @db.VarChar(40)
+  message      String       @db.Text
+  committed_at DateTime
+  url          String
+  position     Int          @default(0)
+  entry        WorklogEntry @relation(fields: [entry_id], references: [id], onDelete: Cascade)
+
+  @@unique([entry_id, sha])
 }
 
 model User {
