@@ -3,7 +3,9 @@ import test from "node:test";
 import {
   draftWorklogEntries,
   entriesFromModel,
+  formatWorklogDate,
   formatWorklogRange,
+  formatWorklogUpdated,
   isNoiseCommit,
   parseWorklogModel,
   type WorklogSourceCommit,
@@ -137,6 +139,8 @@ test("optimusexe/Opentip reference entries", () => {
 test("a date range on one month reads as Oct 12 to 13", () => {
   assert.equal(formatWorklogRange("2026-10-12T17:59:38Z", "2026-10-13T18:47:14Z"), "Oct 12 to 13");
   assert.equal(formatWorklogRange("2026-10-19T10:33:02Z", "2026-10-19T10:33:02Z"), "Oct 19");
+  assert.equal(formatWorklogDate("2026-10-19T20:12:00Z"), "Oct 19, 2026");
+  assert.equal(formatWorklogUpdated("2026-10-19T20:12:00Z"), "Oct 19, 2026 · 8:12 PM UTC");
 });
 
 test("model JSON becomes entries, and fund-words are dropped", () => {

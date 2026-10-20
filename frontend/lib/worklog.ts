@@ -259,14 +259,16 @@ export function formatWorklogRange(startIso: string, endIso: string): string {
   return `${left} to ${MONTHS[end.getUTCMonth()]} ${end.getUTCDate()}`;
 }
 
+export function formatWorklogDate(iso: string): string {
+  const date = new Date(iso);
+  return `${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
+}
+
 export function formatWorklogUpdated(iso: string): string {
   const date = new Date(iso);
-  const month = MONTHS[date.getUTCMonth()];
-  const day = date.getUTCDate();
-  const year = date.getUTCFullYear();
   const hour24 = date.getUTCHours();
   const minute = String(date.getUTCMinutes()).padStart(2, "0");
   const hour = hour24 % 12 || 12;
   const suffix = hour24 >= 12 ? "PM" : "AM";
-  return `${month} ${day}, ${year}, ${hour}:${minute} ${suffix} UTC`;
+  return `${formatWorklogDate(iso)} · ${hour}:${minute} ${suffix} UTC`;
 }

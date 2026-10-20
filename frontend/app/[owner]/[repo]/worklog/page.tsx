@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { capitalize } from "@/lib/chain";
 import { prisma } from "@/lib/prisma";
 import { isHiddenRepo } from "@/lib/repo-visibility";
-import { formatWorklogUpdated, shortSha } from "@/lib/worklog";
+import { formatWorklogDate, shortSha } from "@/lib/worklog";
 import { fetchDefaultBranch, fetchOpenPullRequests } from "@/lib/worklog-github";
 import { loadWorklog, userMaintainsRepo } from "@/lib/worklog-run";
 import { RepoIcon } from "@/components/RepoIcon";
@@ -70,7 +70,7 @@ export default async function WorklogPage({ params }: { params: Promise<{ owner:
         <p className="text-sm text-muted-foreground">
           {cursor ? (
             <>
-              Last updated {formatWorklogUpdated(cursor.updatedAt)} · covers <span className="font-mono text-foreground">{shortSha(cursor.sha)}</span>
+              Last updated {formatWorklogDate(cursor.updatedAt)} · covers <span className="font-mono text-foreground">{shortSha(cursor.sha)}</span>
             </>
           ) : (
             "No update yet"

@@ -275,7 +275,10 @@ export default function ManageClient({
           <section id="profile" className="scroll-mt-24 rounded-[10px] border border-border bg-card p-4">
             <h2 className="text-sm font-medium">Profile</h2>
             <p className="mt-1 text-xs text-muted-foreground">Your project logo shows on the repo page, lists, and share cards.</p>
-            <label className="mt-4 inline-flex cursor-pointer items-center gap-3">
+            <div className="mt-4">
+              <RepoIcon repoId={repoId} logo={logo} loadDeveloperPfp size={56} className="size-14" />
+            </div>
+            <label className="mt-3 inline-flex cursor-pointer items-center gap-3">
               <span className="inline-flex h-9 items-center rounded-full border border-border px-4 text-sm font-medium">
                 {uploading ? <Loader variant="spinner" size={14} /> : "Upload new logo"}
               </span>
