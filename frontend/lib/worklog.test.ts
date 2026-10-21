@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  WORKLOG_COMMIT_CAP,
   draftWorklogEntries,
   entriesFromModel,
   formatWorklogDate,
@@ -134,6 +135,21 @@ test("optimusexe/Opentip reference entries", () => {
     entries[2].commits.map((commit) => commit.sha),
     ["64eb898", "d255fa4", "5b4e8d0", "1562e84"],
   );
+});
+
+test("the commit cap keeps the newest 250", () => {
+  assert.equal(WORKLOG_COMMIT_CAP, 250);
+  const commits: WorklogSourceCommit[] = Array.from({ length: WORKLOG_COMMIT_CAP + 1 }, (_, index) => ({
+    sha: String(index).padStart(7, "0"),
+    message: `Add feature ${index}`,
+    committedAt: new Date(Date.UTC(2026, 0, 1) + index * 60 * 60 * 1000).toISOString(),
+    url: `https://github.com/acme/app/commit/${index}`,
+    parentCount: 1,
+  }));
+  const kept = draftWorklogEntries(commits).flatMap((entry) => entry.commits);
+  assert.equal(kept.length, WORKLOG_COMMIT_CAP);
+  assert.equal(kept.some((commit) => commit.sha === "0000000"), false);
+  assert.equal(kept.some((commit) => commit.sha === "0000250"), true);
 });
 
 test("a date range on one month reads as Oct 12 to 13", () => {
