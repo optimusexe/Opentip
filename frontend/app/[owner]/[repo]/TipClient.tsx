@@ -772,7 +772,7 @@ export default function TipClient({
       ) : null}
 
       <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="flex min-w-0 flex-col gap-6">
+        <div className="order-2 flex min-w-0 flex-col gap-6 lg:order-1">
           <section className="min-w-0">
             <div className="mb-3 flex items-baseline justify-between gap-3">
               <h2 className="text-sm font-medium">Ledger</h2>
@@ -884,7 +884,7 @@ export default function TipClient({
           </section>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-4">
+        <div className="order-1 flex min-w-0 flex-col gap-4 lg:order-2">
           {isRegPending ? (
             <section className="flex justify-center py-12"><Loader variant="spinner" size={24} /></section>
           ) : !isRegistered ? (

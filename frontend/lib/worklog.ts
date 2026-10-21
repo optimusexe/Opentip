@@ -2,7 +2,7 @@
 // the visitor-facing title. GitHub and Groq live in the callers.
 
 export const WORKLOG_FIRST_WINDOW_DAYS = 14;
-export const WORKLOG_COMMIT_CAP = 80;
+export const WORKLOG_COMMIT_CAP = 250;
 const CLUSTER_GAP_MS = 30 * 60 * 60 * 1000;
 
 export type WorklogSourceCommit = {

@@ -1,5 +1,5 @@
 import { githubAuthTokens } from "./github-permission";
-import { WORKLOG_FIRST_WINDOW_DAYS, type WorklogSourceCommit } from "./worklog";
+import { WORKLOG_COMMIT_CAP, WORKLOG_FIRST_WINDOW_DAYS, type WorklogSourceCommit } from "./worklog";
 
 export class WorklogGithubError extends Error {
   status: number;
@@ -89,6 +89,89 @@ export async function fetchOpenPullRequests(owner: string, repo: string): Promis
   }
 }
 
+const COMMIT_PAGE_SIZE = 100;
+
+function nextPagePath(link: string | null): string | null {
+  if (!link) return null;
+  for (const part of link.split(",")) {
+    if (!/rel="next"/.test(part)) continue;
+    const match = part.match(/<([^>]+)>/);
+    if (!match) return null;
+    const url = new URL(match[1]);
+    return `${url.pathname}${url.search}`;
+  }
+  return null;
+}
+
+function commitsFromRows(rows: unknown): WorklogSourceCommit[] {
+  if (!Array.isArray(rows)) return [];
+  return rows.map((row) => mapCommit(row)).filter((row): row is WorklogSourceCommit => !!row);
+}
+
+function keepNewest(commits: WorklogSourceCommit[], oldestFirst: boolean): WorklogSourceCommit[] {
+  if (commits.length <= WORKLOG_COMMIT_CAP) return commits;
+  return oldestFirst ? commits.slice(commits.length - WORKLOG_COMMIT_CAP) : commits.slice(0, WORKLOG_COMMIT_CAP);
+}
+
+async function fetchCompareCommits(
+  owner: string,
+  repo: string,
+  baseSha: string,
+  headSha: string,
+  tokens: string[],
+): Promise<WorklogSourceCommit[] | null> {
+  const commits: WorklogSourceCommit[] = [];
+  const seen = new Set<string>();
+  let path: string | null =
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare/${encodeURIComponent(baseSha)}...${encodeURIComponent(headSha)}`;
+  let first = true;
+  while (path && commits.length < WORKLOG_COMMIT_CAP) {
+    const res = await githubGet(path, tokens);
+    if (!res.ok) {
+      if (first && res.status === 404) return null;
+      throw new WorklogGithubError(res.status);
+    }
+    first = false;
+    const body = await res.json();
+    const batch = commitsFromRows(body?.commits);
+    let added = 0;
+    for (const commit of batch) {
+      if (seen.has(commit.sha)) continue;
+      seen.add(commit.sha);
+      commits.push(commit);
+      added += 1;
+    }
+    if (added === 0) break;
+    path = nextPagePath(res.headers.get("link"));
+  }
+  return keepNewest(commits, true);
+}
+
+async function fetchCommitsSince(owner: string, repo: string, branch: string, tokens: string[]): Promise<WorklogSourceCommit[]> {
+  const since = new Date(Date.now() - WORKLOG_FIRST_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const commits: WorklogSourceCommit[] = [];
+  const seen = new Set<string>();
+  for (let page = 1; commits.length < WORKLOG_COMMIT_CAP; page++) {
+    const res = await githubGet(
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?sha=${encodeURIComponent(branch)}&since=${encodeURIComponent(since)}&per_page=${COMMIT_PAGE_SIZE}&page=${page}`,
+      tokens,
+    );
+    if (!res.ok) throw new WorklogGithubError(res.status);
+    const batch = await res.json();
+    if (!Array.isArray(batch) || batch.length === 0) break;
+    let added = 0;
+    for (const commit of commitsFromRows(batch)) {
+      if (seen.has(commit.sha)) continue;
+      seen.add(commit.sha);
+      commits.push(commit);
+      added += 1;
+      if (commits.length >= WORKLOG_COMMIT_CAP) break;
+    }
+    if (added === 0 || batch.length < COMMIT_PAGE_SIZE) break;
+  }
+  return keepNewest(commits, false);
+}
+
 export async function fetchWorklogRange(
   owner: string,
   repo: string,
@@ -111,35 +194,9 @@ export async function fetchWorklogRange(
   if (baseSha && baseSha === head.sha) return { branch, head, commits: [] as WorklogSourceCommit[] };
 
   if (baseSha) {
-    const compare = await githubGet(
-      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare/${encodeURIComponent(baseSha)}...${encodeURIComponent(head.sha)}`,
-      tokens,
-    );
-    if (compare.ok) {
-      const body = await compare.json();
-      const commits = Array.isArray(body.commits)
-        ? body.commits.map((row: Parameters<typeof mapCommit>[0]) => mapCommit(row)).filter((row: WorklogSourceCommit | null): row is WorklogSourceCommit => !!row)
-        : [];
-      return { branch, head, commits };
-    }
-    if (compare.status !== 404) throw new WorklogGithubError(compare.status);
+    const compared = await fetchCompareCommits(owner, repo, baseSha, head.sha, tokens);
+    if (compared) return { branch, head, commits: compared };
   }
 
-  const since = new Date(Date.now() - WORKLOG_FIRST_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  const commits: WorklogSourceCommit[] = [];
-  for (let page = 1; page <= 3; page++) {
-    const res = await githubGet(
-      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?sha=${encodeURIComponent(branch)}&since=${encodeURIComponent(since)}&per_page=100&page=${page}`,
-      tokens,
-    );
-    if (!res.ok) throw new WorklogGithubError(res.status);
-    const batch = await res.json();
-    if (!Array.isArray(batch) || batch.length === 0) break;
-    for (const row of batch) {
-      const commit = mapCommit(row);
-      if (commit) commits.push(commit);
-    }
-    if (batch.length < 100) break;
-  }
-  return { branch, head, commits };
+  return { branch, head, commits: await fetchCommitsSince(owner, repo, branch, tokens) };
 }
