@@ -107,7 +107,7 @@ export default function ForDevelopersPage() {
           Repo owners can add custom links that appear on the About tab. These can be documentation, social media, community, or any other relevant URLs.
         </p>
         <p className="text-sm text-foreground/80 leading-relaxed">
-          To manage links, go to <a href="/dashboard/repos" className="text-accent underline underline-offset-4">Dashboard → Repos</a> and click <strong>Manage</strong> next to a repo. You can add up to 10 links, each with a title and URL.
+          To manage links, go to <a href="/dashboard/repos" className="text-accent underline underline-offset-4">Dashboard → Repos</a> and choose <strong>Manage</strong>. That opens the repo manage page, where you can add up to 10 links, each with a title and URL. The same page updates the Worklog, the project logo, and the About summary.
         </p>
       </section>
 

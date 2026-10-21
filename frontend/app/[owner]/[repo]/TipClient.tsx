@@ -28,6 +28,7 @@ import { bpsLabel } from "@/lib/fee-bps";
 import { claimButtonLabel, copyTipLinkLabel, displayNameSaveLabel, gasNote, tipSentToast } from "@/lib/ui-labels";
 import { Copy } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import type { RepoSummary } from "@/lib/ai";
 import { getBasescanTxUrl } from "@/lib/basescan";
 
@@ -76,6 +77,7 @@ export default function TipClient({
   links = [],
   developer = null,
   funderCount = null,
+  worklog = null,
 }: {
   repoId: string;
   project?: string;
@@ -85,6 +87,7 @@ export default function TipClient({
   links?: RepoLink[];
   developer?: RepoDeveloper | null;
   funderCount?: number | null;
+  worklog?: { label: string; title: string } | null;
 }) {
   const router = useRouter();
   const repoIdLower = repoId.toLowerCase();
@@ -759,8 +762,17 @@ export default function TipClient({
         </StatCard>
       </div>
 
+      {worklog ? (
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-y border-border py-3">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-brand">Worklog</span>
+          <span className="text-xs text-muted-foreground">{worklog.label}</span>
+          <Link href={`/${repoId}/worklog`} className="ml-auto text-sm text-brand sm:order-last">See Worklog →</Link>
+          <p className="min-w-0 basis-full text-sm font-medium sm:basis-0 sm:flex-1">{worklog.title}</p>
+        </div>
+      ) : null}
+
       <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="order-2 flex min-w-0 flex-col gap-6 lg:order-1">
+        <div className="flex min-w-0 flex-col gap-6">
           <section className="min-w-0">
             <div className="mb-3 flex items-baseline justify-between gap-3">
               <h2 className="text-sm font-medium">Ledger</h2>
@@ -872,7 +884,7 @@ export default function TipClient({
           </section>
         </div>
 
-        <div className="order-1 flex min-w-0 flex-col gap-4 lg:order-2">
+        <div className="flex min-w-0 flex-col gap-4">
           {isRegPending ? (
             <section className="flex justify-center py-12"><Loader variant="spinner" size={24} /></section>
           ) : !isRegistered ? (

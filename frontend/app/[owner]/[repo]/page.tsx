@@ -8,6 +8,7 @@ import { capitalize } from "@/lib/chain";
 import { isHiddenRepo } from "@/lib/repo-visibility";
 import { resolveRepoIcon } from "@/lib/repo-icon";
 import { pageShareMetadata } from "@/lib/share-metadata";
+import { formatWorklogRange } from "@/lib/worklog";
 import TipClient from "./TipClient";
 
 type Link = { title: string; url: string };
@@ -141,6 +142,23 @@ export default async function RepoPage({ params }: { params: Promise<{ owner: st
 
   if (isHiddenRepo(repoRecord)) notFound();
 
+  let worklog: { label: string; title: string } | null = null;
+  try {
+    const latest = await prisma.worklogEntry.findFirst({
+      where: { repo_id: repoId.toLowerCase() },
+      orderBy: { ends_at: "desc" },
+      select: { title: true, starts_at: true, ends_at: true },
+    });
+    if (latest) {
+      worklog = {
+        label: formatWorklogRange(latest.starts_at.toISOString(), latest.ends_at.toISOString()),
+        title: latest.title,
+      };
+    }
+  } catch {
+    worklog = null;
+  }
+
   const resolvedIcon = resolveRepoIcon({
     logo: repoRecord?.icon,
     developerPfp: meta?.owner.avatar_url,
@@ -157,6 +175,7 @@ export default async function RepoPage({ params }: { params: Promise<{ owner: st
       links={links}
       developer={developer}
       funderCount={funderCount}
+      worklog={worklog}
     />
   );
 }
