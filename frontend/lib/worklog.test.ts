@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  GITHUB_COMPARE_PAGE_SIZE,
+  GITHUB_LIST_PAGE_SIZE,
   WORKLOG_COMMIT_CAP,
+  WORKLOG_LOCK_STALE_MS,
+  commitsFromComparePages,
+  compareWindow,
+  dedupeWorklogDrafts,
   draftWorklogEntries,
   entriesFromModel,
   formatWorklogDate,
@@ -9,6 +15,11 @@ import {
   formatWorklogUpdated,
   isNoiseCommit,
   parseWorklogModel,
+  planWorklogUpdate,
+  takeListedCommits,
+  worklogLockHeld,
+  worklogWriteAuth,
+  type WorklogDraft,
   type WorklogSourceCommit,
 } from "./worklog.ts";
 
@@ -137,19 +148,195 @@ test("optimusexe/Opentip reference entries", () => {
   );
 });
 
-test("the commit cap keeps the newest 250", () => {
-  assert.equal(WORKLOG_COMMIT_CAP, 250);
-  const commits: WorklogSourceCommit[] = Array.from({ length: WORKLOG_COMMIT_CAP + 1 }, (_, index) => ({
-    sha: String(index).padStart(7, "0"),
-    message: `Add feature ${index}`,
-    committedAt: new Date(Date.UTC(2026, 0, 1) + index * 60 * 60 * 1000).toISOString(),
+function commitAt(index: number, message = `Add feature ${index}`): WorklogSourceCommit {
+  return {
+    sha: index.toString(16).padStart(40, "0"),
+    message,
+    committedAt: new Date(Date.UTC(2024, 0, 1) + index * 60 * 1000).toISOString(),
     url: `https://github.com/acme/app/commit/${index}`,
     parentCount: 1,
-  }));
+  };
+}
+
+function draftFor(commits: WorklogSourceCommit[], title = "Shipped an update."): WorklogDraft {
+  const ordered = [...commits].sort((a, b) => a.committedAt.localeCompare(b.committedAt));
+  return {
+    start: ordered[0].committedAt,
+    end: ordered[ordered.length - 1].committedAt,
+    title,
+    why: "This shipped on the default branch.",
+    commits,
+  };
+}
+
+test("the commit cap keeps the newest 500", () => {
+  assert.equal(WORKLOG_COMMIT_CAP, 500);
+  const commits: WorklogSourceCommit[] = Array.from({ length: WORKLOG_COMMIT_CAP + 1 }, (_, index) => commitAt(index));
   const kept = draftWorklogEntries(commits).flatMap((entry) => entry.commits);
   assert.equal(kept.length, WORKLOG_COMMIT_CAP);
-  assert.equal(kept.some((commit) => commit.sha === "0000000"), false);
-  assert.equal(kept.some((commit) => commit.sha === "0000250"), true);
+  assert.equal(kept.some((commit) => commit.sha === commitAt(0).sha), false);
+  assert.equal(kept.some((commit) => commit.sha === commitAt(WORKLOG_COMMIT_CAP).sha), true);
+});
+
+test("compare pages keep the newest 500, not the oldest", () => {
+  assert.equal(GITHUB_COMPARE_PAGE_SIZE, 250);
+  assert.deepEqual(compareWindow(500), [1, 2]);
+  const total = 1000;
+  const pages = compareWindow(total);
+  assert.deepEqual(pages, [3, 4]);
+  const byPage = new Map<number, WorklogSourceCommit[]>();
+  for (let page = 1; page <= 4; page += 1) {
+    byPage.set(page, Array.from({ length: 250 }, (_, offset) => commitAt((page - 1) * 250 + offset)));
+  }
+  const selected = commitsFromComparePages(byPage, total);
+  assert.equal(selected.truncated, true);
+  assert.equal(selected.commits.length, 500);
+  assert.equal(selected.commits.some((commit) => commit.sha === commitAt(499).sha), false);
+  assert.equal(selected.commits.some((commit) => commit.sha === commitAt(500).sha), true);
+  assert.equal(selected.commits[0].sha, commitAt(999).sha);
+});
+
+test("a compare window that starts mid-page still drops the older commits", () => {
+  const total = 600;
+  assert.deepEqual(compareWindow(total), [1, 2, 3]);
+  const byPage = new Map<number, WorklogSourceCommit[]>([
+    [1, Array.from({ length: 250 }, (_, offset) => commitAt(offset))],
+    [2, Array.from({ length: 250 }, (_, offset) => commitAt(250 + offset))],
+    [3, Array.from({ length: 100 }, (_, offset) => commitAt(500 + offset))],
+  ]);
+  const selected = commitsFromComparePages(byPage, total);
+  assert.equal(selected.commits.length, 500);
+  assert.equal(selected.commits.some((commit) => commit.sha === commitAt(99).sha), false);
+  assert.equal(selected.commits.some((commit) => commit.sha === commitAt(100).sha), true);
+  assert.equal(selected.commits[0].sha, commitAt(599).sha);
+});
+
+test("listed pages keep the newest 500 and can stop at the cursor", () => {
+  assert.equal(GITHUB_LIST_PAGE_SIZE, 100);
+  const total = 600;
+  const newestFirst = Array.from({ length: total }, (_, index) => commitAt(total - 1 - index));
+  const pages: WorklogSourceCommit[][] = [];
+  for (let index = 0; index < newestFirst.length; index += GITHUB_LIST_PAGE_SIZE) {
+    pages.push(newestFirst.slice(index, index + GITHUB_LIST_PAGE_SIZE));
+  }
+  const capped = takeListedCommits(pages, WORKLOG_COMMIT_CAP, null);
+  assert.equal(capped.truncated, true);
+  assert.equal(capped.commits.length, 500);
+  assert.equal(capped.commits[0].sha, commitAt(599).sha);
+  assert.equal(capped.commits.at(-1)?.sha, commitAt(100).sha);
+  assert.equal(capped.commits.some((commit) => commit.sha === commitAt(99).sha), false);
+
+  const cursor = commitAt(550).sha;
+  const stopped = takeListedCommits(pages, WORKLOG_COMMIT_CAP, cursor);
+  assert.equal(stopped.truncated, false);
+  assert.equal(stopped.commits.some((commit) => commit.sha === cursor), false);
+  assert.equal(stopped.commits[0].sha, commitAt(599).sha);
+  assert.equal(stopped.commits.at(-1)?.sha, commitAt(551).sha);
+});
+
+test("the cursor stops before an unsaved commit and does not jump to head", () => {
+  const commits = [commitAt(1), commitAt(2), commitAt(3), commitAt(4)];
+  const head = commitAt(4);
+  const partial = planWorklogUpdate({
+    commits,
+    knownShas: [],
+    drafts: [draftFor([commits[2], commits[3]])],
+    branch: "master",
+    truncated: false,
+    previous: { sha: "previous-sha", message: "Previous subject", branch: "master" },
+    head,
+  });
+  assert.equal(partial.cursor?.sha, "previous-sha");
+  assert.notEqual(partial.cursor?.sha, head.sha);
+  assert.match(partial.detail, /does not move past them/);
+
+  const gap = planWorklogUpdate({
+    commits,
+    knownShas: [],
+    drafts: [draftFor([commits[0], commits[3]])],
+    branch: "master",
+    truncated: false,
+    previous: { sha: "previous-sha", message: "Previous subject", branch: "master" },
+    head,
+  });
+  assert.equal(gap.cursor?.sha, commits[0].sha);
+  assert.notEqual(gap.cursor?.sha, head.sha);
+
+  const noise = { ...commitAt(2), parentCount: 2, message: "Merge pull request #2" };
+  const withNoise = [commitAt(1), noise, commitAt(3)];
+  const covered = planWorklogUpdate({
+    commits: withNoise,
+    knownShas: [],
+    drafts: [draftFor([withNoise[0], withNoise[2]])],
+    branch: "master",
+    truncated: false,
+    previous: null,
+    head: commitAt(9),
+  });
+  assert.equal(covered.cursor?.sha, withNoise[2].sha);
+  assert.notEqual(covered.cursor?.sha, commitAt(9).sha);
+
+  const done = planWorklogUpdate({
+    commits,
+    knownShas: [],
+    drafts: [draftFor(commits)],
+    branch: "master",
+    truncated: true,
+    previous: null,
+    head,
+  });
+  assert.equal(done.cursor?.sha, head.sha);
+  assert.match(done.detail, /Older commits were left behind/);
+
+  const missed = planWorklogUpdate({
+    commits,
+    knownShas: [],
+    drafts: [],
+    branch: "master",
+    truncated: false,
+    previous: null,
+    head,
+  });
+  assert.equal(missed.cursor, null);
+});
+
+test("saving the same sha twice keeps one commit", () => {
+  const first = commitAt(1);
+  const second = commitAt(2);
+  const third = commitAt(3);
+  const drafts = [draftFor([first, first, second]), draftFor([second, third])];
+  const once = dedupeWorklogDrafts(drafts, []);
+  assert.deepEqual(once.map((draft) => draft.commits.map((commit) => commit.sha)), [[first.sha, second.sha], [third.sha]]);
+  const again = dedupeWorklogDrafts(once, [first.sha, third.sha]);
+  assert.deepEqual(again.map((draft) => draft.commits.map((commit) => commit.sha)), [[second.sha]]);
+
+  const replay = planWorklogUpdate({
+    commits: [first, second],
+    knownShas: [first.sha, second.sha],
+    drafts: [draftFor([first, second])],
+    branch: "master",
+    truncated: false,
+    previous: { sha: first.sha, message: first.message, branch: "master" },
+    head: second,
+  });
+  assert.equal(replay.added, 0);
+  assert.equal(replay.writes.length, 0);
+  assert.equal(replay.cursor?.sha, second.sha);
+});
+
+test("reset uses the same owner check as update", () => {
+  assert.deepEqual(worklogWriteAuth(false, false), { ok: false, status: 401, error: "not authenticated" });
+  assert.deepEqual(worklogWriteAuth(false, true), { ok: false, status: 401, error: "not authenticated" });
+  assert.deepEqual(worklogWriteAuth(true, false), { ok: false, status: 403, error: "not repo owner" });
+  assert.deepEqual(worklogWriteAuth(true, true), { ok: true });
+});
+
+test("a fresh worklog lease blocks another update until it is stale", () => {
+  const now = Date.parse("2026-10-22T12:00:00.000Z");
+  assert.equal(worklogLockHeld("updating:abc", new Date(now - 1000), now), true);
+  assert.equal(worklogLockHeld("updating:abc", new Date(now - WORKLOG_LOCK_STALE_MS), now), false);
+  assert.equal(worklogLockHeld("current", new Date(now), now), false);
+  assert.ok("updating:".length + 16 <= 32);
 });
 
 test("a date range on one month reads as Oct 12 to 13", () => {

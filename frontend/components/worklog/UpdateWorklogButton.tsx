@@ -8,9 +8,11 @@ import type { WorklogPayload } from "@/lib/worklog-run";
 
 export function UpdateWorklogButton({
   repoId,
+  disabled = false,
   onPhase,
 }: {
   repoId: string;
+  disabled?: boolean;
   onPhase?: (phase: "checking" | "done", payload?: WorklogPayload) => void;
 }) {
   const router = useRouter();
@@ -45,7 +47,7 @@ export function UpdateWorklogButton({
 
   return (
     <div className="flex flex-col items-start gap-1">
-      <Button onClick={onClick} disabled={pending}>
+      <Button onClick={onClick} disabled={pending || disabled}>
         <RefreshCw className={pending ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"} />
         Update Worklog
       </Button>

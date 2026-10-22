@@ -8,7 +8,7 @@ export function WorklogEntryList({ entries }: { entries: WorklogEntryView[] }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
 
   if (entries.length === 0) {
-    return <p className="py-6 text-sm text-muted-foreground">No entries yet. An update reads recent commits on the default branch.</p>;
+    return <p className="py-6 text-sm text-muted-foreground">No entries yet. An update reads the latest 500 commits on the default branch.</p>;
   }
 
   return (

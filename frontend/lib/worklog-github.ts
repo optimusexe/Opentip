@@ -1,5 +1,13 @@
 import { githubAuthTokens } from "./github-permission";
-import { WORKLOG_COMMIT_CAP, WORKLOG_FIRST_WINDOW_DAYS, type WorklogSourceCommit } from "./worklog";
+import {
+  GITHUB_COMPARE_PAGE_SIZE,
+  GITHUB_LIST_PAGE_SIZE,
+  WORKLOG_COMMIT_CAP,
+  commitsFromComparePages,
+  compareWindow,
+  takeListedCommits,
+  type WorklogSourceCommit,
+} from "./worklog";
 
 export class WorklogGithubError extends Error {
   status: number;
@@ -89,87 +97,84 @@ export async function fetchOpenPullRequests(owner: string, repo: string): Promis
   }
 }
 
-const COMMIT_PAGE_SIZE = 100;
-
-function nextPagePath(link: string | null): string | null {
-  if (!link) return null;
-  for (const part of link.split(",")) {
-    if (!/rel="next"/.test(part)) continue;
-    const match = part.match(/<([^>]+)>/);
-    if (!match) return null;
-    const url = new URL(match[1]);
-    return `${url.pathname}${url.search}`;
-  }
-  return null;
-}
-
 function commitsFromRows(rows: unknown): WorklogSourceCommit[] {
   if (!Array.isArray(rows)) return [];
   return rows.map((row) => mapCommit(row)).filter((row): row is WorklogSourceCommit => !!row);
 }
 
-function keepNewest(commits: WorklogSourceCommit[], oldestFirst: boolean): WorklogSourceCommit[] {
-  if (commits.length <= WORKLOG_COMMIT_CAP) return commits;
-  return oldestFirst ? commits.slice(commits.length - WORKLOG_COMMIT_CAP) : commits.slice(0, WORKLOG_COMMIT_CAP);
+function comparePath(owner: string, repo: string, baseSha: string, headSha: string, page: number): string {
+  return `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare/${encodeURIComponent(baseSha)}...${encodeURIComponent(headSha)}?page=${page}&per_page=${GITHUB_COMPARE_PAGE_SIZE}`;
 }
 
+async function readComparePage(
+  owner: string,
+  repo: string,
+  baseSha: string,
+  headSha: string,
+  page: number,
+  tokens: string[],
+): Promise<{ ok: true; total: number | null; commits: WorklogSourceCommit[] } | { ok: false; status: number }> {
+  const res = await githubGet(comparePath(owner, repo, baseSha, headSha, page), tokens);
+  if (!res.ok) return { ok: false, status: res.status };
+  const body = await res.json();
+  const total = typeof body?.total_commits === "number" && Number.isFinite(body.total_commits) ? body.total_commits : null;
+  return { ok: true, total, commits: commitsFromRows(body?.commits) };
+}
+
+// Compare lists oldest first and stops at 250 per response. Page 1 is read for
+// total_commits, then only the pages from compareWindow are kept. Those are
+// the newest 500, not the oldest 500. Commits before that window are not
+// fetched again in this update.
 async function fetchCompareCommits(
   owner: string,
   repo: string,
   baseSha: string,
   headSha: string,
   tokens: string[],
-): Promise<WorklogSourceCommit[] | null> {
-  const commits: WorklogSourceCommit[] = [];
-  const seen = new Set<string>();
-  let path: string | null =
-    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare/${encodeURIComponent(baseSha)}...${encodeURIComponent(headSha)}`;
-  let first = true;
-  while (path && commits.length < WORKLOG_COMMIT_CAP) {
-    const res = await githubGet(path, tokens);
-    if (!res.ok) {
-      if (first && res.status === 404) return null;
-      throw new WorklogGithubError(res.status);
-    }
-    first = false;
-    const body = await res.json();
-    const batch = commitsFromRows(body?.commits);
-    let added = 0;
-    for (const commit of batch) {
-      if (seen.has(commit.sha)) continue;
-      seen.add(commit.sha);
-      commits.push(commit);
-      added += 1;
-    }
-    if (added === 0) break;
-    path = nextPagePath(res.headers.get("link"));
+): Promise<{ commits: WorklogSourceCommit[]; truncated: boolean } | null> {
+  const first = await readComparePage(owner, repo, baseSha, headSha, 1, tokens);
+  if (!first.ok) {
+    if (first.status === 404) return null;
+    throw new WorklogGithubError(first.status);
   }
-  return keepNewest(commits, true);
+  const total = first.total ?? first.commits.length;
+  const pages = compareWindow(total);
+  const byPage = new Map<number, WorklogSourceCommit[]>();
+  if (pages.includes(1)) byPage.set(1, first.commits);
+  for (const page of pages) {
+    if (page === 1) continue;
+    const next = await readComparePage(owner, repo, baseSha, headSha, page, tokens);
+    if (!next.ok) throw new WorklogGithubError(next.status);
+    byPage.set(page, next.commits);
+  }
+  return commitsFromComparePages(byPage, total);
 }
 
-async function fetchCommitsSince(owner: string, repo: string, branch: string, tokens: string[]): Promise<WorklogSourceCommit[]> {
-  const since = new Date(Date.now() - WORKLOG_FIRST_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  const commits: WorklogSourceCommit[] = [];
-  const seen = new Set<string>();
-  for (let page = 1; commits.length < WORKLOG_COMMIT_CAP; page++) {
+// No date window. The list is newest first, so stopping at the cap keeps the
+// newest commits. stopSha, when present, is the saved cursor and is excluded.
+async function fetchRecentCommits(
+  owner: string,
+  repo: string,
+  branch: string,
+  tokens: string[],
+  stopSha: string | null,
+): Promise<{ commits: WorklogSourceCommit[]; truncated: boolean }> {
+  const pages: WorklogSourceCommit[][] = [];
+  const maxPages = Math.ceil(WORKLOG_COMMIT_CAP / GITHUB_LIST_PAGE_SIZE) + 1;
+  for (let page = 1; page <= maxPages; page += 1) {
     const res = await githubGet(
-      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?sha=${encodeURIComponent(branch)}&since=${encodeURIComponent(since)}&per_page=${COMMIT_PAGE_SIZE}&page=${page}`,
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?sha=${encodeURIComponent(branch)}&per_page=${GITHUB_LIST_PAGE_SIZE}&page=${page}`,
       tokens,
     );
     if (!res.ok) throw new WorklogGithubError(res.status);
-    const batch = await res.json();
-    if (!Array.isArray(batch) || batch.length === 0) break;
-    let added = 0;
-    for (const commit of commitsFromRows(batch)) {
-      if (seen.has(commit.sha)) continue;
-      seen.add(commit.sha);
-      commits.push(commit);
-      added += 1;
-      if (commits.length >= WORKLOG_COMMIT_CAP) break;
-    }
-    if (added === 0 || batch.length < COMMIT_PAGE_SIZE) break;
+    const batch = commitsFromRows(await res.json());
+    if (batch.length === 0) break;
+    pages.push(batch);
+    const taken = takeListedCommits(pages, WORKLOG_COMMIT_CAP, stopSha);
+    const stopped = stopSha != null && batch.some((commit) => commit.sha === stopSha);
+    if (taken.truncated || stopped || batch.length < GITHUB_LIST_PAGE_SIZE) return taken;
   }
-  return keepNewest(commits, false);
+  return takeListedCommits(pages, WORKLOG_COMMIT_CAP, stopSha);
 }
 
 export async function fetchWorklogRange(
@@ -177,7 +182,7 @@ export async function fetchWorklogRange(
   repo: string,
   baseSha: string | null,
   userToken: string | null | undefined,
-): Promise<{ branch: string; head: WorklogSourceCommit; commits: WorklogSourceCommit[] }> {
+): Promise<{ branch: string; head: WorklogSourceCommit; commits: WorklogSourceCommit[]; truncated: boolean }> {
   const tokens = worklogTokens(userToken);
   const repoRes = await githubGet(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, tokens);
   if (!repoRes.ok) throw new WorklogGithubError(repoRes.status);
@@ -191,12 +196,13 @@ export async function fetchWorklogRange(
   const headList = await headRes.json();
   const head = Array.isArray(headList) ? mapCommit(headList[0] ?? {}) : null;
   if (!head) throw new WorklogGithubError(502);
-  if (baseSha && baseSha === head.sha) return { branch, head, commits: [] as WorklogSourceCommit[] };
+  if (baseSha && baseSha === head.sha) return { branch, head, commits: [], truncated: false };
 
   if (baseSha) {
     const compared = await fetchCompareCommits(owner, repo, baseSha, head.sha, tokens);
-    if (compared) return { branch, head, commits: compared };
+    if (compared) return { branch, head, commits: compared.commits, truncated: compared.truncated };
   }
 
-  return { branch, head, commits: await fetchCommitsSince(owner, repo, branch, tokens) };
+  const recent = await fetchRecentCommits(owner, repo, branch, tokens, baseSha);
+  return { branch, head, commits: recent.commits, truncated: recent.truncated };
 }
