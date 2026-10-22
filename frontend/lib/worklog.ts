@@ -1,8 +1,21 @@
-// Pure Worklog pipeline: drop noise, group a burst of commits, and write
-// the visitor-facing title. GitHub and Groq live in the callers.
+// Pure Worklog pipeline: drop noise, keep the newest commits, group a burst,
+// and write the visitor-facing title. GitHub and Groq live in the callers.
+//
+// One update reads at most WORKLOG_COMMIT_CAP commits. GitHub's compare
+// endpoint returns at most 250 commits per response, oldest first, so the
+// newest 500 are two pages when the range lines up with that size, and a
+// third page when the window starts in the middle of a page. The commit list
+// endpoint returns at most 100 per response, newest first, so a first update
+// requests five pages to reach the same cap. Commits older than this window
+// are dropped on purpose. There is no second round in the same update. The
+// cursor then moves only through commits this pass actually processed, which
+// is what leaves those older commits behind.
 
-export const WORKLOG_FIRST_WINDOW_DAYS = 14;
-export const WORKLOG_COMMIT_CAP = 250;
+export const WORKLOG_COMMIT_CAP = 500;
+export const GITHUB_COMPARE_PAGE_SIZE = 250;
+export const GITHUB_LIST_PAGE_SIZE = 100;
+export const WORKLOG_LOCK_STALE_MS = 3 * 60 * 1000;
+export const WORKLOG_LOCK_PLACEHOLDER_SHA = "0000000000000000000000000000000000000000";
 const CLUSTER_GAP_MS = 30 * 60 * 60 * 1000;
 
 export type WorklogSourceCommit = {
@@ -140,10 +153,71 @@ function newestFirst(commits: WorklogSourceCommit[]): WorklogSourceCommit[] {
   return [...commits].sort((a, b) => b.committedAt.localeCompare(a.committedAt) || a.sha.localeCompare(b.sha));
 }
 
+export function selectNewestWorklogCommits(commits: WorklogSourceCommit[], cap = WORKLOG_COMMIT_CAP): WorklogSourceCommit[] {
+  const sorted = [...commits].sort(
+    (a, b) => b.committedAt.localeCompare(a.committedAt) || a.sha.localeCompare(b.sha),
+  );
+  const seen = new Set<string>();
+  const newest: WorklogSourceCommit[] = [];
+  for (const commit of sorted) {
+    if (!commit.sha || seen.has(commit.sha)) continue;
+    seen.add(commit.sha);
+    newest.push(commit);
+    if (newest.length >= cap) break;
+  }
+  return newest;
+}
+
+// Compare pages are 1-indexed and oldest first. The returned page numbers are
+// the ones that contain the newest `cap` commits, not the first pages.
+export function compareWindow(total: number, cap = WORKLOG_COMMIT_CAP, pageSize = GITHUB_COMPARE_PAGE_SIZE): number[] {
+  if (total <= 0 || pageSize <= 0) return [];
+  const keep = Math.min(cap, total);
+  const start = total - keep;
+  const first = Math.floor(start / pageSize) + 1;
+  const last = Math.ceil(total / pageSize);
+  const pages: number[] = [];
+  for (let page = first; page <= last; page += 1) pages.push(page);
+  return pages;
+}
+
+export function commitsFromComparePages(
+  pagesByNumber: ReadonlyMap<number, readonly WorklogSourceCommit[]>,
+  total: number,
+  cap = WORKLOG_COMMIT_CAP,
+  pageSize = GITHUB_COMPARE_PAGE_SIZE,
+): { commits: WorklogSourceCommit[]; truncated: boolean } {
+  const ordered: WorklogSourceCommit[] = [];
+  for (const page of compareWindow(total, cap, pageSize)) {
+    const rows = pagesByNumber.get(page);
+    if (rows) ordered.push(...rows);
+  }
+  return { commits: selectNewestWorklogCommits(ordered, cap), truncated: total > cap };
+}
+
+// List pages are newest first. `stopSha` is the cursor and is not included.
+// Hitting `cap` before that sha drops every older commit on purpose.
+export function takeListedCommits(
+  pagesNewestFirst: readonly (readonly WorklogSourceCommit[])[],
+  cap = WORKLOG_COMMIT_CAP,
+  stopSha: string | null = null,
+): { commits: WorklogSourceCommit[]; truncated: boolean } {
+  const commits: WorklogSourceCommit[] = [];
+  const seen = new Set<string>();
+  for (const page of pagesNewestFirst) {
+    for (const commit of page) {
+      if (stopSha && commit.sha === stopSha) return { commits, truncated: false };
+      if (!commit.sha || seen.has(commit.sha)) continue;
+      seen.add(commit.sha);
+      if (commits.length === cap) return { commits, truncated: true };
+      commits.push(commit);
+    }
+  }
+  return { commits, truncated: false };
+}
+
 export function draftWorklogEntries(commits: WorklogSourceCommit[]): WorklogDraft[] {
-  const newest = selectWorklogCommits(commits)
-    .sort((a, b) => b.committedAt.localeCompare(a.committedAt) || a.sha.localeCompare(b.sha))
-    .slice(0, WORKLOG_COMMIT_CAP);
+  const newest = selectNewestWorklogCommits(selectWorklogCommits(commits));
   return clusterWorklogCommits(newest)
     .map((cluster) => {
       const summary = summarizeCluster(cluster);
@@ -157,6 +231,189 @@ export function draftWorklogEntries(commits: WorklogSourceCommit[]): WorklogDraf
       };
     })
     .sort((a, b) => b.end.localeCompare(a.end));
+}
+
+// Walk oldest first. Noise and commits already saved count as processed.
+// The first commit that was fetched and not saved stops the walk, so a
+// partial or failed grouping cannot move the cursor to head past it.
+export function nextWorklogCursor(
+  commits: WorklogSourceCommit[],
+  covered: (commit: WorklogSourceCommit) => boolean,
+): WorklogSourceCommit | null {
+  const ordered = [...commits].sort(
+    (a, b) => a.committedAt.localeCompare(b.committedAt) || a.sha.localeCompare(b.sha),
+  );
+  let cursor: WorklogSourceCommit | null = null;
+  for (const commit of ordered) {
+    if (!covered(commit)) break;
+    cursor = commit;
+  }
+  return cursor;
+}
+
+export function dedupeWorklogDrafts<T extends { commits: { sha: string }[] }>(
+  drafts: readonly T[],
+  existingShas: Iterable<string>,
+): T[] {
+  const seen = new Set(Array.from(existingShas, (sha) => sha.slice(0, 40)));
+  const out: T[] = [];
+  for (const draft of drafts) {
+    const commits: T["commits"] = [];
+    for (const commit of draft.commits) {
+      const sha = commit.sha.slice(0, 40);
+      if (!sha || seen.has(sha)) continue;
+      seen.add(sha);
+      commits.push({ ...commit, sha });
+    }
+    if (commits.length === 0) continue;
+    out.push({ ...draft, commits });
+  }
+  return out;
+}
+
+export function isWorklogLockPlaceholder(sha: string | null | undefined): boolean {
+  return !sha || sha === WORKLOG_LOCK_PLACEHOLDER_SHA;
+}
+
+export function isWorklogLease(status: string): boolean {
+  return status.startsWith("updating:");
+}
+
+// A lease is held only while it is fresh. The cursor row's conditional update
+// claims the row when this returns false: status is not a lease, or
+// updated_at is at least WORKLOG_LOCK_STALE_MS old.
+export function worklogLockHeld(
+  status: string,
+  updatedAt: Date,
+  now = Date.now(),
+  staleMs = WORKLOG_LOCK_STALE_MS,
+): boolean {
+  if (!isWorklogLease(status)) return false;
+  return now - updatedAt.getTime() < staleMs;
+}
+
+export function worklogWriteAuth(
+  hasSessionUser: boolean,
+  maintains: boolean,
+): { ok: true } | { ok: false; status: 401 | 403; error: string } {
+  if (!hasSessionUser) return { ok: false, status: 401, error: "not authenticated" };
+  if (!maintains) return { ok: false, status: 403, error: "not repo owner" };
+  return { ok: true };
+}
+
+export function worklogUpdateDetail(input: {
+  branch: string;
+  added: number;
+  sawCommits: boolean;
+  reachedNewest: boolean;
+  truncated: boolean;
+}): { status: "current" | "updated"; detail: string } {
+  const capNote = input.truncated
+    ? ` This update kept the newest ${WORKLOG_COMMIT_CAP} commits. Older commits were left behind.`
+    : "";
+  if (!input.sawCommits) {
+    return {
+      status: "current",
+      detail: `No new commits since the last update. Push or merge to ${input.branch}, then update again.`,
+    };
+  }
+  if (!input.reachedNewest) {
+    const added =
+      input.added === 0 ? "No entries were saved." : input.added === 1 ? "Added 1 entry." : `Added ${input.added} entries.`;
+    return {
+      status: input.added > 0 ? "updated" : "current",
+      detail: `${added} Newer commits are still unsaved, so the covered commit does not move past them. Update again to continue.`,
+    };
+  }
+  if (input.added === 0) {
+    return {
+      status: "current",
+      detail: `No user-facing changes on ${input.branch} since the last update.${capNote}`,
+    };
+  }
+  const added = input.added === 1 ? "Added 1 entry." : `Added ${input.added} entries.`;
+  return { status: "updated", detail: `${added}${capNote}` };
+}
+
+export type WorklogCursorTarget = { sha: string; message: string; branch: string };
+
+export function planWorklogUpdate(input: {
+  commits: WorklogSourceCommit[];
+  knownShas: Iterable<string>;
+  drafts: WorklogDraft[];
+  branch: string;
+  truncated: boolean;
+  previous: WorklogCursorTarget | null;
+  head: WorklogSourceCommit;
+}): {
+  writes: WorklogDraft[];
+  added: number;
+  status: "current" | "updated";
+  detail: string;
+  cursor: WorklogCursorTarget | null;
+} {
+  const known = new Set(Array.from(input.knownShas, (sha) => sha.slice(0, 40)));
+  const writes = dedupeWorklogDrafts(
+    input.drafts.map((draft) => ({
+      ...draft,
+      commits: draft.commits.filter((commit) => !known.has(commit.sha.slice(0, 40))),
+    })),
+    known,
+  );
+  const saved = new Set(writes.flatMap((draft) => draft.commits.map((commit) => commit.sha.slice(0, 40))));
+  const sawCommits = input.commits.length > 0;
+  const advanced = sawCommits
+    ? nextWorklogCursor(input.commits, (commit) => {
+        const sha = commit.sha.slice(0, 40);
+        return known.has(sha) || saved.has(sha) || isNoiseCommit(commit);
+      })
+    : null;
+  const newest = sawCommits ? selectNewestWorklogCommits(input.commits, 1)[0] : null;
+  const reachedNewest = !sawCommits || (advanced != null && newest != null && advanced.sha === newest.sha);
+  const summary = worklogUpdateDetail({
+    branch: input.branch,
+    added: writes.length,
+    sawCommits,
+    reachedNewest,
+    truncated: input.truncated,
+  });
+  const base = {
+    writes,
+    added: writes.length,
+    status: summary.status,
+    detail: summary.detail,
+  };
+  if (!sawCommits) {
+    return {
+      ...base,
+      cursor: {
+        sha: input.head.sha.slice(0, 40),
+        message: subjectOf(input.head.message).slice(0, 500),
+        branch: input.branch.slice(0, 255),
+      },
+    };
+  }
+  if (advanced) {
+    return {
+      ...base,
+      cursor: {
+        sha: advanced.sha.slice(0, 40),
+        message: subjectOf(advanced.message).slice(0, 500),
+        branch: input.branch.slice(0, 255),
+      },
+    };
+  }
+  if (input.previous && !isWorklogLockPlaceholder(input.previous.sha)) {
+    return {
+      ...base,
+      cursor: {
+        sha: input.previous.sha.slice(0, 40),
+        message: input.previous.message.slice(0, 500),
+        branch: (input.previous.branch || input.branch).slice(0, 255),
+      },
+    };
+  }
+  return { ...base, cursor: null };
 }
 
 export function sanitizeWorklogCopy(text: string): string | null {
@@ -225,8 +482,7 @@ export function entriesFromModel(commits: WorklogSourceCommit[], model: WorklogM
 }
 
 export function buildWorklogPrompt(owner: string, repo: string, branch: string, commits: WorklogSourceCommit[]): string {
-  const lines = newestFirst(selectWorklogCommits(commits))
-    .slice(0, WORKLOG_COMMIT_CAP)
+  const lines = selectNewestWorklogCommits(selectWorklogCommits(commits))
     .map((commit) => `${commit.sha} ${commit.committedAt} ${subjectOf(commit.message)}`)
     .join("\n");
   return `Group these already-filtered commits from ${owner}/${repo} (${branch}) into Worklog entries.

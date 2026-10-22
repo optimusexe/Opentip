@@ -8,6 +8,7 @@ import { Button } from "@/components/motion/button";
 import { Loader } from "@/components/motion/loader";
 import { RepoIcon } from "@/components/RepoIcon";
 import { WorklogEntryList } from "@/components/worklog/WorklogEntryList";
+import { ResetWorklogButton } from "@/components/worklog/ResetWorklogButton";
 import { UpdateWorklogButton } from "@/components/worklog/UpdateWorklogButton";
 import { useToast } from "@/app/providers";
 import { opentipV2Abi } from "@/lib/contract";
@@ -69,6 +70,7 @@ export default function ManageClient({
   const [saving, setSaving] = useState(false);
   const [worklog, setWorklog] = useState(initialWorklog);
   const [checking, setChecking] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [prices, setPrices] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -116,7 +118,9 @@ export default function ManageClient({
       : `Checking recent commits on ${branch}...`
     : cursor?.detail || (cursor
       ? `No new commits since the last update. Push or merge to ${branch}, then update again.`
-      : "No Worklog yet. Update Worklog to read recent commits on the default branch.");
+      : worklog.entries.length > 0
+        ? "Saved entries are missing a covered commit. Update again to continue."
+        : "No Worklog yet. Update Worklog to read the latest 500 commits on the default branch.");
 
   function jump(id: string) {
     setActive(id);
@@ -236,15 +240,24 @@ export default function ManageClient({
           <section id="worklog" className="scroll-mt-24 rounded-[10px] border border-brand bg-card p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <h2 className="text-sm font-medium">Worklog</h2>
-              <UpdateWorklogButton
-                repoId={repoId}
-                onPhase={(phase, payload) => {
-                  setChecking(phase === "checking");
-                  if (payload) setWorklog(payload);
-                }}
-              />
+              <div className="flex flex-wrap items-start justify-end gap-2">
+                <ResetWorklogButton
+                  repoId={repoId}
+                  disabled={checking}
+                  onPending={setResetting}
+                  onReset={(payload) => setWorklog(payload)}
+                />
+                <UpdateWorklogButton
+                  repoId={repoId}
+                  disabled={resetting}
+                  onPhase={(phase, payload) => {
+                    setChecking(phase === "checking");
+                    if (payload) setWorklog(payload);
+                  }}
+                />
+              </div>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">Click Update after you merge pull requests or push to {branch}. Newer commits are grouped into entries on your Worklog page.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Click Update after you merge pull requests or push to {branch}. An update reads at most the latest 500 commits. Newer commits are grouped into entries on your Worklog page.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Last update</p>
