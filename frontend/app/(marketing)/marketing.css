@@ -26,7 +26,8 @@
 
 .mkt * { box-sizing: border-box; }
 .mkt a { color: inherit; text-decoration: none; }
-.mkt h1, .mkt h2, .mkt h3, .mkt p { margin: 0; }
+/* :where() keeps this reset from beating margin-inline: auto on a measured block. */
+.mkt :where(h1, h2, h3, p) { margin-block: 0; }
 .mkt h1, .mkt h2, .mkt h3, .mkt-logo, .mkt th,
 .mkt b, .mkt strong,
 .mkt-faq summary, .mkt-acc summary, .mkt-col b { font-weight: 500; }
