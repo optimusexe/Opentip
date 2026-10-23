@@ -63,6 +63,14 @@ export function LandingPage() {
           <div className="mkt-tipline">
             Looking to tip a repo? <Link href="/tip">Continue to Opentip Tip →</Link>
           </div>
+          <div className="mkt-stage">
+            <div className="mkt-tilt mkt-s1">
+              <img src="/marketing/01-dashboard.webp" alt="" width={1440} height={900} />
+            </div>
+            <div className="mkt-tilt mkt-s2">
+              <img src="/marketing/04-docs-site.webp" alt="" width={1440} height={900} />
+            </div>
+          </div>
         </div>
       </div>
 
