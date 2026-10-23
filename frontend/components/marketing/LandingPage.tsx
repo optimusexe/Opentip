@@ -9,7 +9,7 @@ const FAQ = [
   ],
   [
     "How do the docs stay up to date?",
-    "A GitHub App runs on every push. Small pushes are batched, pushes that don't affect your docs are skipped, and Copilot updates only the affected pages.",
+    "A GitHub App runs on every push. Each push updates only the pages it affects, and pushes that don't touch documented code are skipped.",
   ],
   [
     "Can I review changes before they go live?",
@@ -117,11 +117,10 @@ export function LandingPage() {
           <div className="mkt-txt">
             <div className="mkt-label">Always current</div>
             <h2>Push code. The docs follow.</h2>
-            <p>The Opentip GitHub App runs on every push. It batches small pushes, skips pushes that don&apos;t affect your docs, and updates only the pages that changed.</p>
+            <p>The Opentip GitHub App runs on every push. Each push updates only the pages it affects, and pushes that don&apos;t touch documented code are skipped.</p>
             <ul className="mkt-ck">
-              <li>Small pushes are batched together</li>
-              <li>Pushes that don&apos;t touch docs are skipped</li>
-              <li>Only affected pages are rewritten</li>
+              <li>Each push updates only the pages it affects</li>
+              <li>Pushes that don&apos;t touch documented code are skipped</li>
               <li>Turn on approval if you want to review each update before it goes live</li>
             </ul>
           </div>
@@ -207,7 +206,6 @@ export function LandingPage() {
             <div className="mkt-label">Tips</div>
             <h2>Let readers tip you</h2>
             <p>Add a tip button to your docs and Worklog pages. Supporters can tip in ETH or USDC. It&apos;s free on every plan, fees stay the same as today, and you can turn it off for any site.</p>
-            <p className="mkt-micro mkt-left">Optional. Off for any site with one switch.</p>
           </div>
           <div className="mkt-tipcard" aria-hidden="true">
             <div className="mkt-tiphead">
