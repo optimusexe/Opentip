@@ -1,6 +1,6 @@
 // Old tipping URLs move to /tip. Redirects are permanent (308). Repo card
 // images are rewrites so clients that do not follow redirects still get a 200.
-// /terms and /privacy are the new product pages, so they are not in this list.
+// /terms, /privacy, and /subprocessors are product pages, so they are not in this list.
 // Next keeps the query string on both redirects and rewrites.
 
 const TIP_PREFIXES = [
@@ -32,6 +32,7 @@ const RESERVED_FIRST = [
   "beta",
   "terms",
   "privacy",
+  "subprocessors",
   "_next",
   "icons",
   "tokens",
@@ -123,6 +124,7 @@ export const PASSTHROUGH_PATHS = [
   "/beta",
   "/terms",
   "/privacy",
+  "/subprocessors",
   "/og-home.png",
   "/ogimage.png",
   "/Opentip.png",

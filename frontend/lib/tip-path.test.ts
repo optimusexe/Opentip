@@ -16,6 +16,8 @@ test("leaves marketing, api, and already prefixed paths alone", () => {
   assert.equal(toTipPath("/beta"), "/beta");
   assert.equal(toTipPath("/terms"), "/terms");
   assert.equal(toTipPath("/privacy"), "/privacy");
+  assert.equal(toTipPath("/subprocessors"), "/subprocessors");
+  assert.equal(toTipPath("/subprocessors/extra"), "/subprocessors/extra");
 });
 
 test("rejects off-site targets", () => {

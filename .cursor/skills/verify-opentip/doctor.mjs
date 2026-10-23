@@ -151,6 +151,7 @@ const pages = [
   ["/beta", "Apply for the beta"],
   ["/terms", "Terms of Service"],
   ["/privacy", "Privacy Policy"],
+  ["/subprocessors", "Subprocessors"],
   ["/tip", "Funding for open source"],
   ["/tip/docs", "Documentation"],
   ["/tip/leaderboard", FIXTURE_SUPPORTER],

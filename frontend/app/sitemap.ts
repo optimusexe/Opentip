@@ -7,6 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: "https://opentip.tech/beta", lastModified: new Date() },
     { url: "https://opentip.tech/terms", lastModified: new Date() },
     { url: "https://opentip.tech/privacy", lastModified: new Date() },
+    { url: "https://opentip.tech/subprocessors", lastModified: new Date() },
     { url: "https://opentip.tech/tip", lastModified: new Date() },
     { url: "https://opentip.tech/tip/repos", lastModified: new Date() },
     { url: "https://opentip.tech/tip/activity", lastModified: new Date() },
