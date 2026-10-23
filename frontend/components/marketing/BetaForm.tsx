@@ -169,7 +169,7 @@ export function BetaForm() {
         <h1 tabIndex={-1} ref={headingRef}>Apply for the beta</h1>
         <p className="mkt-sub">About 2 minutes. Tell us about the repo you want to try.</p>
         <div className="mkt-row">
-          <button className="mkt-btn mkt-pri" type="submit">Next</button>
+          <button className="mkt-btn mkt-pri" type="submit">Start</button>
         </div>
       </form>
     );
