@@ -11,16 +11,7 @@ export const metadata = {
 export default function NotFound() {
   return (
     <div id="main-content" className={`${GeistSans.variable} ${GeistMono.variable} mkt`}>
-      <header>
-        <div className="mkt-w mkt-bar">
-          <Link href="/" aria-label="Opentip home">
-            <Mark />
-          </Link>
-          <Link className="mkt-btn mkt-pri" href="/beta">
-            Apply for the beta
-          </Link>
-        </div>
-      </header>
+      <MarketingHeader />
       <section>
         <div className="mkt-w">
           <h2>Page not found</h2>
