@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-function Mark() {
+export function Mark() {
   return (
     <span className="mkt-logo">
-      <i />
+      <img src="/icons/icon-512.png" alt="" width={22} height={22} />
       Opentip
     </span>
   );

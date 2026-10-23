@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
 import { ChatFrame, DashboardFrame, DocsFrame, WorklogFrame } from "@/components/marketing/ProductShots";
 
 const FAQ = [
@@ -36,37 +37,10 @@ const FAQ = [
   ],
 ] as const;
 
-function Mark() {
-  return (
-    <span className="mkt-logo">
-      <i />
-      Opentip
-    </span>
-  );
-}
-
 export function LandingPage() {
   return (
     <>
-      <header>
-        <div className="mkt-w mkt-bar">
-          <Link href="/" aria-label="Opentip home">
-            <Mark />
-          </Link>
-          <nav className="mkt-links" aria-label="Primary">
-            <a href="#how">How it works</a>
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-          </nav>
-          <Link className="mkt-tiplink mkt-hidem" href="/tip">
-            Opentip Tip
-          </Link>
-          <Link className="mkt-btn mkt-pri" href="/beta">
-            Apply for the beta
-          </Link>
-        </div>
-      </header>
+      <MarketingHeader />
 
       <div className="mkt-hero">
         <div className="mkt-w">
@@ -414,36 +388,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer>
-        <div className="mkt-w mkt-foot">
-          <div>
-            <Mark />
-            <p>Docs that write themselves from your code.</p>
-            <Link className="mkt-btn mkt-pri" href="/beta">
-              Apply for the beta
-            </Link>
-          </div>
-          <div className="mkt-col">
-            <b>Product</b>
-            <a href="#how">How it works</a>
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-            <Link href="/tip">Opentip Tip</Link>
-          </div>
-          <div className="mkt-col">
-            <b>Social</b>
-            <a href="https://x.com/opentip_tech" target="_blank" rel="noreferrer">X @opentip_tech</a>
-            <a href="https://github.com/opentiphq" target="_blank" rel="noreferrer">GitHub opentiphq</a>
-          </div>
-          <div className="mkt-col">
-            <b>Legal</b>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
-          </div>
-          <div className="mkt-copy">© 2026 Opentip</div>
-        </div>
-      </footer>
+      <MarketingFooter />
     </>
   );
 }
