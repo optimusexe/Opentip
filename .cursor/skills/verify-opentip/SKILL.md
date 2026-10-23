@@ -63,7 +63,7 @@ It passes only when all of these are true:
 - Port 3000's listening socket belongs to that process tree.
 - The dev log contains `Ready` or `Local:`.
 - `frontend/.env.local` is the scaffolding file.
-- `GET /`, `/beta`, `/tip`, `/tip/docs`, `/tip/leaderboard`, `/tip/repos`, `/tip/signin`, and `/tip/vercel/next.js` return 200 with `Docs that write themselves`, `Apply for the beta`, `Funding for open source`, `Documentation`, `Fixture Supporter`, `Repos`, `Sign in`, and `Next.js`.
+- `GET /`, `/beta`, `/terms`, `/privacy`, `/tip`, `/tip/docs`, `/tip/leaderboard`, `/tip/repos`, `/tip/signin`, and `/tip/vercel/next.js` return 200 with `Docs that write themselves`, `Apply for the beta`, `Terms of Service`, `Privacy Policy`, `Funding for open source`, `Documentation`, `Fixture Supporter`, `Repos`, `Sign in`, and `Next.js`.
 - Prisma can `SELECT 1` and read a visible `vercel/next.js` row.
 
 Exit 0 prints `doctor: healthy`.

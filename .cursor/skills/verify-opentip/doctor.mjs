@@ -149,6 +149,8 @@ if (!envText.startsWith("# OPENTIP_VERIFY_SCAFFOLDING")) {
 const pages = [
   ["/", "Docs that write themselves"],
   ["/beta", "Apply for the beta"],
+  ["/terms", "Terms of Service"],
+  ["/privacy", "Privacy Policy"],
   ["/tip", "Funding for open source"],
   ["/tip/docs", "Documentation"],
   ["/tip/leaderboard", FIXTURE_SUPPORTER],

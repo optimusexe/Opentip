@@ -14,6 +14,8 @@ import { BASE_URL, accountButton, assertNoCrash, launchBrowser, parseViewport, r
 const READY = {
   "/": "Docs that write themselves",
   "/beta": "Apply for the beta",
+  "/terms": "Terms of Service",
+  "/privacy": "Privacy Policy",
   "/tip": "Funding for open source",
   "/tip/docs": "Documentation",
   "/tip/leaderboard": "Leaderboard",
