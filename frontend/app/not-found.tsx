@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
-import { Mark } from "@/components/marketing/MarketingChrome";
+import { MarketingHeader } from "@/components/marketing/MarketingChrome";
 import "./(marketing)/marketing.css";
 
 export const metadata = {

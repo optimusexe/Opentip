@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
 
 export function Mark() {
   return (
@@ -16,18 +17,7 @@ export function MarketingHeader() {
         <Link href="/" aria-label="Opentip home">
           <Mark />
         </Link>
-        <nav className="mkt-links" aria-label="Primary">
-          <Link href="/#how">How it works</Link>
-          <Link href="/#features">Features</Link>
-          <Link href="/#pricing">Pricing</Link>
-          <Link href="/#faq">FAQ</Link>
-        </nav>
-        <Link className="mkt-tiplink mkt-hidem" href="/tip">
-          Opentip Tip
-        </Link>
-        <Link className="mkt-btn mkt-pri" href="/beta">
-          Apply for the beta
-        </Link>
+        <MarketingNav />
       </div>
     </header>
   );
