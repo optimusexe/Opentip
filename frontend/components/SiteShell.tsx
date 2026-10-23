@@ -4,8 +4,13 @@ import { usePathname } from "next/navigation";
 import HeaderShell from "@/components/HeaderShell";
 import ConditionalFooter from "@/components/ConditionalFooter";
 
+function isMarketingPath(pathname: string) {
+  return pathname === "/" || pathname === "/beta" || pathname.startsWith("/beta/") || pathname === "/terms" || pathname === "/privacy";
+}
+
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  if (isMarketingPath(pathname)) return <>{children}</>;
   const home = pathname === "/";
   return (
     <>
