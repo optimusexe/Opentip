@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChatFrame, DashboardFrame, DocsFrame, WorklogFrame } from "@/components/marketing/ProductShots";
+import { AiScene, ChatScene, HeroScene, HostingScene, PushScene, ReadScene, TipsScene, WorklogScene } from "@/components/marketing/Scenes";
 
 const FAQ = [
   [
@@ -61,14 +61,7 @@ export function LandingPage() {
           <div className="mkt-tipline">
             Looking to tip a repo? <Link href="/tip">Continue to Opentip Tip →</Link>
           </div>
-          <div className="mkt-stage">
-            <div className="mkt-s1">
-              <DashboardFrame />
-            </div>
-            <div className="mkt-s2">
-              <DocsFrame />
-            </div>
-          </div>
+          <HeroScene />
         </div>
       </div>
 
@@ -104,7 +97,7 @@ export function LandingPage() {
             <p>Copilot goes through your entire codebase before it starts. Then it writes a full docs site with tables, code tabs, diagrams, callouts and step-by-step guides.</p>
           </div>
           <div className="mkt-vis">
-            <DocsFrame />
+            <ReadScene />
           </div>
         </div>
       </section>
@@ -122,7 +115,7 @@ export function LandingPage() {
             </ul>
           </div>
           <div className="mkt-vis">
-            <DashboardFrame />
+            <PushScene />
           </div>
         </div>
       </section>
@@ -133,10 +126,9 @@ export function LandingPage() {
             <div className="mkt-label">Copilot chat</div>
             <h2>Ask for a change. Preview it. Approve it.</h2>
             <p>Tell Copilot what to change in the dashboard chat. You see a preview before anything goes live. Your edits stay in place when later pushes update the docs.</p>
-            <div className="mkt-prompt">› Add a quickstart for the CLI above the install page.</div>
           </div>
           <div className="mkt-vis">
-            <ChatFrame />
+            <ChatScene />
           </div>
         </div>
       </section>
@@ -149,7 +141,7 @@ export function LandingPage() {
             <p>Copilot turns your commits into a Worklog, a public page that shows what shipped and links each entry to its commits.</p>
           </div>
           <div className="mkt-vis">
-            <WorklogFrame />
+            <WorklogScene />
           </div>
         </div>
       </section>
@@ -161,14 +153,7 @@ export function LandingPage() {
           <p className="mkt-lead">
             Every site goes live at <span className="mkt-mono">name.opentip.tech</span>. On Pro and Team, connect a custom domain and use every theme, including your own.
           </p>
-          <div className="mkt-chips">
-            <span className="mkt-chip">Ledger</span>
-            <span className="mkt-chip">Midnight</span>
-            <span className="mkt-chip">Paper</span>
-            <span className="mkt-chip">Terminal</span>
-            <span className="mkt-chip">Minimal</span>
-            <span className="mkt-chip">Custom</span>
-          </div>
+          <HostingScene />
           <p className="mkt-micro mkt-left">Free includes a selection of themes. Custom domains and all themes are on Pro and Team.</p>
         </div>
       </section>
@@ -194,6 +179,7 @@ export function LandingPage() {
               <p>Visitors can ask questions on your public docs site and get answers from your docs. Paid plans.</p>
             </div>
           </div>
+          <AiScene />
         </div>
       </section>
 
@@ -204,18 +190,7 @@ export function LandingPage() {
             <h2>Let readers tip you</h2>
             <p>Add a tip button to your docs and Worklog pages. Supporters can tip in ETH or USDC. It&apos;s free on every plan, fees stay the same as today, and you can turn it off for any site.</p>
           </div>
-          <div className="mkt-tipcard" aria-hidden="true">
-            <div className="mkt-tiphead">
-              <b>Tip button</b>
-              <span className="mkt-tog" />
-            </div>
-            <p>Support this project</p>
-            <div className="mkt-chips">
-              <span className="mkt-chip">ETH</span>
-              <span className="mkt-chip">USDC</span>
-            </div>
-            <span className="mkt-btn mkt-pri mkt-block">Tip</span>
-          </div>
+          <TipsScene />
         </div>
       </section>
 

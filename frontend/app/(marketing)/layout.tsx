@@ -3,6 +3,7 @@ import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
 import "./marketing.css";
+import "./scenes.css";
 
 const description =
   "Docs that write themselves from your code. Opentip Copilot reads your whole codebase, writes a docs site and a Worklog, and updates the affected pages every time you push.";
