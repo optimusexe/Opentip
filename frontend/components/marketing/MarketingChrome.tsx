@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
 
-function Mark() {
+export function Mark() {
   return (
     <span className="mkt-logo">
-      <i />
+      <img src="/icons/icon-512.png" alt="" width={22} height={22} />
       Opentip
     </span>
   );
@@ -16,18 +17,7 @@ export function MarketingHeader() {
         <Link href="/" aria-label="Opentip home">
           <Mark />
         </Link>
-        <nav className="mkt-links" aria-label="Primary">
-          <Link href="/#how">How it works</Link>
-          <Link href="/#features">Features</Link>
-          <Link href="/#pricing">Pricing</Link>
-          <Link href="/#faq">FAQ</Link>
-        </nav>
-        <Link className="mkt-tiplink mkt-hidem" href="/tip">
-          Opentip Tip
-        </Link>
-        <Link className="mkt-btn mkt-pri" href="/beta">
-          Apply for the beta
-        </Link>
+        <MarketingNav />
       </div>
     </header>
   );

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChatFrame, DashboardFrame, DocsFrame, WorklogFrame } from "@/components/marketing/ProductShots";
+import { AiScene, ChatScene, HeroScene, HostingScene, PushScene, ReadScene, TipsScene, WorklogScene } from "@/components/marketing/Scenes";
 
 const FAQ = [
   [
@@ -8,7 +8,7 @@ const FAQ = [
   ],
   [
     "How do the docs stay up to date?",
-    "A GitHub App runs on every push. Small pushes are batched, pushes that don't affect your docs are skipped, and Copilot updates only the affected pages.",
+    "A GitHub App runs on every push. Each push updates only the pages it affects, and pushes that don't touch documented code are skipped.",
   ],
   [
     "Can I review changes before they go live?",
@@ -36,38 +36,9 @@ const FAQ = [
   ],
 ] as const;
 
-function Mark() {
-  return (
-    <span className="mkt-logo">
-      <i />
-      Opentip
-    </span>
-  );
-}
-
 export function LandingPage() {
   return (
     <>
-      <header>
-        <div className="mkt-w mkt-bar">
-          <Link href="/" aria-label="Opentip home">
-            <Mark />
-          </Link>
-          <nav className="mkt-links" aria-label="Primary">
-            <a href="#how">How it works</a>
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-          </nav>
-          <Link className="mkt-tiplink mkt-hidem" href="/tip">
-            Opentip Tip
-          </Link>
-          <Link className="mkt-btn mkt-pri" href="/beta">
-            Apply for the beta
-          </Link>
-        </div>
-      </header>
-
       <div className="mkt-hero">
         <div className="mkt-w">
           <span className="mkt-eyebrow">
@@ -90,14 +61,7 @@ export function LandingPage() {
           <div className="mkt-tipline">
             Looking to tip a repo? <Link href="/tip">Continue to Opentip Tip →</Link>
           </div>
-          <div className="mkt-stage">
-            <div className="mkt-s1">
-              <DashboardFrame />
-            </div>
-            <div className="mkt-s2">
-              <DocsFrame />
-            </div>
-          </div>
+          <HeroScene />
         </div>
       </div>
 
@@ -133,7 +97,7 @@ export function LandingPage() {
             <p>Copilot goes through your entire codebase before it starts. Then it writes a full docs site with tables, code tabs, diagrams, callouts and step-by-step guides.</p>
           </div>
           <div className="mkt-vis">
-            <DocsFrame />
+            <ReadScene />
           </div>
         </div>
       </section>
@@ -143,16 +107,15 @@ export function LandingPage() {
           <div className="mkt-txt">
             <div className="mkt-label">Always current</div>
             <h2>Push code. The docs follow.</h2>
-            <p>The Opentip GitHub App runs on every push. It batches small pushes, skips pushes that don&apos;t affect your docs, and updates only the pages that changed.</p>
+            <p>The Opentip GitHub App runs on every push. Each push updates only the pages it affects, and pushes that don&apos;t touch documented code are skipped.</p>
             <ul className="mkt-ck">
-              <li>Small pushes are batched together</li>
-              <li>Pushes that don&apos;t touch docs are skipped</li>
-              <li>Only affected pages are rewritten</li>
+              <li>Each push updates only the pages it affects</li>
+              <li>Pushes that don&apos;t touch documented code are skipped</li>
               <li>Turn on approval if you want to review each update before it goes live</li>
             </ul>
           </div>
           <div className="mkt-vis">
-            <DashboardFrame />
+            <PushScene />
           </div>
         </div>
       </section>
@@ -163,10 +126,9 @@ export function LandingPage() {
             <div className="mkt-label">Copilot chat</div>
             <h2>Ask for a change. Preview it. Approve it.</h2>
             <p>Tell Copilot what to change in the dashboard chat. You see a preview before anything goes live. Your edits stay in place when later pushes update the docs.</p>
-            <div className="mkt-prompt">› Add a quickstart for the CLI above the install page.</div>
           </div>
           <div className="mkt-vis">
-            <ChatFrame />
+            <ChatScene />
           </div>
         </div>
       </section>
@@ -179,7 +141,7 @@ export function LandingPage() {
             <p>Copilot turns your commits into a Worklog, a public page that shows what shipped and links each entry to its commits.</p>
           </div>
           <div className="mkt-vis">
-            <WorklogFrame />
+            <WorklogScene />
           </div>
         </div>
       </section>
@@ -191,14 +153,7 @@ export function LandingPage() {
           <p className="mkt-lead">
             Every site goes live at <span className="mkt-mono">name.opentip.tech</span>. On Pro and Team, connect a custom domain and use every theme, including your own.
           </p>
-          <div className="mkt-chips">
-            <span className="mkt-chip">Ledger</span>
-            <span className="mkt-chip">Midnight</span>
-            <span className="mkt-chip">Paper</span>
-            <span className="mkt-chip">Terminal</span>
-            <span className="mkt-chip">Minimal</span>
-            <span className="mkt-chip">Custom</span>
-          </div>
+          <HostingScene />
           <p className="mkt-micro mkt-left">Free includes a selection of themes. Custom domains and all themes are on Pro and Team.</p>
         </div>
       </section>
@@ -224,6 +179,7 @@ export function LandingPage() {
               <p>Visitors can ask questions on your public docs site and get answers from your docs. Paid plans.</p>
             </div>
           </div>
+          <AiScene />
         </div>
       </section>
 
@@ -233,20 +189,8 @@ export function LandingPage() {
             <div className="mkt-label">Tips</div>
             <h2>Let readers tip you</h2>
             <p>Add a tip button to your docs and Worklog pages. Supporters can tip in ETH or USDC. It&apos;s free on every plan, fees stay the same as today, and you can turn it off for any site.</p>
-            <p className="mkt-micro mkt-left">Optional. Off for any site with one switch.</p>
           </div>
-          <div className="mkt-tipcard" aria-hidden="true">
-            <div className="mkt-tiphead">
-              <b>Tip button</b>
-              <span className="mkt-tog" />
-            </div>
-            <p>Support this project</p>
-            <div className="mkt-chips">
-              <span className="mkt-chip">ETH</span>
-              <span className="mkt-chip">USDC</span>
-            </div>
-            <span className="mkt-btn mkt-pri mkt-block">Tip</span>
-          </div>
+          <TipsScene />
         </div>
       </section>
 
@@ -413,37 +357,6 @@ export function LandingPage() {
           <div className="mkt-micro">No charge during the beta. Access is sent by email.</div>
         </div>
       </section>
-
-      <footer>
-        <div className="mkt-w mkt-foot">
-          <div>
-            <Mark />
-            <p>Docs that write themselves from your code.</p>
-            <Link className="mkt-btn mkt-pri" href="/beta">
-              Apply for the beta
-            </Link>
-          </div>
-          <div className="mkt-col">
-            <b>Product</b>
-            <a href="#how">How it works</a>
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-            <Link href="/tip">Opentip Tip</Link>
-          </div>
-          <div className="mkt-col">
-            <b>Social</b>
-            <a href="https://x.com/opentip_tech" target="_blank" rel="noreferrer">X @opentip_tech</a>
-            <a href="https://github.com/opentiphq" target="_blank" rel="noreferrer">GitHub opentiphq</a>
-          </div>
-          <div className="mkt-col">
-            <b>Legal</b>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
-          </div>
-          <div className="mkt-copy">© 2026 Opentip</div>
-        </div>
-      </footer>
     </>
   );
 }
