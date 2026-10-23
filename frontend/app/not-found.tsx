@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { MarketingHeader } from "@/components/marketing/MarketingChrome";
-import { hanken, spline } from "@/components/marketing/fonts";
 import "./(marketing)/marketing.css";
 
 export const metadata = {
@@ -9,7 +8,7 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <div id="main-content" className={`${hanken.variable} ${spline.variable} mkt`}>
+    <div id="main-content" className="mkt">
       <MarketingHeader />
       <main className="mkt-main">
         <section>

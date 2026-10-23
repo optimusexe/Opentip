@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
-import { hanken, spline } from "@/components/marketing/fonts";
 import "./marketing.css";
 
 const description =
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div id="main-content" className={`${hanken.variable} ${spline.variable} mkt`}>
+    <div id="main-content" className="mkt">
       <MarketingHeader />
       <main className="mkt-main">{children}</main>
       <MarketingFooter />

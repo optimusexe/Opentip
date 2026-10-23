@@ -1,6 +1,5 @@
 "use client";
 
-import { hanken, spline } from "@/components/marketing/fonts";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -64,7 +63,7 @@ export function MarketingNav() {
   const overlay =
     open && mounted
       ? createPortal(
-          <div className={`${hanken.variable} ${spline.variable} mkt-overlay`}>
+          <div className="mkt-overlay">
             <button type="button" className="mkt-scrim" aria-label="Close menu" onClick={() => close(true)} />
             <nav id={sheetId} ref={sheetRef} className="mkt-sheet" aria-label="Menu">
               {LINKS.map(([href, label]) => (
