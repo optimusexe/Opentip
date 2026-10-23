@@ -123,6 +123,10 @@
   max-width: 900px;
   font-weight: 700;
 }
+.mkt-hero h1 {
+  text-wrap: balance;
+  max-width: 11em;
+}
 .mkt h2 { font-size: 44px; letter-spacing: -0.035em; line-height: 1.08; margin: 10px 0 16px; font-weight: 700; }
 .mkt-sub { font-size: 19px; color: #555; max-width: 680px; margin: 0 auto 32px; }
 .mkt-ctas { display: flex; gap: 12px; justify-content: center; }
