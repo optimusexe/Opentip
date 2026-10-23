@@ -23,6 +23,7 @@ const READY = {
   "/tip/signin": "Sign in",
   "/tip/vercel/next.js": "Next.js",
   "/tip/dashboard": "Profile",
+  "/tip/wallet": "Wallet",
   "/tip/notifications": "Notifications",
   "/tip/dashboard/notifications": "Notification Settings",
 };
