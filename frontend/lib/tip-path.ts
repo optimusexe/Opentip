@@ -19,6 +19,8 @@ export function toTipPath(path: string, fallback = "/tip"): string {
     || pathname.startsWith("/beta/")
     || pathname === "/terms"
     || pathname === "/privacy"
+    || pathname === "/subprocessors"
+    || pathname.startsWith("/subprocessors/")
   ) {
     return path;
   }

@@ -47,6 +47,7 @@ export function MarketingFooter() {
           <b>Legal</b>
           <Link href="/terms">Terms</Link>
           <Link href="/privacy">Privacy</Link>
+          <Link href="/subprocessors">Subprocessors</Link>
         </div>
         <div className="mkt-copy">© 2026 Opentip</div>
       </div>

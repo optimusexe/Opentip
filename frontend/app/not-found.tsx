@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MarketingHeader } from "@/components/marketing/MarketingChrome";
+import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
 import "./(marketing)/marketing.css";
 
 export const metadata = {
@@ -11,23 +11,25 @@ export default function NotFound() {
     <div id="main-content" className="mkt">
       <MarketingHeader />
       <main className="mkt-main">
-        <section>
-          <div className="mkt-w">
-            <h2>Page not found</h2>
-            <p className="mkt-sub" style={{ marginLeft: 0 }}>
-              That page is not on Opentip.
-            </p>
-            <div className="mkt-ctas" style={{ justifyContent: "flex-start" }}>
-              <Link className="mkt-btn mkt-pri" href="/">
-                Home
-              </Link>
-              <Link className="mkt-btn" href="/tip">
-                Opentip Tip
-              </Link>
-            </div>
+        <div className="mkt-nf">
+          <img className="mkt-nf-star" src="/icons/icon-512.png" alt="" width={44} height={44} />
+          <div className="mkt-nf-code">404</div>
+          <p className="mkt-nf-line">This page isn't here. It may have moved, or the link is wrong.</p>
+          <Link className="mkt-btn mkt-pri mkt-nf-btn" href="/">
+            Back to homepage
+          </Link>
+          <div className="mkt-nf-links">
+            <Link href="/tip">Opentip Tip</Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/beta">Apply for beta</Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/tip/docs">Docs</Link>
+            <span aria-hidden="true">·</span>
+            <a href="mailto:support@opentip.tech">Support</a>
           </div>
-        </section>
+        </div>
       </main>
+      <MarketingFooter />
     </div>
   );
 }

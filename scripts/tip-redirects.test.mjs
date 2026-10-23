@@ -65,13 +65,18 @@ test("marketing, api, static files, and the new home stay put", () => {
     assert.equal(hit.kind, "passthrough", path);
     assert.equal(hit.location, path, path);
   }
+  assert.equal(resolveLegacy("/subprocessors/acme").kind, "passthrough");
+  assert.equal(resolveLegacy("/subprocessors/acme").location, "/subprocessors/acme");
 });
 
 test("next.config serves this table and drops the old legal redirects", async () => {
   const redirects = await nextConfig.redirects();
   const rewrites = await nextConfig.rewrites();
   assert.deepEqual(redirects, legacyRedirects());
-  assert.equal(redirects.some((rule) => rule.source === "/terms" || rule.source === "/privacy"), false);
+  assert.equal(
+    redirects.some((rule) => rule.source === "/terms" || rule.source === "/privacy" || rule.source === "/subprocessors"),
+    false,
+  );
   assert.equal(redirects.every((rule) => rule.permanent === true), true);
   const listed = Array.isArray(rewrites) ? rewrites : [...(rewrites.beforeFiles || []), ...(rewrites.afterFiles || []), ...(rewrites.fallback || [])];
   for (const rule of legacyImageRewrites()) {
