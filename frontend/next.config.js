@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { legacyImageRewrites, legacyRedirects } from "./tip-redirects.mjs";
 
 const require = createRequire(import.meta.url);
 const { HTML_LIMITED_BOT_UA_RE } = require("next/dist/shared/lib/router/utils/html-bots.js");
@@ -54,10 +55,7 @@ const nextConfig = {
     ],
   },
   async redirects() {
-    return [
-      { source: "/terms", destination: "/tip/legal/terms", permanent: false },
-      { source: "/privacy", destination: "/tip/legal/privacy", permanent: false },
-    ];
+    return legacyRedirects();
   },
   async rewrites() {
     return [
@@ -68,6 +66,8 @@ const nextConfig = {
       // (^(\/platform)?\/v2\/...), so SDK traffic must live under /platform.
       // Rewritten internally to the single proxy implementation below.
       { source: "/platform/:path*", destination: "/api/cdp/:path*" },
+      // Old repo card URLs. A rewrite returns the image with 200.
+      ...legacyImageRewrites(),
     ];
   },
   turbopack: {
