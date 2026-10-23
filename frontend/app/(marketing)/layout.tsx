@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/opengraph-image",
+        url: "/og-home.png",
         width: 1200,
         height: 630,
         alt: "Docs that write themselves from your code.",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Opentip",
     description,
-    images: ["/opengraph-image"],
+    images: ["/og-home.png"],
   },
 };
 
