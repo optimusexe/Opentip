@@ -58,9 +58,18 @@ export function BetaForm() {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
+  function setRoot(node: HTMLElement | null) {
+    rootRef.current = node;
+  }
 
   useEffect(() => {
-    headingRef.current?.focus();
+    if (step === "done") {
+      headingRef.current?.focus();
+      return;
+    }
+    const field = rootRef.current?.querySelector("input, button.mkt-pri");
+    if (field instanceof HTMLElement) field.focus();
   }, [step]);
 
   function setField<K extends BetaFieldKey>(key: K, value: Answers[K]) {
@@ -139,7 +148,7 @@ export function BetaForm() {
 
   if (step === "done") {
     return (
-      <div className="mkt-w mkt-apply">
+      <div className="mkt-w mkt-apply" ref={setRoot}>
         <h1 tabIndex={-1} ref={headingRef}>You're on the list.</h1>
         <p className="mkt-sub">Thanks for applying. We'll send your beta access to your email.</p>
       </div>
@@ -148,8 +157,9 @@ export function BetaForm() {
 
   if (step === "intro") {
     return (
-      <form
+      <form noValidate
         className="mkt-w mkt-apply"
+        ref={setRoot}
         onSubmit={(event) => {
           event.preventDefault();
           setStep(0);
@@ -167,7 +177,14 @@ export function BetaForm() {
 
   if (step === "review") {
     return (
-      <div className="mkt-w mkt-apply">
+      <form noValidate
+        className="mkt-w mkt-apply"
+        ref={setRoot}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit();
+        }}
+      >
         <h1 tabIndex={-1} ref={headingRef}>Check your answers</h1>
         <ul className="mkt-review">
           {BETA_FIELDS.map((field, index) => (
@@ -183,19 +200,20 @@ export function BetaForm() {
         {error ? <p className="mkt-error" role="alert">{error}</p> : null}
         <div className="mkt-row">
           <button className="mkt-btn" type="button" onClick={() => { setError(""); setStep(BETA_FIELDS.length - 1); }}>Back</button>
-          <button className="mkt-btn mkt-pri" type="button" disabled={pending} onClick={() => void submit()}>
+          <button className="mkt-btn mkt-pri" type="submit" disabled={pending}>
             {pending ? "Sending" : "Submit application"}
           </button>
         </div>
-      </div>
+      </form>
     );
   }
 
   const field = BETA_FIELDS[step];
   const count = step + 1;
   return (
-    <form
+    <form noValidate
       className="mkt-w mkt-apply"
+      ref={setRoot}
       onSubmit={(event) => {
         event.preventDefault();
         continueFrom(step);
@@ -212,7 +230,7 @@ export function BetaForm() {
       >
         <span style={{ width: `${(count / BETA_FIELDS.length) * 100}%` }} />
       </div>
-      <h1 tabIndex={-1} ref={headingRef}>{field.title}</h1>
+      <h1 id="beta-question" tabIndex={-1} ref={headingRef}>{field.title}</h1>
       {field.help ? <p className="mkt-help">{field.help}</p> : null}
       <Field fieldKey={field.key} kind={field.kind} answers={answers} onChange={setField} />
       {error ? <p className="mkt-error" role="alert">{error}</p> : null}
@@ -268,7 +286,7 @@ function Field({
           name="monthlyPayUsd"
           inputMode="decimal"
           autoComplete="off"
-          aria-label="Dollars per month"
+          aria-labelledby="beta-question"
           value={answers.monthlyPayUsd}
           onChange={(event) => onChange("monthlyPayUsd", event.target.value)}
         />
@@ -284,6 +302,7 @@ function Field({
       name={fieldKey}
       type={type}
       autoComplete={autoComplete}
+      aria-labelledby="beta-question"
       value={answers[fieldKey]}
       onChange={(event) => onChange(fieldKey, event.target.value)}
     />
