@@ -30,22 +30,18 @@ export function MarketingFooter() {
         <div>
           <Mark />
           <p>Docs that write themselves from your code.</p>
-          <Link className="mkt-btn mkt-pri" href="/beta">
-            Apply for the beta
-          </Link>
         </div>
         <div className="mkt-col">
           <b>Product</b>
           <Link href="/#how">How it works</Link>
           <Link href="/#features">Features</Link>
           <Link href="/#pricing">Pricing</Link>
-          <Link href="/#faq">FAQ</Link>
           <Link href="/tip">Opentip Tip</Link>
         </div>
         <div className="mkt-col">
           <b>Social</b>
-          <a href="https://x.com/opentip_tech" target="_blank" rel="noreferrer">X @opentip_tech</a>
-          <a href="https://github.com/opentiphq" target="_blank" rel="noreferrer">GitHub opentiphq</a>
+          <a href="https://x.com/opentip_tech" target="_blank" rel="noreferrer">X</a>
+          <a href="https://github.com/opentiphq" target="_blank" rel="noreferrer">GitHub</a>
         </div>
         <div className="mkt-col">
           <b>Legal</b>

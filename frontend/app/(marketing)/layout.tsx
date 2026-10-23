@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
 import "./marketing.css";
-import "./scenes.css";
 
 const description =
   "Docs that write themselves from your code. Opentip Copilot reads your whole codebase, writes a docs site and a Worklog, and updates the affected pages every time you push.";
@@ -37,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div id="main-content" className={`${GeistSans.variable} ${GeistMono.variable} mkt`}>
+    <div id="main-content" className="mkt">
       <MarketingHeader />
       <main className="mkt-main">{children}</main>
       <MarketingFooter />

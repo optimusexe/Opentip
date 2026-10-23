@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
 import { MarketingHeader } from "@/components/marketing/MarketingChrome";
 import "./(marketing)/marketing.css";
 
@@ -10,7 +8,7 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <div id="main-content" className={`${GeistSans.variable} ${GeistMono.variable} mkt`}>
+    <div id="main-content" className="mkt">
       <MarketingHeader />
       <main className="mkt-main">
         <section>
