@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
 import "./marketing.css";
 
 const description =
@@ -36,7 +37,9 @@ export const metadata: Metadata = {
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div id="main-content" className={`${GeistSans.variable} ${GeistMono.variable} mkt`}>
-      {children}
+      <MarketingHeader />
+      <main className="mkt-main">{children}</main>
+      <MarketingFooter />
     </div>
   );
 }

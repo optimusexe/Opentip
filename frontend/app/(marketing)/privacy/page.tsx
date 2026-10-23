@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
 
 const description = "Draft privacy policy for the Opentip docs beta, GitHub access, Worklog, and optional tips.";
 
@@ -25,9 +24,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <>
-      <MarketingHeader />
-      <article className="mkt-w mkt-prose">
+    <article className="mkt-w mkt-prose">
         <p className="mkt-note">Draft for review, 23 October 2026. This is not final legal text.</p>
         <h1>Privacy Policy</h1>
         <p>
@@ -104,8 +101,6 @@ export default function PrivacyPage() {
           <li>X: https://x.com/opentip_tech</li>
           <li>GitHub: https://github.com/opentiphq</li>
         </ul>
-      </article>
-      <MarketingFooter />
-    </>
+    </article>
   );
 }

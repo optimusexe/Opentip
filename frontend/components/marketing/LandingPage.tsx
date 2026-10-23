@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
 import { ChatFrame, DashboardFrame, DocsFrame, WorklogFrame } from "@/components/marketing/ProductShots";
 
 const FAQ = [
@@ -40,8 +39,6 @@ const FAQ = [
 export function LandingPage() {
   return (
     <>
-      <MarketingHeader />
-
       <div className="mkt-hero">
         <div className="mkt-w">
           <span className="mkt-eyebrow">
@@ -385,8 +382,6 @@ export function LandingPage() {
           <div className="mkt-micro">No charge during the beta. Access is sent by email.</div>
         </div>
       </section>
-
-      <MarketingFooter />
     </>
   );
 }

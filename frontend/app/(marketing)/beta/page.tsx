@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { BetaForm } from "@/components/marketing/BetaForm";
-import { MarketingFooter, MarketingHeader } from "@/components/marketing/MarketingChrome";
 
 const description = "Apply for the Opentip beta. About 2 minutes.";
 
@@ -33,10 +32,6 @@ export const metadata: Metadata = {
 
 export default function BetaPage() {
   return (
-    <>
-      <MarketingHeader />
-      <BetaForm />
-      <MarketingFooter />
-    </>
+    <BetaForm />
   );
 }

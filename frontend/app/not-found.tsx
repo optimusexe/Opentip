@@ -12,22 +12,24 @@ export default function NotFound() {
   return (
     <div id="main-content" className={`${GeistSans.variable} ${GeistMono.variable} mkt`}>
       <MarketingHeader />
-      <section>
-        <div className="mkt-w">
-          <h2>Page not found</h2>
-          <p className="mkt-sub" style={{ marginLeft: 0 }}>
-            That page is not on Opentip.
-          </p>
-          <div className="mkt-ctas" style={{ justifyContent: "flex-start" }}>
-            <Link className="mkt-btn mkt-pri" href="/">
-              Home
-            </Link>
-            <Link className="mkt-btn" href="/tip">
-              Opentip Tip
-            </Link>
+      <main className="mkt-main">
+        <section>
+          <div className="mkt-w">
+            <h2>Page not found</h2>
+            <p className="mkt-sub" style={{ marginLeft: 0 }}>
+              That page is not on Opentip.
+            </p>
+            <div className="mkt-ctas" style={{ justifyContent: "flex-start" }}>
+              <Link className="mkt-btn mkt-pri" href="/">
+                Home
+              </Link>
+              <Link className="mkt-btn" href="/tip">
+                Opentip Tip
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 }
