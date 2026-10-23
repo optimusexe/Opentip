@@ -147,12 +147,13 @@ if (!envText.startsWith("# OPENTIP_VERIFY_SCAFFOLDING")) {
 }
 
 const pages = [
-  ["/", "Funding for open source"],
-  ["/docs", "Documentation"],
-  ["/leaderboard", FIXTURE_SUPPORTER],
-  ["/repos", "Repos"],
-  ["/signin", "Sign in"],
-  [`/${FIXTURE_REPO}`, "Next.js"],
+  ["/", "Docs that write themselves"],
+  ["/tip", "Funding for open source"],
+  ["/tip/docs", "Documentation"],
+  ["/tip/leaderboard", FIXTURE_SUPPORTER],
+  ["/tip/repos", "Repos"],
+  ["/tip/signin", "Sign in"],
+  [`/tip/${FIXTURE_REPO}`, "Next.js"],
 ];
 
 for (const [route, needle] of pages) {

@@ -3,11 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { oauthTokenUpdate } from "@/lib/account-token";
+import { toTipPath } from "@/lib/tip-path";
 
 export async function GET(req: NextRequest) {
   const session: any = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.redirect(new URL("/signin", req.url));
+    return NextResponse.redirect(new URL("/tip/signin", req.url));
   }
 
   const code = req.nextUrl.searchParams.get("code");
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
   const savedState = req.cookies.get("github_link_state")?.value;
 
   if (!code || !state || state !== savedState) {
-    return NextResponse.redirect(new URL("/dashboard/account?error=invalid_state", req.url));
+    return NextResponse.redirect(new URL("/tip/dashboard/account?error=invalid_state", req.url));
   }
 
   try {
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
 
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
-      return NextResponse.redirect(new URL("/dashboard/account?error=oauth_failed", req.url));
+      return NextResponse.redirect(new URL("/tip/dashboard/account?error=oauth_failed", req.url));
     }
 
     const userRes = await fetch("https://api.github.com/user", {
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
 
     const githubUser = await userRes.json();
     if (!githubUser.id || !githubUser.login) {
-      return NextResponse.redirect(new URL("/dashboard/account?error=github_fetch_failed", req.url));
+      return NextResponse.redirect(new URL("/tip/dashboard/account?error=github_fetch_failed", req.url));
     }
 
     const userId = session.user.id;
@@ -58,7 +59,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (existingUser && existingUser.id !== userId) {
-      return NextResponse.redirect(new URL("/dashboard/account?error=github_taken", req.url));
+      return NextResponse.redirect(new URL("/tip/dashboard/account?error=github_taken", req.url));
     }
 
     const existingAccount = await prisma.account.findUnique({
@@ -104,14 +105,14 @@ export async function GET(req: NextRequest) {
     const rawNext = req.cookies.get("github_link_next")?.value;
     const target =
       rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
-        ? rawNext
-        : "/dashboard/account?linked=github";
+        ? toTipPath(rawNext, "/tip/dashboard/account?linked=github")
+        : "/tip/dashboard/account?linked=github";
     const response = NextResponse.redirect(new URL(target, req.url));
     response.cookies.delete("github_link_state");
     response.cookies.delete("github_link_next");
     return response;
   } catch (error) {
     console.error("GitHub link callback error:", error);
-    return NextResponse.redirect(new URL("/dashboard/account?error=internal", req.url));
+    return NextResponse.redirect(new URL("/tip/dashboard/account?error=internal", req.url));
   }
 }

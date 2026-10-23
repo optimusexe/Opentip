@@ -11,9 +11,9 @@ import { cookieToInitialState, WagmiProvider, type Config } from "wagmi";
 const queryClient = new QueryClient();
 
 const metadata = {
-  name: "Opentip",
-  description: "Tips for open source — tip any GitHub repo in crypto",
-  url: "https://opentip.tech",
+  name: "Opentip Tip",
+  description: "Tips for open source. Tip any GitHub repo in crypto",
+  url: "https://opentip.tech/tip",
   icons: ["https://opentip.tech/Opentip.png"],
 };
 

@@ -34,8 +34,13 @@ else
   done
   pg_isready -h 127.0.0.1 -p 5432
   started_postgres=1
-  pidfile="$(ls /var/lib/postgresql/*/main/postmaster.pid | head -1)"
-  postgres_pid="$(head -1 "$pidfile")"
+  if [[ -r /var/run/postgresql/16-main.pid ]]; then
+    pidfile=/var/run/postgresql/16-main.pid
+    postgres_pid="$(head -1 "$pidfile")"
+  else
+    pidfile="$(sudo ls /var/lib/postgresql/*/main/postmaster.pid | head -1)"
+    postgres_pid="$(sudo head -1 "$pidfile")"
+  fi
   echo "started postgres postmaster pid $postgres_pid"
 fi
 
@@ -110,7 +115,7 @@ node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringif
 
 for _ in $(seq 1 90); do
   if node --input-type=module -e '
-    const r = await fetch("http://127.0.0.1:3000/docs");
+    const r = await fetch("http://127.0.0.1:3000/tip/docs");
     const t = await r.text();
     process.exit(r.status === 200 && t.includes("Documentation") ? 0 : 1);
   '; then
@@ -125,6 +130,6 @@ for _ in $(seq 1 90); do
   sleep 2
 done
 
-echo "timed out waiting for /docs. Log:" >&2
+echo "timed out waiting for /tip/docs. Log:" >&2
 tail -40 "$LOG" >&2 || true
 exit 1

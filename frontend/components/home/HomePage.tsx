@@ -10,7 +10,7 @@ import type { ReactNode } from "react";
 import { CONTRACT_ADDRESS } from "@/lib/chain";
 
 const steps = [
-  ["01", "Swap one word in the URL.", "Replace github.com with opentip.tech on any repo link to open its tip page."],
+  ["01", "Open the tip page.", "Paste owner/repo or a GitHub URL. The page is at opentip.tech/tip/owner/repo."],
   ["02", "Tip it in a supported token.", "Connect a wallet, choose an amount in ETH or USDC, and confirm. No account required. OAR is coming soon."],
   ["03", "Maintainers claim on their schedule.", "The balance belongs to the maintainer the moment a tip lands. They withdraw whenever they choose."],
 ];
@@ -48,7 +48,7 @@ export async function HomePage() {
               Turn any GitHub repo into a tip page. Tip maintainers in ETH or USDC. Maintainers claim whenever they want. OAR is coming soon.
             </p>
             <UrlSwap />
-            <p className="text-sm text-muted-foreground">Swap one word in any repo link. Paste owner/repo or a full GitHub URL.</p>
+            <p className="text-sm text-muted-foreground">Paste owner/repo or a full GitHub URL. The tip page is at opentip.tech/tip/owner/repo.</p>
           </div>
           <aside className="min-w-0 rounded-[10px] border border-border bg-card p-4 shadow-[0_18px_50px_-32px_rgba(11,13,12,0.45)] sm:p-5">
             <p className="text-sm font-medium">{ledger?.project ?? "No tips yet"}</p>
@@ -126,16 +126,16 @@ export async function HomePage() {
           <div>
             <h2 className="font-display text-3xl sm:text-4xl">Turn your repo into a tip page</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Sign in with GitHub, verify ownership or maintainer access, and link a wallet. Setup takes about a minute. Your repo then accepts tips at opentip.tech/owner/repo.
+              Sign in with GitHub, verify ownership or maintainer access, and link a wallet. Setup takes about a minute. Your repo then accepts tips at opentip.tech/tip/owner/repo.
             </p>
-            <Link href="/onboarding" className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-medium text-white hover:bg-[hsl(var(--accent-hover))]">
+            <Link href="/tip/onboarding" className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-medium text-white hover:bg-[hsl(var(--accent-hover))]">
               Register a repo
               <Arrow />
             </Link>
           </div>
           <aside className="rounded-[10px] bg-muted p-5">
             <p className="font-mono text-sm">
-              <span className="text-brand">opentip.tech/</span>owner/repo
+              <span className="text-brand">opentip.tech/tip/</span>owner/repo
             </p>
             <p className="mt-2 text-sm text-muted-foreground">Anyone can tip the page. You claim the balance whenever you choose.</p>
           </aside>

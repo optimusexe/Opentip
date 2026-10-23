@@ -2,14 +2,14 @@
 
 ## Sub-features
 
-- Docs overview at `/docs`, heading `Documentation`.
-- Mobile section picker: the sticky `Overview` button in `frontend/app/docs/layout.tsx` (`lg:hidden`). Opening it shows the section links.
+- Docs overview at `/tip/docs`, heading `Documentation`.
+- Mobile section picker: the sticky `Overview` button in `frontend/app/tip/docs/layout.tsx` (`lg:hidden`). Opening it shows the section links.
 - Desktop section list: the sidebar (`hidden lg:block`) with the same links.
 - Header account menu from `frontend/components/HeaderAuth.tsx`: Profile, Dashboard, Wallet, Security, Account, Sign out.
 
 ## How to get to it (user POV)
 
-Sign in from `/signin` with email `verify@opentip.local` and password `verify-opentip`. The app lands on `/dashboard`. Open Docs in the header (or go to `/docs`). On a phone, tap the bar labeled Overview to change sections. Tap the avatar letter V to open the account menu. On a wide screen the sections are the left sidebar, and the account control shows the name verify.
+Sign in from `/tip/signin` with email `verify@opentip.local` and password `verify-opentip`. The app lands on `/tip/dashboard`. Open Docs in the header (or go to `/tip/docs`). On a phone, tap the bar labeled Overview to change sections. Tap the avatar letter V to open the account menu. On a wide screen the sections are the left sidebar, and the account control shows the name verify.
 
 ## Driving it with Playwright
 
@@ -23,7 +23,7 @@ node .cursor/skills/verify-opentip/drive.mjs docs \
 
 The script signs in through the form, then for each viewport:
 
-1. Opens `http://127.0.0.1:3000/docs` and waits for heading `Documentation`. Screenshot `{prefix}-{viewport}-loaded.png`.
+1. Opens `http://127.0.0.1:3000/tip/docs` and waits for heading `Documentation`. Screenshot `{prefix}-{viewport}-loaded.png`.
 2. Mobile only: clicks button `Overview`, waits for a visible link `Getting Started` and a visible link `Smart Wallet`, screenshots `{prefix}-mobile-picker-open.png`, then clicks `Overview` again and waits until that link is hidden.
 3. Desktop: waits for the visible sidebar links `Getting Started` and `Smart Wallet` (no Overview button at 1440px).
 4. Clicks the header button named `verify` or `V`, waits for visible link `Dashboard`, link `Profile`, and button `Sign out`, screenshots `{prefix}-{viewport}-account-menu.png`.

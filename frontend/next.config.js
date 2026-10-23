@@ -28,25 +28,25 @@ const nextConfig = {
   // OG fonts and coins are read from disk inside the image route. Trace them
   // into the serverless bundle so production does not depend on a font CDN.
   outputFileTracingIncludes: {
-    "/[owner]/[repo]/opengraph-image": [
+    "/tip/[owner]/[repo]/opengraph-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
       "./public/tokens/usdc.png",
     ],
-    "/:owner/:repo/opengraph-image": [
+    "/tip/:owner/:repo/opengraph-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
       "./public/tokens/usdc.png",
     ],
-    "/[owner]/[repo]/twitter-image": [
+    "/tip/[owner]/[repo]/twitter-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
       "./public/tokens/usdc.png",
     ],
-    "/:owner/:repo/twitter-image": [
+    "/tip/:owner/:repo/twitter-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
@@ -55,8 +55,8 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      { source: "/terms", destination: "/legal/terms", permanent: false },
-      { source: "/privacy", destination: "/legal/privacy", permanent: false },
+      { source: "/terms", destination: "/tip/legal/terms", permanent: false },
+      { source: "/privacy", destination: "/tip/legal/privacy", permanent: false },
     ];
   },
   async rewrites() {

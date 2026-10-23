@@ -10,10 +10,10 @@ import { Logo } from "@/components/ledger/Logo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/repos", label: "Repos" },
-  { href: "/activity", label: "Activity" },
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/docs", label: "Docs" },
+  { href: "/tip/repos", label: "Repos" },
+  { href: "/tip/activity", label: "Activity" },
+  { href: "/tip/leaderboard", label: "Leaderboard" },
+  { href: "/tip/docs", label: "Docs" },
 ];
 
 export default function HeaderShell() {
@@ -134,7 +134,7 @@ export default function HeaderShell() {
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          <Link href="/" className="shrink-0" aria-label="Opentip home">
+          <Link href="/tip" className="shrink-0" aria-label="Opentip Tip home">
             <Logo />
           </Link>
           <div className="ml-4 hidden items-center gap-5 md:flex" aria-label="Primary">

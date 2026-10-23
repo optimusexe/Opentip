@@ -39,7 +39,7 @@ test("accepts a dot-leading repo name", () => {
 });
 
 test("builds an internal funding path", () => {
-  assert.equal(fundingPath({ owner: "Owner", repo: "Repo" }), "/Owner/Repo");
+  assert.equal(fundingPath({ owner: "Owner", repo: "Repo" }), "/tip/Owner/Repo");
 });
 
 test("rejects malformed input", () => {

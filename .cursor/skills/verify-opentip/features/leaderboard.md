@@ -2,7 +2,7 @@
 
 ## Sub-features
 
-- `/leaderboard` heading `Leaderboard` (`frontend/app/leaderboard/page.tsx`).
+- `/tip/leaderboard` heading `Leaderboard` (`frontend/app/tip/leaderboard/page.tsx`).
 - One ranked row for the seeded tip: display name `Fixture Supporter`, total `$25.00`.
 - Empty and error copy when the query fails: `No tips yet.` or `Couldn't load the leaderboard. Try again in a minute.`
 
@@ -18,7 +18,7 @@ import { launchBrowser } from "../browser.mjs";
 const browser = await launchBrowser();
 const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
 page.setDefaultTimeout(60000);
-await page.goto("http://127.0.0.1:3000/leaderboard", { waitUntil: "domcontentloaded" });
+await page.goto("http://127.0.0.1:3000/tip/leaderboard", { waitUntil: "domcontentloaded" });
 await page.getByRole("heading", { name: "Leaderboard" }).waitFor();
 await page.getByRole("cell", { name: "Fixture Supporter" }).waitFor();
 await page.getByRole("cell", { name: "$25.00" }).waitFor();
@@ -26,7 +26,7 @@ await page.screenshot({ path: "/opt/cursor/artifacts/screenshots/leaderboard-des
 await browser.close();
 ```
 
-Use `{ width: 390, height: 844 }` and `leaderboard-mobile.png` for the phone shot. `screenshot.mjs --routes /leaderboard --viewports mobile,desktop` captures the same route without asserting the cells. Run the snippet when you need the assertion.
+Use `{ width: 390, height: 844 }` and `leaderboard-mobile.png` for the phone shot. `screenshot.mjs --routes /tip/leaderboard --viewports mobile,desktop` captures the same route without asserting the cells. Run the snippet when you need the assertion.
 
 End state: the table shows `Fixture Supporter` and `$25.00`. That pair is the proof the page read the fixture tip rather than the empty state.
 

@@ -72,7 +72,7 @@ async function toggleWallet(page, shot) {
     (res) => res.url().includes("/api/wallet/link") && res.ok(),
     { timeout: 20000 },
   );
-  await page.goto(`${BASE}/wallet`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/tip/wallet`, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Wallet", exact: true }).waitFor();
   await hydrated;
 

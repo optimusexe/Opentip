@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: MetadataRoute.Sitemap = [
     { url: "https://opentip.tech", lastModified: new Date() },
-    { url: "https://opentip.tech/repos", lastModified: new Date() },
-    { url: "https://opentip.tech/activity", lastModified: new Date() },
-    { url: "https://opentip.tech/leaderboard", lastModified: new Date() },
+    { url: "https://opentip.tech/tip", lastModified: new Date() },
+    { url: "https://opentip.tech/tip/repos", lastModified: new Date() },
+    { url: "https://opentip.tech/tip/activity", lastModified: new Date() },
+    { url: "https://opentip.tech/tip/leaderboard", lastModified: new Date() },
   ];
   // Preview builds do not receive DATABASE_URL (it is production-only). Skip the
   // repo and developer URLs there so prerender can finish. Production still queries.
@@ -17,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...pages,
-    ...repos.map(r => ({ url: `https://opentip.tech/${r.repo_id}`, lastModified: new Date() })),
-    ...devs.filter(d => d.login).map(d => ({ url: `https://opentip.tech/dev/${d.login}`, lastModified: new Date() })),
+    ...repos.map(r => ({ url: `https://opentip.tech/tip/${r.repo_id}`, lastModified: new Date() })),
+    ...devs.filter(d => d.login).map(d => ({ url: `https://opentip.tech/tip/dev/${d.login}`, lastModified: new Date() })),
   ];
 }

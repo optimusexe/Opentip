@@ -28,13 +28,12 @@ test("owner names stay on the byline", () => {
 
 test("urls shrink before they truncate", () => {
   const short = displayRepoUrl("vercel", "next.js");
-  assert.equal(short.text, "opentip.tech/vercel/next.js");
-  assert.equal(short.fontSize, 26);
+  assert.equal(short.text, "opentip.tech/tip/vercel/next.js");
+  assert.equal(short.fontSize, 22);
 
   const long = displayRepoUrl("microsoft", "vscode-extension-samples");
-  assert.equal(long.text, "opentip.tech/microsoft/vscode-extension-samples");
-  assert.ok(long.fontSize < 26);
-  assert.ok(!long.text.endsWith("…"));
+  assert.equal(long.text, "opentip.tech/tip/microsoft/vscode-extension-sampl…");
+  assert.equal(long.fontSize, 16);
 
   const huge = displayRepoUrl("a".repeat(40), "b".repeat(80));
   assert.ok(huge.text.endsWith("…"));

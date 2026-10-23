@@ -47,7 +47,7 @@ function visible(locator) {
 }
 
 async function driveDocs(page, base, viewportName, out, prefix) {
-  await page.goto(`${base}/docs`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${base}/tip/docs`, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Documentation" }).waitFor();
   await assertNoCrash(page);
 

@@ -7,9 +7,9 @@ import HeaderAuth from "@/components/HeaderAuth";
 import NotificationBell from "@/components/NotificationBell";
 
 const nav = [
-  { href: "/repos", label: "Repos" },
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/docs", label: "Docs" },
+  { href: "/tip/repos", label: "Repos" },
+  { href: "/tip/leaderboard", label: "Leaderboard" },
+  { href: "/tip/docs", label: "Docs" },
 ];
 
 export function HomeHeader() {
@@ -70,7 +70,7 @@ export function HomeHeader() {
       <div className="wrap header-bar">
         <a href="#top" className="brand">
           <span className="logo-mark" aria-hidden="true" />
-          <span>Opentip</span>
+          <span>Opentip Tip</span>
         </a>
 
         <nav className="desktop-nav" aria-label="Primary">
@@ -88,7 +88,7 @@ export function HomeHeader() {
               <HeaderAuth />
             </span>
           ) : (
-            <Link href="/signin" className="signin-link">
+            <Link href="/tip/signin" className="signin-link">
               Sign in
             </Link>
           )}
@@ -113,7 +113,7 @@ export function HomeHeader() {
             </Link>
           ))}
           {status !== "authenticated" ? (
-            <Link href="/signin" onClick={() => setOpen(false)}>
+            <Link href="/tip/signin" onClick={() => setOpen(false)}>
               Sign in
             </Link>
           ) : null}

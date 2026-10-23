@@ -35,7 +35,7 @@ export function parseGithubRepo(input: string): GithubRepo | null {
 }
 
 export function fundingPath(repo: GithubRepo): string {
-  return `/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`;
+  return `/tip/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`;
 }
 
 function isOwner(value: string): boolean {

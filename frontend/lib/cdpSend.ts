@@ -109,7 +109,7 @@ export function useOpentipSend() {
         null;
 
       if (!smartAccount) {
-        throw new Error("No Opentip Smart Wallet — create one in /dashboard/wallets first");
+        throw new Error("No Opentip Smart Wallet — create one in /tip/dashboard/wallets first");
       }
       // Gas is sponsored through our paymaster proxy (never raw URL — it
       // carries our client API key). Absolute URL required: CDP's backend

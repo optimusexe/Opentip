@@ -12,7 +12,7 @@ const element = RepoOgCard({
   owner: "vercel",
   icon: assets.mark,
   avatar: assets.mark,
-  url: "opentip.tech/vercel/next.js",
+  url: "opentip.tech/tip/vercel/next.js",
   urlSize: 22,
   mark: assets.mark,
   eth: assets.eth,

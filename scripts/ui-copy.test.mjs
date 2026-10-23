@@ -3,7 +3,7 @@ import test from "node:test";
 import { copyProblems } from "../frontend/eslint-rules/opentip.js";
 
 const home = "/workspace/frontend/components/home/HomePage.tsx";
-const docs = "/workspace/frontend/app/docs/for-developers/page.tsx";
+const docs = "/workspace/frontend/app/tip/docs/for-developers/page.tsx";
 
 test("No account needed to fund is rejected", () => {
   const problems = copyProblems("No account needed to fund", home);
@@ -25,5 +25,5 @@ test("OAR plus tipping must say coming soon", () => {
   assert.equal(problems.length, 1);
   assert.match(problems[0], /OAR is coming soon/);
   assert.deepEqual(copyProblems("OAR is coming soon.", docs), []);
-  assert.deepEqual(copyProblems("The tipper can send OAR.", "/workspace/frontend/app/wallet/WalletClient.tsx"), []);
+  assert.deepEqual(copyProblems("The tipper can send OAR.", "/workspace/frontend/app/tip/wallet/WalletClient.tsx"), []);
 });

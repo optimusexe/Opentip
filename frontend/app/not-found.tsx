@@ -1,25 +1,44 @@
 import Link from "next/link";
-import { Button } from "@/components/motion/button";
-import Footer from "@/components/Footer";
-import { UrlSwap } from "@/components/ledger/UrlSwap";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
+import "./(marketing)/marketing.css";
 
 export const metadata = {
-  title: "Page not found | Opentip",
+  title: { absolute: "Page not found | Opentip" },
 };
 
 export default function NotFound() {
   return (
-    <>
-      <div className="mx-auto flex min-h-[70vh] max-w-xl flex-col items-start justify-center gap-4 py-10">
-        <p className="font-display text-7xl">404</p>
-        <h1 className="font-display text-3xl">This page is not on the ledger.</h1>
-        <p className="text-sm text-muted-foreground">Swap a GitHub link, or go back to a repo you can tip.</p>
-        <UrlSwap initial="" button="Open tip page" />
-        <Link href="/"><Button variant="outline">Go home</Button></Link>
-      </div>
-      <div className="ml-[calc(50%-50vw)] w-screen">
-        <Footer force />
-      </div>
-    </>
+    <div id="main-content" className={`${GeistSans.variable} ${GeistMono.variable} mkt`}>
+      <header>
+        <div className="mkt-w mkt-bar">
+          <Link href="/" aria-label="Opentip home">
+            <span className="mkt-logo">
+              <i />
+              Opentip
+            </span>
+          </Link>
+          <Link className="mkt-btn mkt-pri" href="/beta">
+            Apply for the beta
+          </Link>
+        </div>
+      </header>
+      <section>
+        <div className="mkt-w">
+          <h2>Page not found</h2>
+          <p className="mkt-sub" style={{ marginLeft: 0 }}>
+            That page is not on Opentip.
+          </p>
+          <div className="mkt-ctas" style={{ justifyContent: "flex-start" }}>
+            <Link className="mkt-btn mkt-pri" href="/">
+              Home
+            </Link>
+            <Link className="mkt-btn" href="/tip">
+              Opentip Tip
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }

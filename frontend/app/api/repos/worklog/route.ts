@@ -17,9 +17,9 @@ function repoIdOf(value: unknown): string | null {
 
 function revalidateRepo(repoId: string) {
   const [owner, repo] = repoId.split("/");
-  revalidatePath(`/${owner}/${repo}`);
-  revalidatePath(`/${owner}/${repo}/worklog`);
-  revalidatePath(`/${owner}/${repo}/manage`);
+  revalidatePath(`/tip/${owner}/${repo}`);
+  revalidatePath(`/tip/${owner}/${repo}/worklog`);
+  revalidatePath(`/tip/${owner}/${repo}/manage`);
 }
 
 function worklogErrorResponse(error: unknown, fallback: string) {

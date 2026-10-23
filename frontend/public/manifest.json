@@ -1,9 +1,9 @@
 {
-  "name": "Opentip",
-  "short_name": "Opentip",
+  "name": "Opentip Tip",
+  "short_name": "Opentip Tip",
   "id": "/",
-  "description": "Tips for open source — tip any GitHub repo in crypto",
-  "start_url": "/",
+  "description": "Tips for open source. Tip any GitHub repo in crypto",
+  "start_url": "/tip",
   "display": "standalone",
   "background_color": "#c1c0b6",
   "theme_color": "#1f21b6",

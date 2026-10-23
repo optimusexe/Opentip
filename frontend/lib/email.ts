@@ -13,7 +13,7 @@ export async function sendVerificationEmail(email: string, code: string) {
   await getResend().emails.send({
     from: process.env.RESEND_FROM || "noreply@opentip.tech",
     to: email,
-    subject: "Verify your email | Opentip",
+    subject: "Verify your email | Opentip Tip",
     html: `
       <!DOCTYPE html>
       <html>
@@ -24,9 +24,9 @@ export async function sendVerificationEmail(email: string, code: string) {
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #c1c0b6; padding: 40px 20px; margin: 0;">
         <div style="max-width: 480px; margin: 0 auto;">
           <div style="margin-bottom: 32px; text-align: center;">
-            <a href="https://opentip.tech" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            <a href="https://opentip.tech/tip" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
               <img src="https://opentip.tech/Opentip.png" alt="" width="28" height="28" style="display: block;" />
-              <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #09090b;">Opentip</span>
+              <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #09090b;">Opentip Tip</span>
             </a>
           </div>
           <div style="border-top: 1px solid rgba(0,0,0,0.12); padding-top: 32px;">
@@ -43,7 +43,7 @@ export async function sendVerificationEmail(email: string, code: string) {
               If you didn't request this, you can safely ignore this email.
             </p>
             <p style="font-size: 11px; color: #a1a1aa; line-height: 1.6; margin: 0;">
-              Opentip · <a href="https://opentip.tech" style="color: #a1a1aa; text-decoration: underline;">opentip.tech</a>
+              Opentip Tip · <a href="https://opentip.tech/tip" style="color: #a1a1aa; text-decoration: underline;">opentip.tech/tip</a>
             </p>
           </div>
         </div>
@@ -54,12 +54,12 @@ export async function sendVerificationEmail(email: string, code: string) {
 }
 
 export async function sendPasswordResetEmail(email: string, token: string) {
-  const resetUrl = `${process.env.NEXTAUTH_URL || "https://opentip.tech"}/reset-password?token=${token}`;
+  const resetUrl = `${process.env.NEXTAUTH_URL || "https://opentip.tech"}/tip/reset-password?token=${token}`;
 
   await getResend().emails.send({
     from: process.env.RESEND_FROM || "noreply@opentip.tech",
     to: email,
-    subject: "Reset your password | Opentip",
+    subject: "Reset your password | Opentip Tip",
     html: `
       <!DOCTYPE html>
       <html>
@@ -70,9 +70,9 @@ export async function sendPasswordResetEmail(email: string, token: string) {
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #c1c0b6; padding: 40px 20px; margin: 0;">
         <div style="max-width: 480px; margin: 0 auto;">
           <div style="margin-bottom: 32px; text-align: center;">
-            <a href="https://opentip.tech" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            <a href="https://opentip.tech/tip" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
               <img src="https://opentip.tech/Opentip.png" alt="" width="28" height="28" style="display: block;" />
-              <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #09090b;">Opentip</span>
+              <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #09090b;">Opentip Tip</span>
             </a>
           </div>
           <div style="border-top: 1px solid rgba(0,0,0,0.12); padding-top: 32px;">
@@ -89,7 +89,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
               If you didn't request this, you can safely ignore this email. Your password won't change unless you click the link above.
             </p>
             <p style="font-size: 11px; color: #a1a1aa; line-height: 1.6; margin: 0;">
-              Opentip · <a href="https://opentip.tech" style="color: #a1a1aa; text-decoration: underline;">opentip.tech</a>
+              Opentip Tip · <a href="https://opentip.tech/tip" style="color: #a1a1aa; text-decoration: underline;">opentip.tech/tip</a>
             </p>
           </div>
         </div>

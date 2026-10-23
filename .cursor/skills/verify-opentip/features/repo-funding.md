@@ -2,15 +2,15 @@
 
 ## Sub-features
 
-- Public funding page at `/vercel/next.js` (`frontend/app/[owner]/[repo]/page.tsx`).
+- Public funding page at `/tip/vercel/next.js` (`frontend/app/tip/[owner]/[repo]/page.tsx`).
 - GitHub title and description when `api.github.com` answers. The visible heading is `Next.js` (`capitalize` on the repo name).
-- Tip tab and About tab (`frontend/app/[owner]/[repo]/RepoTabs.tsx`).
+- Tip tab and About tab (`frontend/app/tip/[owner]/[repo]/RepoTabs.tsx`).
 - Seeded maintainer line `by verify` when the `Repo` row and payout wallet are present.
 - About copy from the seeded summary.
 
 ## How to get to it (user POV)
 
-From the homepage, the usual path is to open a repo from Repos, or to replace `github.com` with the Opentip host. For verification, open `/vercel/next.js` directly. The page is public. No sign-in is required to read it.
+From Opentip Tip, the usual path is to open a repo from Repos, or to open `opentip.tech/tip/owner/repo`. For verification, open `/tip/vercel/next.js` directly. The page is public. No sign-in is required to read it.
 
 ## Driving it with Playwright
 
@@ -20,7 +20,7 @@ import { launchBrowser } from "../browser.mjs";
 const browser = await launchBrowser();
 const page = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
 page.setDefaultTimeout(60000);
-await page.goto("http://127.0.0.1:3000/vercel/next.js", { waitUntil: "domcontentloaded" });
+await page.goto("http://127.0.0.1:3000/tip/vercel/next.js", { waitUntil: "domcontentloaded" });
 await page.getByRole("heading", { name: "Next.js" }).waitFor();
 await page.screenshot({ path: "/opt/cursor/artifacts/screenshots/repo-mobile-loaded.png" });
 await page.getByRole("button", { name: "About" }).click();
@@ -37,7 +37,7 @@ A route-only shot, without the About click:
 
 ```bash
 node .cursor/skills/verify-opentip/screenshot.mjs \
-  --routes /vercel/next.js \
+  --routes /tip/vercel/next.js \
   --viewports mobile,desktop \
   --out /opt/cursor/artifacts/screenshots \
   --prefix repo

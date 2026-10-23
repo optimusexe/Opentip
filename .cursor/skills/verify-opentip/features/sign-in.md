@@ -2,14 +2,14 @@
 
 ## Sub-features
 
-- `/signin` heading `Sign in` (`frontend/app/signin/SignInPageClient.tsx`).
+- `/tip/signin` heading `Sign in` (`frontend/app/tip/signin/SignInPageClient.tsx`).
 - Button `Continue with GitHub`.
 - Email and password fields, button `Sign in`, link `Forgot your password?`, and the switch `Create one`.
-- Successful email sign-in lands on `/dashboard` (or `callbackUrl` when it is a same-origin path).
+- Successful email sign-in lands on `/tip/dashboard` (or `callbackUrl` when it is a same-origin path).
 
 ## How to get to it (user POV)
 
-On interior pages the header shows a Sign in button linking to `/signin`. On the homepage the header link is also labeled Sign in (`frontend/components/home/HomeHeader.tsx`). The form is the email section under the divider. GitHub is the button above it.
+On interior pages the header shows a Sign in button linking to `/tip/signin`. On the homepage the header link is also labeled Sign in (`frontend/components/home/HomeHeader.tsx`). The form is the email section under the divider. GitHub is the button above it.
 
 ## Driving it with Playwright
 
@@ -17,7 +17,7 @@ Signed-out page, both widths, via the helper:
 
 ```bash
 node .cursor/skills/verify-opentip/screenshot.mjs \
-  --routes /signin \
+  --routes /tip/signin \
   --viewports mobile,desktop \
   --out /opt/cursor/artifacts/screenshots \
   --prefix signin
@@ -31,7 +31,7 @@ import { launchBrowser, signIn } from "../browser.mjs";
 const browser = await launchBrowser();
 const page = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
 page.setDefaultTimeout(60000);
-await page.goto("http://127.0.0.1:3000/signin", { waitUntil: "domcontentloaded" });
+await page.goto("http://127.0.0.1:3000/tip/signin", { waitUntil: "domcontentloaded" });
 await page.getByRole("heading", { name: "Sign in" }).waitFor();
 await page.getByRole("button", { name: "Continue with GitHub" }).waitFor();
 await page.screenshot({ path: "/opt/cursor/artifacts/screenshots/signin-mobile-form.png" });
@@ -47,10 +47,10 @@ await browser.close();
 await page.getByLabel("Email").pressSequentially("verify@opentip.local");
 await page.getByLabel("Password").pressSequentially("verify-opentip");
 await page.locator("#main-content").getByRole("button", { name: "Sign in", exact: true }).click();
-await page.waitForURL(/\/dashboard(?:\?|$)/);
+await page.waitForURL(/\/tip\/dashboard(?:\?|$)/);
 ```
 
-End state: the URL is `/dashboard` and the heading `Profile` is visible. Match that heading with `exact: true`, because the page also has a heading `Profile picture`. The form screenshot is the step before that click. The dashboard screenshot is the result.
+End state: the URL is `/tip/dashboard` and the heading `Profile` is visible. Match that heading with `exact: true`, because the page also has a heading `Profile picture`. The form screenshot is the step before that click. The dashboard screenshot is the result.
 
 Use `exact: true` and scope the click to `#main-content`. The header link wraps another button named `Sign in`, so an unscoped role matches two controls. In the form, the other account action is the button `Create one`.
 

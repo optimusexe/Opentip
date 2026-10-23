@@ -2,7 +2,7 @@
 // Capture viewport screenshots of real routes.
 //
 // node .cursor/skills/verify-opentip/screenshot.mjs \
-//   --routes /,/docs,/leaderboard,/repos,/vercel/next.js,/signin \
+//   --routes /,/tip/docs,/tip/leaderboard,/tip/repos,/tip/vercel/next.js,/tip/signin \
 //   --viewports mobile,desktop \
 //   --out /opt/cursor/artifacts/screenshots \
 //   --prefix before
@@ -12,15 +12,16 @@ import path from "node:path";
 import { BASE_URL, accountButton, assertNoCrash, launchBrowser, parseViewport, routeSlug, signIn } from "./browser.mjs";
 
 const READY = {
-  "/": "Funding for open source",
-  "/docs": "Documentation",
-  "/leaderboard": "Leaderboard",
-  "/repos": "Repos",
-  "/signin": "Sign in",
-  "/vercel/next.js": "Next.js",
-  "/dashboard": "Profile",
-  "/notifications": "Notifications",
-  "/dashboard/notifications": "Notification Settings",
+  "/": "Docs that write themselves",
+  "/tip": "Funding for open source",
+  "/tip/docs": "Documentation",
+  "/tip/leaderboard": "Leaderboard",
+  "/tip/repos": "Repos",
+  "/tip/signin": "Sign in",
+  "/tip/vercel/next.js": "Next.js",
+  "/tip/dashboard": "Profile",
+  "/tip/notifications": "Notifications",
+  "/tip/dashboard/notifications": "Notification Settings",
 };
 
 function parseArgs(argv) {
@@ -81,7 +82,7 @@ try {
       await page.goto(target, { waitUntil: "domcontentloaded" });
       const needle = READY[pathname];
       if (needle) await page.getByRole("heading", { name: needle }).first().waitFor();
-      if (options.signIn && pathname !== "/signin") await accountButton(page).waitFor();
+      if (options.signIn && pathname !== "/tip/signin") await accountButton(page).waitFor();
       await assertNoCrash(page);
       const file = path.join(options.out, `${options.prefix}-${routeSlug(pathname)}-${viewport.name}.png`);
       await page.screenshot({ path: file, fullPage: false });

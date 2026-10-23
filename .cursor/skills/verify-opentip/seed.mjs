@@ -184,7 +184,7 @@ try {
       links: JSON.stringify([
         { title: "X/Twitter", url: "https://x.com/opentip_tech" },
         { title: "Website", url: "https://opentip.tech/" },
-        { title: "Documentation", url: "https://opentip.tech/docs" },
+        { title: "Documentation", url: "https://opentip.tech/tip/docs" },
       ]),
       summary: JSON.stringify({
         description: "Tips for an open-source project. A shared link shows this repo's tips and logo.",
@@ -203,7 +203,7 @@ try {
       links: JSON.stringify([
         { title: "X/Twitter", url: "https://x.com/opentip_tech" },
         { title: "Website", url: "https://opentip.tech/" },
-        { title: "Documentation", url: "https://opentip.tech/docs" },
+        { title: "Documentation", url: "https://opentip.tech/tip/docs" },
       ]),
       summary: JSON.stringify({
         description: "Tips for an open-source project. A shared link shows this repo's tips and logo.",
