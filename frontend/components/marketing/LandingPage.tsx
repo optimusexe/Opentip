@@ -43,32 +43,36 @@ export function LandingPage() {
     <>
       <div className="mkt-hero">
         <div className="mkt-w">
-          <span className="mkt-eyebrow">
-            <b />
-            Now in beta
-          </span>
-          <h1>Docs that write themselves from your code.</h1>
-          <p className="mkt-sub">
-            Opentip Copilot reads your whole codebase, writes a docs site and a Worklog, and updates the affected pages every time you push.
-          </p>
-          <div className="mkt-ctas">
-            <Link className="mkt-btn mkt-pri" href="/beta">
-              Apply for the beta
-            </Link>
-            <a className="mkt-btn" href="#how">
-              See how it works
-            </a>
-          </div>
-          <div className="mkt-micro">Free plan available. No charge during the beta. Access is sent by email.</div>
-          <div className="mkt-tipline">
-            Looking to tip a repo? <Link href="/tip">Continue to Opentip Tip →</Link>
-          </div>
-          <div className="mkt-stage">
-            <div className="mkt-tilt mkt-s1">
-              <img src="/marketing/01-dashboard.webp" alt="" width={1440} height={900} />
+          <div className="mkt-hero-copy">
+            <span className="mkt-eyebrow">
+              <b />
+              Now in beta
+            </span>
+            <h1>Docs that write themselves from your code.</h1>
+            <p className="mkt-sub">
+              Opentip Copilot reads your whole codebase, writes a docs site and a Worklog, and updates the affected pages every time you push.
+            </p>
+            <div className="mkt-ctas">
+              <Link className="mkt-btn mkt-pri" href="/beta">
+                Apply for the beta
+              </Link>
+              <a className="mkt-btn" href="#how">
+                See how it works
+              </a>
             </div>
-            <div className="mkt-tilt mkt-s2">
-              <img src="/marketing/04-docs-site.webp" alt="" width={1440} height={900} />
+            <div className="mkt-micro">Free plan available. No charge during the beta. Access is sent by email.</div>
+            <div className="mkt-tipline">
+              Looking to tip a repo? <Link href="/tip">Continue to Opentip Tip →</Link>
+            </div>
+          </div>
+          <div className="mkt-stage-fit">
+            <div className="mkt-stage">
+              <div className="mkt-tilt mkt-s1">
+                <img src="/marketing/01-dashboard.webp" alt="" width={1440} height={900} />
+              </div>
+              <div className="mkt-tilt mkt-s2">
+                <img src="/marketing/04-docs-site.webp" alt="" width={1440} height={900} />
+              </div>
             </div>
           </div>
         </div>
