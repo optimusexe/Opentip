@@ -1,5 +1,5 @@
-const CACHE = "opentip-v2";
-const SHELL = ["/", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png", "/Opentip.png"];
+const CACHE = "opentip-v3";
+const SHELL = ["/tip", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png", "/Opentip.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
@@ -17,9 +17,9 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   if (e.request.url.includes("/api/") || e.request.url.includes("/platform/")) return;
-  // `/` is in the app shell, and that document contains the server-rendered
+  // `/tip` is in the app shell, and that document contains the server-rendered
   // session. Cache-first would replay a signed-out snapshot on every full
-  // load of the homepage. Navigations go to the network, and the shell is
+  // load of the tip home. Navigations go to the network, and the shell is
   // only a fallback when the network is unavailable.
   if (e.request.mode === "navigate") {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
@@ -37,11 +37,11 @@ function sameOriginNotificationUrl(raw, origin) {
   try {
     base = new URL(origin);
   } catch {
-    return "/";
+    return "/tip";
   }
-  const fallback = new URL("/", base).href;
+  const fallback = new URL("/tip", base).href;
   try {
-    const input = typeof raw === "string" && raw.trim() ? raw : "/";
+    const input = typeof raw === "string" && raw.trim() ? raw : "/tip";
     const url = new URL(input, base);
     if (url.origin !== base.origin) return fallback;
     if (url.protocol !== "http:" && url.protocol !== "https:") return fallback;

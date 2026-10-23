@@ -66,35 +66,35 @@ export default function HeaderAuth() {
           <div className="absolute right-0 top-full z-dropdown mt-2 w-48 rounded-[10px] border border-border bg-card shadow-sm">
             <div className="py-1">
               <Link
-                href={`/dev/${login}`}
+                href={`/tip/dev/${login}`}
                 className="block px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                 onClick={() => setOpen(false)}
               >
                 Profile
               </Link>
               <Link
-                href="/dashboard"
+                href="/tip/dashboard"
                 className="block px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                 onClick={() => setOpen(false)}
               >
                 Dashboard
               </Link>
               <Link
-                href="/wallet"
+                href="/tip/wallet"
                 className="block px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                 onClick={() => setOpen(false)}
               >
                 Wallet
               </Link>
               <Link
-                href="/wallet/security"
+                href="/tip/wallet/security"
                 className="block px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                 onClick={() => setOpen(false)}
               >
                 Security
               </Link>
               <Link
-                href="/dashboard/account"
+                href="/tip/dashboard/account"
                 className="block px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                 onClick={() => setOpen(false)}
               >
@@ -102,7 +102,7 @@ export default function HeaderAuth() {
               </Link>
               {adminRole && (
                 <Link
-                  href="/admin"
+                  href="/tip/admin"
                   className="block px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                   onClick={() => setOpen(false)}
                 >
@@ -121,5 +121,5 @@ export default function HeaderAuth() {
       </div>
     );
   }
-  return <Link href="/signin"><Button size="sm" className="px-4">Sign in</Button></Link>;
+  return <Link href="/tip/signin"><Button size="sm" className="px-4">Sign in</Button></Link>;
 }

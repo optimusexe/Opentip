@@ -4,7 +4,7 @@ The web UI is `frontend/`. Launch and the shared commands are in [../SKILL.md](.
 
 | Feature | File | Proves |
 | --- | --- | --- |
-| Repo funding page | [repo-funding.md](repo-funding.md) | `/vercel/next.js` shows Next.js, the About summary, and either the tip form or Claim this repo |
+| Repo funding page | [repo-funding.md](repo-funding.md) | `/tip/vercel/next.js` shows Next.js, the About summary, and either the tip form or Claim this repo |
 | Docs, section picker, account menu | [docs.md](docs.md) | Mobile Overview menu and the header account menu at both widths |
 | Leaderboard | [leaderboard.md](leaderboard.md) | Leaderboard lists Fixture Supporter |
 | Repos browse | [repos.md](repos.md) | The directory lists Next.js and search keeps that card |

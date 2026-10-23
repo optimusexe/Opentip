@@ -21,7 +21,7 @@ export function displayOwner(owner: string): string {
 }
 
 export function displayRepoUrl(owner: string, repo: string): { text: string; fontSize: number } {
-  const full = `opentip.tech/${owner}/${repo}`;
+  const full = `opentip.tech/tip/${owner}/${repo}`;
   for (const fontSize of URL_SIZES) {
     if (full.length * fontSize * MONO_ADVANCE <= URL_MAX_PX) return { text: full, fontSize };
   }

@@ -2,10 +2,10 @@
 
 ## Sub-features
 
-- `/repos` heading `Repos` (`frontend/app/repos/page.tsx`).
+- `/tip/repos` heading `Repos` (`frontend/app/tip/repos/page.tsx`).
 - Sort buttons `Most funded`, `Recent`, and `Most funds`. The query values stay `tipped`, `recent`, and `tips`.
 - Search box placeholder `Search repos...`.
-- A card linking to `/vercel/next.js` with the text `Next.js` and a `View` affordance.
+- A card linking to `/tip/vercel/next.js` with the text `Next.js` and a `View` affordance.
 - Empty copy `No repos registered yet.` when the `Repo` table has no visible rows.
 
 ## How to get to it (user POV)
@@ -20,7 +20,7 @@ import { launchBrowser } from "../browser.mjs";
 const browser = await launchBrowser();
 const page = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
 page.setDefaultTimeout(60000);
-await page.goto("http://127.0.0.1:3000/repos", { waitUntil: "domcontentloaded" });
+await page.goto("http://127.0.0.1:3000/tip/repos", { waitUntil: "domcontentloaded" });
 await page.getByRole("heading", { name: "Repos" }).waitFor();
 await page.getByRole("button", { name: "Most funded" }).waitFor();
 const card = page.getByRole("link", { name: /Next\.js/ });

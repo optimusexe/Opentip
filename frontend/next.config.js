@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { legacyImageRewrites, legacyRedirects } from "./tip-redirects.mjs";
 
 const require = createRequire(import.meta.url);
 const { HTML_LIMITED_BOT_UA_RE } = require("next/dist/shared/lib/router/utils/html-bots.js");
@@ -28,25 +29,25 @@ const nextConfig = {
   // OG fonts and coins are read from disk inside the image route. Trace them
   // into the serverless bundle so production does not depend on a font CDN.
   outputFileTracingIncludes: {
-    "/[owner]/[repo]/opengraph-image": [
+    "/tip/[owner]/[repo]/opengraph-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
       "./public/tokens/usdc.png",
     ],
-    "/:owner/:repo/opengraph-image": [
+    "/tip/:owner/:repo/opengraph-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
       "./public/tokens/usdc.png",
     ],
-    "/[owner]/[repo]/twitter-image": [
+    "/tip/[owner]/[repo]/twitter-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
       "./public/tokens/usdc.png",
     ],
-    "/:owner/:repo/twitter-image": [
+    "/tip/:owner/:repo/twitter-image": [
       "./lib/og-fonts/**/*",
       "./public/mark-blue.png",
       "./public/tokens/eth.png",
@@ -54,10 +55,7 @@ const nextConfig = {
     ],
   },
   async redirects() {
-    return [
-      { source: "/terms", destination: "/legal/terms", permanent: false },
-      { source: "/privacy", destination: "/legal/privacy", permanent: false },
-    ];
+    return legacyRedirects();
   },
   async rewrites() {
     return [
@@ -68,6 +66,8 @@ const nextConfig = {
       // (^(\/platform)?\/v2\/...), so SDK traffic must live under /platform.
       // Rewritten internally to the single proxy implementation below.
       { source: "/platform/:path*", destination: "/api/cdp/:path*" },
+      // Old repo card URLs. A rewrite returns the image with 200.
+      ...legacyImageRewrites(),
     ];
   },
   turbopack: {

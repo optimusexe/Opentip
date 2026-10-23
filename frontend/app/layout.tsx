@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Providers from "./providers";
-import SiteShell from "@/components/SiteShell";
 import PwaSplash from "@/components/PwaSplash";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 
@@ -15,31 +14,32 @@ const display = Bricolage_Grotesque({
   display: "swap",
 });
 
+const description =
+  "Docs that write themselves from your code. Opentip Copilot reads your whole codebase, writes a docs site and a Worklog, and updates the affected pages every time you push.";
+
 export const metadata = {
   metadataBase: new URL("https://opentip.tech"),
   title: {
-    default: "Opentip | Tips for open source",
+    default: "Opentip",
     template: "%s | Opentip",
   },
-  description: "Tips for open source, from the open market. Tip maintainers in ETH or USDC. OAR is coming soon.",
+  description,
   icons: { icon: "/Opentip.png" },
   other: {
     "base:app_id": "6ab5fa7b81234bc7e80b13bf",
   },
   openGraph: {
-    title: "Opentip | Tips for open source",
-    description: "Tips for open source, from the open market. Tip maintainers in ETH or USDC. OAR is coming soon.",
+    title: "Opentip",
+    description,
     url: "https://opentip.tech",
     siteName: "Opentip",
     type: "website",
     images: [
       {
-        url: "/ogimage.png",
-        secureUrl: "https://opentip.tech/ogimage.png",
+        url: "/og-home.png",
         width: 1200,
         height: 630,
-        alt: "Tip any repo in crypto.",
-        type: "image/png",
+        alt: "Docs that write themselves from your code.",
       },
     ],
   },
@@ -47,8 +47,8 @@ export const metadata = {
   // the site card. Pages that do not set their own image inherit openGraph.images.
   twitter: {
     card: "summary_large_image",
-    title: "Opentip | Tips for open source",
-    description: "Tips for open source, from the open market. Tip maintainers in ETH or USDC. OAR is coming soon.",
+    title: "Opentip",
+    description,
   },
 };
 
@@ -94,7 +94,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-skip focus:bg-accent focus:text-white focus:px-4 focus:py-2 focus:rounded">
               Skip to content
             </a>
-            <SiteShell>{children}</SiteShell>
+            {children}
           </div>
         </Providers>
       </body>

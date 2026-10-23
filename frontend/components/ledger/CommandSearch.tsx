@@ -7,14 +7,14 @@ import { UrlSwap } from "@/components/ledger/UrlSwap";
 import { RepoIcon } from "@/components/RepoIcon";
 
 const PAGES = [
-  ["Home", "/"],
-  ["Repos", "/repos"],
-  ["Leaderboard", "/leaderboard"],
-  ["Activity", "/activity"],
-  ["Docs", "/docs"],
-  ["Dashboard", "/dashboard"],
-  ["Wallet", "/wallet"],
-  ["Sign in", "/signin"],
+  ["Home", "/tip"],
+  ["Repos", "/tip/repos"],
+  ["Leaderboard", "/tip/leaderboard"],
+  ["Activity", "/tip/activity"],
+  ["Docs", "/tip/docs"],
+  ["Dashboard", "/tip/dashboard"],
+  ["Wallet", "/tip/wallet"],
+  ["Sign in", "/tip/signin"],
 ];
 
 type RepoHit = { repo_id: string; tipped_usd?: number; icon?: string | null };
@@ -77,7 +77,7 @@ export function CommandSearch() {
         onMouseDown={(event) => event.stopPropagation()}
       >
         <h2 className="text-sm font-medium">Find a repo</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Swap github.com for opentip.tech, or open a page.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Paste a GitHub URL or owner/repo. Tip pages live at opentip.tech/tip.</p>
         <div className="mt-3">
           <UrlSwap compact initial={query} onNavigate={() => setOpen(false)} />
         </div>
@@ -104,7 +104,7 @@ export function CommandSearch() {
             const name = capitalize(repo.repo_id.split("/")[1] || repo.repo_id);
             return (
               <li key={repo.repo_id}>
-                <button type="button" className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm hover:bg-muted" onClick={() => go(`/${repo.repo_id}`)}>
+                <button type="button" className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm hover:bg-muted" onClick={() => go(`/tip/${repo.repo_id}`)}>
                   <RepoIcon repoId={repo.repo_id} logo={repo.icon} loadDeveloperPfp size={28} className="size-7" />
                   <span className="min-w-0 flex-1 truncate font-medium">{name}</span>
                   <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{repo.repo_id}</span>

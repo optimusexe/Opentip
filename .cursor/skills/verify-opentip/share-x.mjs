@@ -7,7 +7,7 @@ import { chromium } from "playwright-core";
 import { chromePath } from "./browser.mjs";
 
 const BASE = process.env.OPENTIP_BASE_URL || "http://127.0.0.1:3000";
-const ROUTE = "/receipt/0xverify0001";
+const ROUTE = "/tip/receipt/0xverify0001";
 
 const IPHONE =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";

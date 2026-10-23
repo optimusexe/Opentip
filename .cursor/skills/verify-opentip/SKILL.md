@@ -5,7 +5,7 @@ description: Launch the Opentip Next.js web app (frontend/) and drive it in a br
 
 # Verify Opentip
 
-The surface is the Next.js App Router app in `frontend/`. It serves the public site on port 3000: home, repo tip pages (`/[owner]/[repo]`), `/docs`, `/leaderboard`, `/repos`, `/signin`, `/dashboard`, and `/notifications`. The indexer and Foundry contracts are not part of this loop.
+The surface is the Next.js App Router app in `frontend/`. It serves the public site on port 3000: the product home at `/`, repo tip pages (`/tip/[owner]/[repo]`), `/tip/docs`, `/tip/leaderboard`, `/tip/repos`, `/tip/signin`, `/tip/dashboard`, and `/tip/notifications`. The indexer and Foundry contracts are not part of this loop.
 
 Run every command from the repo root. The helpers live in this directory. `playwright-core` is a `frontend` devDependency and resolves from the repo `node_modules`. Chrome on this environment is `/usr/bin/google-chrome`.
 
@@ -18,18 +18,19 @@ bash .cursor/skills/verify-opentip/launch.sh
 That script:
 
 1. Installs PostgreSQL 16 with apt if `pg_isready` is missing, then runs `sudo service postgresql start` only when `127.0.0.1:5432` is not already accepting connections.
-2. Creates the local role and database `opentip` / `opentip` if they are missing.
+2. Creates the local role and databases `opentip` and `opentip_beta` if they are missing. The beta form uses `BETA_DATABASE_URL` only.
 3. Writes `frontend/.env.local` (gitignored) marked `OPENTIP_VERIFY_SCAFFOLDING`. It refuses to overwrite an `.env.local` that does not start with that marker.
 4. Runs `npm install` at the repo root when `node_modules/.bin/next` is missing, then `npx prisma generate` if the client is missing.
-5. Runs `npx prisma migrate deploy` in `frontend/`, then `node .cursor/skills/verify-opentip/seed.mjs`. Migrations are the only way to build this database. `20261005120000_baseline_missing_tables` creates the tables that used to exist only in `schema.prisma`. Do not point it at a shared database. Do not use `prisma db push`.
+5. Runs `npx prisma migrate deploy` in `frontend/`, then `node frontend/scripts/apply-beta-schema.mjs` for the local beta database, then `node .cursor/skills/verify-opentip/seed.mjs`. Migrations are the only way to build the tipping database. `20261005120000_baseline_missing_tables` creates the tables that used to exist only in `schema.prisma`. Do not point it at a shared database. Do not use `prisma db push`. The beta apply script refuses any host other than `127.0.0.1` or `localhost`.
 6. Starts `npm run dev -- --hostname 127.0.0.1 --port 3000` in `frontend/` with `nohup`, which is `next dev --turbopack`. The npm PID is stored in `/tmp/opentip-verify/state.json`. If that PID is already alive, it is reused. If port 3000 is open and the PID is not ours, the script exits and does not kill the other process.
 
-Ready means the script prints `READY http://127.0.0.1:3000` after `GET /docs` returns 200 and the HTML contains `Documentation`. The dev log is `/tmp/opentip-verify/next.log`.
+Ready means the script prints `READY http://127.0.0.1:3000` after `GET /tip/docs` returns 200 and the HTML contains `Documentation`. The dev log is `/tmp/opentip-verify/next.log`.
 
 `frontend/.env.local` contents (verification scaffolding, not production secrets):
 
 ```
 DATABASE_URL=postgresql://opentip:opentip@127.0.0.1:5432/opentip
+BETA_DATABASE_URL=postgresql://opentip:opentip@127.0.0.1:5432/opentip_beta
 NEXTAUTH_SECRET=opentip-verify-local-only
 NEXTAUTH_URL=http://127.0.0.1:3000
 NEXT_PUBLIC_CHAIN=baseSepolia
@@ -44,7 +45,7 @@ RESEND_API_KEY=
 GROQ_API_KEY=
 ```
 
-The seed user is `verify@opentip.local` / `verify-opentip`, login `verify`, with `onboardingComplete` set so `/dashboard` renders. It also inserts repo `vercel/next.js`, one 25 USDC tip, display name `Fixture Supporter`, and a notification titled `Fixture tip received`. `seed.mjs` refuses any `DATABASE_URL` that is not on `127.0.0.1` or `localhost`.
+The seed user is `verify@opentip.local` / `verify-opentip`, login `verify`, with `onboardingComplete` set so `/tip/dashboard` renders. It also inserts repo `vercel/next.js`, one 25 USDC tip, display name `Fixture Supporter`, and a notification titled `Fixture tip received`. `seed.mjs` refuses any `DATABASE_URL` that is not on `127.0.0.1` or `localhost`.
 
 Changing `.env.local` after the server is up requires `cleanup.sh` and then `launch.sh` again. Turbopack does not reload env files.
 
@@ -62,14 +63,14 @@ It passes only when all of these are true:
 - Port 3000's listening socket belongs to that process tree.
 - The dev log contains `Ready` or `Local:`.
 - `frontend/.env.local` is the scaffolding file.
-- `GET /`, `/docs`, `/leaderboard`, `/repos`, `/signin`, and `/vercel/next.js` return 200 with `Funding for open source`, `Documentation`, `Fixture Supporter`, `Repos`, `Sign in`, and `Next.js`.
+- `GET /`, `/beta`, `/terms`, `/privacy`, `/tip`, `/tip/docs`, `/tip/leaderboard`, `/tip/repos`, `/tip/signin`, and `/tip/vercel/next.js` return 200 with `Docs that write themselves`, `Apply for the beta`, `Terms of Service`, `Privacy Policy`, `Funding for open source`, `Documentation`, `Fixture Supporter`, `Repos`, `Sign in`, and `Next.js`.
 - Prisma can `SELECT 1` and read a visible `vercel/next.js` row.
 
 Exit 0 prints `doctor: healthy`.
 
 ## Drive
 
-`drive.mjs` signs in through the email form (labels `Email` and `Password`, the `Sign in` button inside `#main-content`), lands on `/dashboard`, then drives `/docs` at both viewports. The header also has a `Sign in` button, so the form button has to be scoped. Type the email and password with `pressSequentially` after `GET /api/auth/session` returns. `fill()` does not update the controlled input in `components/motion/input.tsx`, and typing before hydration is cleared, so the credentials POST goes out empty. It uses roles, not coordinates. Chrome is launched headless with `--no-sandbox` and `--disable-dev-shm-usage`.
+`drive.mjs` signs in through the email form (labels `Email` and `Password`, the `Sign in` button inside `#main-content`), lands on `/tip/dashboard`, then drives `/tip/docs` at both viewports. The header also has a `Sign in` button, so the form button has to be scoped. Type the email and password with `pressSequentially` after `GET /api/auth/session` returns. `fill()` does not update the controlled input in `components/motion/input.tsx`, and typing before hydration is cleared, so the credentials POST goes out empty. It uses roles, not coordinates. Chrome is launched headless with `--no-sandbox` and `--disable-dev-shm-usage`.
 
 ```bash
 node .cursor/skills/verify-opentip/drive.mjs docs \
@@ -79,7 +80,7 @@ node .cursor/skills/verify-opentip/drive.mjs docs \
 
 Mobile is 390×844. Desktop is 1440×900. Viewports are also accepted as `390x844` and `1440x900`.
 
-On mobile the script clicks the `Overview` button, waits until the visible `Getting Started` and `Smart Wallet` links are showing, screenshots, closes the picker, then opens the account button and waits for visible `Dashboard`, `Profile`, and `Sign out`. On desktop the section list is the sidebar (`hidden lg:block` in `frontend/app/docs/layout.tsx`); there is no `Overview` button. The account control is `header` button with accessible name `verify` at desktop and `V` below the `sm` breakpoint, because `HeaderAuth` has no aria-label and the login span is `hidden sm:inline`.
+On mobile the script clicks the `Overview` button, waits until the visible `Getting Started` and `Smart Wallet` links are showing, screenshots, closes the picker, then opens the account button and waits for visible `Dashboard`, `Profile`, and `Sign out`. On desktop the section list is the sidebar (`hidden lg:block` in `frontend/app/tip/docs/layout.tsx`); there is no `Overview` button. The account control is `header` button with accessible name `verify` at desktop and `V` below the `sm` breakpoint, because `HeaderAuth` has no aria-label and the login span is `hidden sm:inline`.
 
 Other features are specified as runnable Playwright in `features/`. Copy those steps rather than inventing selectors.
 
@@ -93,7 +94,7 @@ Public pages, both widths:
 
 ```bash
 node .cursor/skills/verify-opentip/screenshot.mjs \
-  --routes /,/docs,/leaderboard,/repos,/vercel/next.js,/signin \
+  --routes /,/tip/docs,/tip/leaderboard,/tip/repos,/tip/vercel/next.js,/tip/signin \
   --viewports mobile,desktop \
   --out /opt/cursor/artifacts/screenshots \
   --prefix before
@@ -136,7 +137,7 @@ Screenshot invocation:
 
 ```bash
 node .cursor/skills/verify-opentip/screenshot.mjs \
-  --routes /,/docs,/leaderboard,/repos,/vercel/next.js,/signin \
+  --routes /,/tip/docs,/tip/leaderboard,/tip/repos,/tip/vercel/next.js,/tip/signin \
   --viewports mobile,desktop \
   --out /opt/cursor/artifacts/screenshots \
   --prefix before
@@ -148,14 +149,14 @@ These need real secrets. Leave them unset. The stubs above are scaffolding so pa
 
 | Secret | Degraded mode |
 | --- | --- |
-| `GITHUB_ID` / `GITHUB_SECRET` | `Continue with GitHub` is on `/signin` and fails at GitHub. Email sign-in with the fixture user works. |
+| `GITHUB_ID` / `GITHUB_SECRET` | `Continue with GitHub` is on `/tip/signin` and fails at GitHub. Email sign-in with the fixture user works. |
 | `RESEND_API_KEY` | Signup and password reset cannot send mail. Do not use those forms. The seeded user is already verified. |
 | `NEXT_PUBLIC_CDP_PROJECT_ID`, `CDP_API_KEY_*`, `CDP_PAYMASTER_URL` | The stub UUID makes `CDPHooksProvider` mount, so `useCurrentUser` in `useOpentipSend` does not crash repo and wallet pages. Creating a smart wallet or submitting a tip fails at Coinbase. Do not click through a real send. |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | The zero stub keeps AppKit from using a real project. `Connect wallet` does not open a usable wallet. |
 | `GROQ_API_KEY` | Summaries fall back to `An open-source project by {owner}.` The seed writes a fresh summary for `vercel/next.js`, so the About tab shows `Verification fixture summary for the Next.js repository.` |
 | `AZURE_STORAGE_*` | Profile and header uploads fail. Do not click the upload targets. |
-| `VAPID_*` keys | `/dashboard/notifications` renders. Subscribe reports `VAPID key not configured`. |
-| Owner `PRIVATE_KEY`, registrar key | Admin chain writes do not run. This skill does not cover `/admin`. |
+| `VAPID_*` keys | `/tip/dashboard/notifications` renders. Subscribe reports `VAPID key not configured`. |
+| Owner `PRIVATE_KEY`, registrar key | Admin chain writes do not run. This skill does not cover `/tip/admin`. |
 | `GITHUB_TOKEN` | Public `api.github.com` metadata for `vercel/next.js` is unauthenticated. If it is rate-limited, the heading is still `Next.js` and the page says `Could not fetch GitHub metadata.` |
 
 `NEXT_PUBLIC_BASE_SEPOLIA_CONTRACT` and `https://sepolia.base.org` are public. On-chain `isRegistered` for `vercel/next.js` is usually false here, so the Tip tab shows `Claim this repo` rather than the amount form. That is the real unregistered state, not a broken page.

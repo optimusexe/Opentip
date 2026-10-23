@@ -59,7 +59,7 @@ export async function signIn(page, base = BASE_URL) {
     (res) => res.url().includes("/api/auth/session") && res.ok(),
     { timeout: 60000 },
   );
-  await page.goto(`${base}/signin`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${base}/tip/signin`, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Sign in" }).waitFor();
   // The heading is in the server HTML. Typing before SessionProvider
   // hydrates gets wiped when React resets the controlled inputs.
@@ -72,7 +72,7 @@ export async function signIn(page, base = BASE_URL) {
   // The header also renders a Sign in button inside its link. The form
   // submit control is the one in #main-content.
   await page.locator("#main-content").getByRole("button", { name: "Sign in", exact: true }).click();
-  await page.waitForURL(/\/dashboard(?:\?|$)/);
+  await page.waitForURL(/\/tip\/dashboard(?:\?|$)/);
   await page.getByRole("heading", { name: "Profile", exact: true }).waitFor();
   return page;
 }

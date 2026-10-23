@@ -291,7 +291,7 @@ az containerapp update --name opentip-indexer --resource-group opentip --set-env
 
 ## Contributing
 
-See [CONTRIBUTING.md](frontend/app/docs/contributing/page.tsx) or visit [opentip.tech/docs/contributing](https://opentip.tech/docs/contributing) for setup instructions, code conventions, and PR guidelines.
+See [CONTRIBUTING.md](frontend/app/tip/docs/contributing/page.tsx) or visit [opentip.tech/tip/docs/contributing](https://opentip.tech/tip/docs/contributing) for setup instructions, code conventions, and PR guidelines.
 
 ---
 

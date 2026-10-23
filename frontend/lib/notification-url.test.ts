@@ -21,11 +21,11 @@ test("keeps same-origin paths and absolute URLs", () => {
     "https://opentip.tech/wallet?tab=1#x",
   );
   assert.equal(sameOriginNotificationUrl("/", origin), "https://opentip.tech/");
-  assert.equal(sameOriginNotificationUrl("", origin), "https://opentip.tech/");
+  assert.equal(sameOriginNotificationUrl("", origin), "https://opentip.tech/tip");
 });
 
-test("falls back to / for cross-origin and non-http URLs", () => {
-  const fallback = "https://opentip.tech/";
+test("falls back to /tip for cross-origin and non-http URLs", () => {
+  const fallback = "https://opentip.tech/tip";
   for (const raw of [
     "https://evil.example/phish",
     "http://evil.example",

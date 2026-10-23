@@ -58,7 +58,7 @@ export function FundForm() {
       ) : null}
       <noscript>
         <p className="fund-hint">
-          This field needs JavaScript. You can <a href="/repos">browse repos</a> instead.
+          This field needs JavaScript. You can <a href="/tip/repos">browse repos</a> instead.
         </p>
       </noscript>
     </form>

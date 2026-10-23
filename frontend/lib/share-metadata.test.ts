@@ -6,8 +6,8 @@ test("a repo card uses one absolute png for og and twitter", () => {
   const meta = pageShareMetadata({
     title: "vercel/next.js on Opentip",
     description: "Tip vercel/next.js on Opentip.",
-    path: "/vercel/next.js",
-    imagePath: "/vercel/next.js/opengraph-image",
+    path: "/tip/vercel/next.js",
+    imagePath: "/tip/vercel/next.js/opengraph-image",
     imageAlt: "Tip this repo",
   });
   const og = meta.openGraph?.images;
@@ -18,14 +18,14 @@ test("a repo card uses one absolute png for og and twitter", () => {
   assert.equal(typeof ogImage, "object");
   assert.equal(typeof twImage, "object");
   if (typeof ogImage === "string" || typeof twImage === "string") return;
-  assert.equal(ogImage.url, "https://opentip.tech/vercel/next.js/opengraph-image");
+  assert.equal(ogImage.url, "https://opentip.tech/tip/vercel/next.js/opengraph-image");
   assert.equal(ogImage.secureUrl, ogImage.url);
   assert.equal(twImage.url, ogImage.url);
   assert.equal(ogImage.width, 1200);
   assert.equal(ogImage.height, 630);
   assert.equal(ogImage.type, "image/png");
-  assert.equal(meta.openGraph?.url, "https://opentip.tech/vercel/next.js");
-  assert.equal(meta.alternates?.canonical, "https://opentip.tech/vercel/next.js");
+  assert.equal(meta.openGraph?.url, "https://opentip.tech/tip/vercel/next.js");
+  assert.equal(meta.alternates?.canonical, "https://opentip.tech/tip/vercel/next.js");
   assert.equal(meta.openGraph?.title, "vercel/next.js on Opentip");
   assert.equal(meta.twitter?.title, "vercel/next.js on Opentip");
 });

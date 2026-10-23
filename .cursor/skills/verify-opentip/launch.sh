@@ -34,14 +34,22 @@ else
   done
   pg_isready -h 127.0.0.1 -p 5432
   started_postgres=1
-  pidfile="$(ls /var/lib/postgresql/*/main/postmaster.pid | head -1)"
-  postgres_pid="$(head -1 "$pidfile")"
+  if [[ -r /var/run/postgresql/16-main.pid ]]; then
+    pidfile=/var/run/postgresql/16-main.pid
+    postgres_pid="$(head -1 "$pidfile")"
+  else
+    pidfile="$(sudo ls /var/lib/postgresql/*/main/postmaster.pid | head -1)"
+    postgres_pid="$(sudo head -1 "$pidfile")"
+  fi
   echo "started postgres postmaster pid $postgres_pid"
 fi
 
 sudo -u postgres psql -v ON_ERROR_STOP=1 -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'opentip') THEN CREATE ROLE opentip LOGIN PASSWORD 'opentip'; END IF; END \$\$;"
 if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'opentip'" | grep -q 1; then
   sudo -u postgres createdb -O opentip opentip
+fi
+if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'opentip_beta'" | grep -q 1; then
+  sudo -u postgres createdb -O opentip opentip_beta
 fi
 
 if [[ -f "$ENV_FILE" ]] && ! head -1 "$ENV_FILE" | grep -q "OPENTIP_VERIFY_SCAFFOLDING"; then
@@ -52,6 +60,7 @@ fi
 cat > "$ENV_FILE" <<'EOF'
 # OPENTIP_VERIFY_SCAFFOLDING — local verification only. Not production secrets.
 DATABASE_URL=postgresql://opentip:opentip@127.0.0.1:5432/opentip
+BETA_DATABASE_URL=postgresql://opentip:opentip@127.0.0.1:5432/opentip_beta
 NEXTAUTH_SECRET=opentip-verify-local-only
 NEXTAUTH_URL=http://127.0.0.1:3000
 NEXT_PUBLIC_CHAIN=baseSepolia
@@ -79,6 +88,7 @@ source "$ENV_FILE"
 set +a
 
 (cd "$ROOT/frontend" && npx prisma migrate deploy)
+(cd "$ROOT" && node frontend/scripts/apply-beta-schema.mjs)
 (cd "$ROOT" && node .cursor/skills/verify-opentip/seed.mjs)
 
 reuse=0
@@ -110,7 +120,7 @@ node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringif
 
 for _ in $(seq 1 90); do
   if node --input-type=module -e '
-    const r = await fetch("http://127.0.0.1:3000/docs");
+    const r = await fetch("http://127.0.0.1:3000/tip/docs");
     const t = await r.text();
     process.exit(r.status === 200 && t.includes("Documentation") ? 0 : 1);
   '; then
@@ -125,6 +135,6 @@ for _ in $(seq 1 90); do
   sleep 2
 done
 
-echo "timed out waiting for /docs. Log:" >&2
+echo "timed out waiting for /tip/docs. Log:" >&2
 tail -40 "$LOG" >&2 || true
 exit 1

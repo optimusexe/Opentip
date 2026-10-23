@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { scanDiff } from "./check-added-lines.mjs";
 
-const zinc = "frontend/app/admin/page.tsx";
+const zinc = "frontend/app/tip/admin/page.tsx";
 const historicalZinc = '<div className="stats mt-2 text-xl text-zinc-900">{formatted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</div>';
 
 test("text-zinc-900 from admin before c6fb3e9 is a new palette utility", () => {
@@ -14,7 +14,7 @@ test("text-zinc-900 from admin before c6fb3e9 is a new palette utility", () => {
   const problems = scanDiff(diff);
   assert.equal(problems.length, 1);
   assert.match(problems[0], /foreground, muted-foreground, brand, card, or border/);
-  assert.match(problems[0], /frontend\/app\/admin\/page\.tsx:137/);
+  assert.match(problems[0], /frontend\/app\/tip\/admin\/page\.tsx:137/);
 });
 
 test("editing a line that already uses a palette utility does not add one", () => {
@@ -28,7 +28,7 @@ test("editing a line that already uses a palette utility does not add one", () =
 });
 
 test("the self-paid gas sentence from TipClient before the shared label is a new em dash", () => {
-  const file = "frontend/app/[owner]/[repo]/TipClient.tsx";
+  const file = "frontend/app/tip/[owner]/[repo]/TipClient.tsx";
   const diff = [
     `diff --git a/${file} b/${file}`,
     "@@ -471,0 +471,1 @@",
@@ -40,7 +40,7 @@ test("the self-paid gas sentence from TipClient before the shared label is a new
 });
 
 test("keeping an em dash that was already on the line does not add one", () => {
-  const file = "frontend/app/docs/smart-contract/page.tsx";
+  const file = "frontend/app/tip/docs/smart-contract/page.tsx";
   const diff = [
     `diff --git a/${file} b/${file}`,
     "@@ -168,1 +168,1 @@",
@@ -51,7 +51,7 @@ test("keeping an em dash that was already on the line does not add one", () => {
 });
 
 test("key={i} is a new index key", () => {
-  const file = "frontend/app/wallet/WalletClient.tsx";
+  const file = "frontend/app/tip/wallet/WalletClient.tsx";
   const diff = [
     `diff --git a/${file} b/${file}`,
     "@@ -400,0 +400,1 @@",

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ledger/Logo";
 
-const VISIBLE_PATHS = ["/legal/privacy", "/legal/terms"];
+const VISIBLE_PATHS = ["/tip/legal/privacy", "/tip/legal/terms"];
 
 export default function Footer({ force = false }: { force?: boolean }) {
   const pathname = usePathname();
@@ -16,7 +16,7 @@ export default function Footer({ force = false }: { force?: boolean }) {
           <Logo />
           <p className="max-w-xs text-sm text-muted-foreground">Tips for open source, from the open market.</p>
         </div>
-        <FooterCol title="Product" links={[["Repos", "/repos"], ["Activity", "/activity"], ["Leaderboard", "/leaderboard"], ["Docs", "/docs"]]} />
+        <FooterCol title="Product" links={[["Repos", "/tip/repos"], ["Activity", "/tip/activity"], ["Leaderboard", "/tip/leaderboard"], ["Docs", "/tip/docs"]]} />
         <FooterCol
           title="Social"
           links={[
@@ -25,10 +25,10 @@ export default function Footer({ force = false }: { force?: boolean }) {
             ["support@opentip.tech", "mailto:support@opentip.tech"],
           ]}
         />
-        <FooterCol title="Legal" links={[["Terms", "/legal/terms"], ["Privacy", "/legal/privacy"]]} />
+        <FooterCol title="Legal" links={[["Terms", "/tip/legal/terms"], ["Privacy", "/tip/legal/privacy"]]} />
       </div>
       <div className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-4 pb-8 text-xs text-muted-foreground">
-        <p>© 2026 Opentip</p>
+        <p>© 2026 Opentip Tip</p>
       </div>
     </footer>
   );

@@ -48,9 +48,9 @@ export function UrlSwap({
           <span className="text-muted-foreground">https://</span>
           <span className="host-swap" aria-hidden>
             <span className="host-swap-github">github.com</span>
-            <span className="host-swap-opentip">opentip.tech</span>
+            <span className="host-swap-opentip">opentip.tech/tip</span>
           </span>
-          <span className="sr-only">opentip.tech</span>
+          <span className="sr-only">opentip.tech/tip</span>
           <span className="text-muted-foreground">/</span>
           <input
             aria-label="Repository"

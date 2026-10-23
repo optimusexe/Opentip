@@ -19,8 +19,10 @@ export function copyProblems(text, filename) {
 function oarScope(filename) {
   const file = filename.replaceAll("\\", "/");
   return file.includes("/app/docs/")
+    || file.includes("/app/tip/docs/")
     || file.includes("/components/home/")
     || file.endsWith("/app/page.tsx")
+    || file.endsWith("/app/tip/page.tsx")
     || file.endsWith("/app/layout.tsx");
 }
 

@@ -60,7 +60,7 @@ export function ReceiptCard({
         )}
         <p className="mt-3 text-sm">
           <span className="text-muted-foreground">{kind === "claim" ? "Claimed from" : "→"} </span>
-          <Link href={`/${repoId}`} className="font-medium hover:text-brand">
+          <Link href={`/tip/${repoId}`} className="font-medium hover:text-brand">
             {project}
           </Link>
         </p>
