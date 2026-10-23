@@ -130,7 +130,38 @@
 .mkt-hero {
   text-align: center;
   padding: 120px 0 48px;
-  background: radial-gradient(ellipse at 50% 0, #eef0ff, var(--paper) 60%);
+  background: radial-gradient(ellipse at 50% 0, #eef0ff, #fff 60%);
+}
+.mkt-stage {
+  perspective: 2200px;
+  margin: 72px auto 0;
+  position: relative;
+  height: 640px;
+}
+.mkt-tilt {
+  position: absolute;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e2e2;
+  background: #fff;
+  box-shadow:
+    0 50px 100px -20px rgba(20, 20, 60, 0.22),
+    0 30px 60px -30px rgba(0, 0, 0, 0.25);
+}
+.mkt-tilt img { display: block; width: 100%; height: auto; }
+.mkt-s1 {
+  width: min(860px, 82%);
+  left: 0;
+  top: 0;
+  z-index: 1;
+  transform: rotateX(14deg) rotateY(-12deg) rotateZ(2deg);
+}
+.mkt-s2 {
+  width: min(520px, 46%);
+  right: 0;
+  top: 168px;
+  z-index: 2;
+  transform: rotateX(10deg) rotateY(-16deg) rotateZ(2deg) translateZ(40px);
 }
 .mkt h1 {
   font-size: 68px;
@@ -426,6 +457,22 @@ button.mkt-btn:disabled { opacity: 0.6; cursor: default; }
   .mkt h2, .mkt-feat h2, .mkt-h-cell { font-size: 30px; }
   .mkt-sub { font-size: 17px; }
   .mkt-hero { padding: 72px 0 24px; }
+  .mkt-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: auto;
+    margin-top: 48px;
+    perspective: none;
+  }
+  .mkt-s1, .mkt-s2 {
+    position: relative;
+    width: 100%;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
+  }
   .mkt-ctas { flex-direction: column; align-items: stretch; }
   .mkt-ctas .mkt-btn, .mkt-btn { height: 44px; }
   .mkt-btn.mkt-sm, .mkt td .mkt-btn { height: 32px; padding: 0 8px; font-size: 11px; }
