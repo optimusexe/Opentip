@@ -18,10 +18,10 @@ bash .cursor/skills/verify-opentip/launch.sh
 That script:
 
 1. Installs PostgreSQL 16 with apt if `pg_isready` is missing, then runs `sudo service postgresql start` only when `127.0.0.1:5432` is not already accepting connections.
-2. Creates the local role and database `opentip` / `opentip` if they are missing.
+2. Creates the local role and databases `opentip` and `opentip_beta` if they are missing. The beta form uses `BETA_DATABASE_URL` only.
 3. Writes `frontend/.env.local` (gitignored) marked `OPENTIP_VERIFY_SCAFFOLDING`. It refuses to overwrite an `.env.local` that does not start with that marker.
 4. Runs `npm install` at the repo root when `node_modules/.bin/next` is missing, then `npx prisma generate` if the client is missing.
-5. Runs `npx prisma migrate deploy` in `frontend/`, then `node .cursor/skills/verify-opentip/seed.mjs`. Migrations are the only way to build this database. `20261005120000_baseline_missing_tables` creates the tables that used to exist only in `schema.prisma`. Do not point it at a shared database. Do not use `prisma db push`.
+5. Runs `npx prisma migrate deploy` in `frontend/`, then `node frontend/scripts/apply-beta-schema.mjs` for the local beta database, then `node .cursor/skills/verify-opentip/seed.mjs`. Migrations are the only way to build the tipping database. `20261005120000_baseline_missing_tables` creates the tables that used to exist only in `schema.prisma`. Do not point it at a shared database. Do not use `prisma db push`. The beta apply script refuses any host other than `127.0.0.1` or `localhost`.
 6. Starts `npm run dev -- --hostname 127.0.0.1 --port 3000` in `frontend/` with `nohup`, which is `next dev --turbopack`. The npm PID is stored in `/tmp/opentip-verify/state.json`. If that PID is already alive, it is reused. If port 3000 is open and the PID is not ours, the script exits and does not kill the other process.
 
 Ready means the script prints `READY http://127.0.0.1:3000` after `GET /tip/docs` returns 200 and the HTML contains `Documentation`. The dev log is `/tmp/opentip-verify/next.log`.
@@ -30,6 +30,7 @@ Ready means the script prints `READY http://127.0.0.1:3000` after `GET /tip/docs
 
 ```
 DATABASE_URL=postgresql://opentip:opentip@127.0.0.1:5432/opentip
+BETA_DATABASE_URL=postgresql://opentip:opentip@127.0.0.1:5432/opentip_beta
 NEXTAUTH_SECRET=opentip-verify-local-only
 NEXTAUTH_URL=http://127.0.0.1:3000
 NEXT_PUBLIC_CHAIN=baseSepolia
@@ -62,7 +63,7 @@ It passes only when all of these are true:
 - Port 3000's listening socket belongs to that process tree.
 - The dev log contains `Ready` or `Local:`.
 - `frontend/.env.local` is the scaffolding file.
-- `GET /`, `/tip`, `/tip/docs`, `/tip/leaderboard`, `/tip/repos`, `/tip/signin`, and `/tip/vercel/next.js` return 200 with `Docs that write themselves`, `Funding for open source`, `Documentation`, `Fixture Supporter`, `Repos`, `Sign in`, and `Next.js`.
+- `GET /`, `/beta`, `/tip`, `/tip/docs`, `/tip/leaderboard`, `/tip/repos`, `/tip/signin`, and `/tip/vercel/next.js` return 200 with `Docs that write themselves`, `Apply for the beta`, `Funding for open source`, `Documentation`, `Fixture Supporter`, `Repos`, `Sign in`, and `Next.js`.
 - Prisma can `SELECT 1` and read a visible `vercel/next.js` row.
 
 Exit 0 prints `doctor: healthy`.

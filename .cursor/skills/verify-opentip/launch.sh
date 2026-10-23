@@ -48,6 +48,9 @@ sudo -u postgres psql -v ON_ERROR_STOP=1 -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT
 if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'opentip'" | grep -q 1; then
   sudo -u postgres createdb -O opentip opentip
 fi
+if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'opentip_beta'" | grep -q 1; then
+  sudo -u postgres createdb -O opentip opentip_beta
+fi
 
 if [[ -f "$ENV_FILE" ]] && ! head -1 "$ENV_FILE" | grep -q "OPENTIP_VERIFY_SCAFFOLDING"; then
   echo "Refusing to overwrite $ENV_FILE (it is not verification scaffolding)." >&2
@@ -57,6 +60,7 @@ fi
 cat > "$ENV_FILE" <<'EOF'
 # OPENTIP_VERIFY_SCAFFOLDING — local verification only. Not production secrets.
 DATABASE_URL=postgresql://opentip:opentip@127.0.0.1:5432/opentip
+BETA_DATABASE_URL=postgresql://opentip:opentip@127.0.0.1:5432/opentip_beta
 NEXTAUTH_SECRET=opentip-verify-local-only
 NEXTAUTH_URL=http://127.0.0.1:3000
 NEXT_PUBLIC_CHAIN=baseSepolia
@@ -84,6 +88,7 @@ source "$ENV_FILE"
 set +a
 
 (cd "$ROOT/frontend" && npx prisma migrate deploy)
+(cd "$ROOT" && node frontend/scripts/apply-beta-schema.mjs)
 (cd "$ROOT" && node .cursor/skills/verify-opentip/seed.mjs)
 
 reuse=0
